@@ -162,10 +162,13 @@ if vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_QUADROTOR:
     vehicle.simple_takeoff(TARGET_ALTITUDE)  # Take off to target altitude
 
     while True:
-         # Break just below target altitude.
+        # Break just below target altitude.
         if vehicle.location.global_relative_frame.alt >= TARGET_ALTITUDE * ALTITUDE_REACH_THRESHOLD:
             break
-        time.sleep(0.5)
+        print("Altitude: ", vehicle.location.global_relative_frame.alt)
+        print("Latitude: ", vehicle.location.global_relative_frame.lat)
+        print("Longitude: ", vehicle.location.global_relative_frame.lon)
+        time.sleep(0.1)
     # yaw north
     condition_yaw(0)
 
