@@ -165,33 +165,19 @@ if vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_QUADROTOR:
         # Break just below target altitude.
         if vehicle.location.global_relative_frame.alt >= TARGET_ALTITUDE * ALTITUDE_REACH_THRESHOLD:
             break
-        #print("Altitude: ", vehicle.location.global_relative_frame.alt)
-        #print("Latitude: ", vehicle.location.global_relative_frame.lat)
-        #print("Longitude: ", vehicle.location.global_relative_frame.lon)
-        print("Altitude: ", vehicle.location.global_frame.alt)
-        print("Latitude: ", vehicle.location.global_frame.lat)
-        print("Longitude: ", vehicle.location.global_frame.lon)
-        time.sleep(0.1)
-    # yaw north
-    condition_yaw(0)
+        location = vehicle.location.global_relative_frame
+        # Print out the altitude, latitude, and longitude
+        print(f"1Altitude: {location.alt}, Latitude: {location.lat}, Longitude: {location.lon}")
+        time.sleep(1)
 
 
-# Go 20 meters in the direction of the student ID angle
-Student_ID_Last_2_Digits = 43;
-Student_ID_Angle = Student_ID_Last_2_Digits * 3;
-Student_ID_DISTANCE = 20;
-Student_ID_Dist_N_S = Student_ID_DISTANCE * math.cos(Student_ID_Angle*math.pi/180);
-Student_ID_Dist_E_W = Student_ID_DISTANCE * math.sin(Student_ID_Angle*math.pi/180);
-print("Going 20 meters with a heading of " + str(Student_ID_Angle) + " degrees from north clockwise:");
-print("Dist_N_S: " + str(Student_ID_Dist_N_S) + "Dist_E_W: " + str(Student_ID_Dist_E_W));
 
-currentLocation=vehicle.location.global_relative_frame;
-#						+North/-South	+East/-West
-targetLocation=get_location_metres(currentLocation, Student_ID_Dist_N_S, Student_ID_Dist_E_W, TARGET_ALTITUDE);
-vehicle.simple_goto(targetLocation);
-while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
-    time.sleep(1);
-time.sleep(5);
+# Set velocity to travel at 1 m/s to the east
+velocity_x = 1
+
+# Start moving the drone
+#vehicle.mode = VehicleMode("GUIDED")
+#vehicle.armed = True
 
 print('Going north')
 # Go 10 meters north
@@ -200,50 +186,21 @@ currentLocation=vehicle.location.global_relative_frame
 targetLocation=get_location_metres(currentLocation, SQUARE_SIZE, 0, TARGET_ALTITUDE)
 vehicle.simple_goto(targetLocation)
 while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
+    location = vehicle.location.global_relative_frame
+    print(f"2Altitude: {location.alt}, Latitude: {location.lat}, Longitude: {location.lon}")
+    time.sleep(0.1)
+time.sleep(5)
+
+# Print out the drone's position every 100ms
+while True:
+    # Get the drone's current position
+    location = vehicle.location.global_relative_frame
+
+    # Print out the altitude, latitude, and longitude
+    print(f"3Altitude: {location.alt}, Latitude: {location.lat}, Longitude: {location.lon}")
+
+    # Update the drone's velocity
+    vehicle.velocity_x = velocity_x
+
+    # Wait for 100ms before printing the next position
     time.sleep(1)
-time.sleep(5)
-
-print('Going west')
-# Go 10 meters west
-currentLocation=vehicle.location.global_relative_frame
-targetLocation=get_location_metres(currentLocation, 0, -SQUARE_SIZE, TARGET_ALTITUDE)
-vehicle.simple_goto(targetLocation)
-while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
-	time.sleep(1)
-time.sleep(5)
-
-print('Going south')
-# Go 10 meters south
-currentLocation=vehicle.location.global_relative_frame
-targetLocation=get_location_metres(currentLocation, -SQUARE_SIZE, 0, TARGET_ALTITUDE)
-vehicle.simple_goto(targetLocation)
-while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
-	time.sleep(1)
-time.sleep(5)
-
-print('Going east')
-# Go 10 meters east
-currentLocation=vehicle.location.global_relative_frame
-targetLocation=get_location_metres(currentLocation, 0, SQUARE_SIZE, TARGET_ALTITUDE)
-vehicle.simple_goto(targetLocation)
-while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
-	time.sleep(1)
-time.sleep(5)
-
-print('Landing')
-if vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_QUADROTOR:
-    # Land Copter
-    vehicle.mode = VehicleMode("RTL")#"LAND")
-
-if vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_GROUND_ROVER:
-    # disarm Rover
-    vehicle.armed = False
-
-# Stay connected to vehicle until landed and disarmed
-while vehicle.armed:
-    time.sleep(1)
-
-print("Done!")
-
-# Close vehicle object before exiting script
-vehicle.close()
