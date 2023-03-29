@@ -76,7 +76,7 @@ try:
             print(f"Mouse relative position from the center of the screen: x={mouse_x:.2f}, y={mouse_y:.2f} pixels")
 
             # hover_thrust (0-1 where 0.5 is no vertical velocity)
-            drone.set_attitude(target_roll=mouse_x, target_pitch=mouse_y, target_yaw=0, hover_thrust=0.5)
+            drone.set_attitude(target_roll=mouse_x*10, target_pitch=mouse_y*10, target_yaw=0, hover_thrust=0.5)
 
             print(drone.vehicle.location.global_relative_frame)
 
