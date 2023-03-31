@@ -66,6 +66,17 @@ def get_location_metres(original_location, dNorth, dEast, altitude):
     newlon = original_location.lon + (dLon * 180/math.pi)
     return LocationGlobalRelative(newlat, newlon, altitude)
 
+def get_distance_metres(aLocation1, aLocation2):
+    """
+    Returns the ground distance in metres between two LocationGlobal objects.
+    This method is an approximation, and will not be accurate over large distances and close to the 
+    earth's poles. It comes from the ArduPilot test code: 
+    https://github.com/diydrones/ardupilot/blob/master/Tools/autotest/common.py
+    """
+    dlat = aLocation2.lat - aLocation1.lat
+    dlong = aLocation2.lon - aLocation1.lon
+    return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
+
 class Guided_Drone:
     """
     A class for controlling a drone in guided mode using DroneKit.
@@ -93,6 +104,22 @@ class Guided_Drone:
         self.rcin_4_center_twice = False
 
         self.vehicle.on_message('RC_CHANNELS')(rc_listener)
+    
+    def distanceToWaypoint(self, coordinates):
+        """
+        Returns distance between vehicle and specified coordinates
+        """
+        distance = get_distance_metres(self.vehicle.location.global_frame, coordinates)
+        return distance
+
+    def simple_goto(self, targetLocation):
+        """
+        A wrapper for the simple_goto function of the self.vehicle instance.
+
+        Parameters:
+            target_location (LocationGlobalRelative): The target location (latitude, longitude, altitude).
+        """
+        self.vehicle.simple_goto(targetLocation);
 
     def takeoff(self, target_altitude=3, altitude_reach_threshold=0.95):
         """
