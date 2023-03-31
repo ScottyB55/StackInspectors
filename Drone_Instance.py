@@ -7,7 +7,7 @@ from Guided_Drone_Class import Guided_Drone
 import math
 import time
 
-# The code to get the drone connected
+# The code to get the drone connected. Now testing to see if the github works
 
 # Set up option parsing to get connection string and mission plan file
 import argparse
