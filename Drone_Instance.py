@@ -1,4 +1,3 @@
-from dronekit import connect
 from mouse_and_keyboard import mouse_relative_position_from_center_normalized, on_press
 
 import sys

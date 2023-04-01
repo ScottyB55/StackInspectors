@@ -119,7 +119,10 @@ class Guided_Drone:
         Parameters:
             target_location (LocationGlobalRelative): The target location (latitude, longitude, altitude).
         """
-        self.vehicle.simple_goto(targetLocation);
+        self.vehicle.simple_goto(targetLocation)
+
+    def currentLocation(self):
+        return self.vehicle.location.global_relative_frame
 
     def takeoff(self, target_altitude=3, altitude_reach_threshold=0.95):
         """
