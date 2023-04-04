@@ -11,6 +11,18 @@ import numpy as np
 import time
 import threading
 
+from collections import namedtuple
+
+#
+LidarReading = namedtuple('LidarReading', ['angle_degrees', 'gps_distance'])
+
+"""
+Definitions
+0 degrees is top
+90 degrees is right
+180 degrees is bottom
+270 degrees is left
+"""
 class DroneLidar(tk.Tk):
     def __init__(self, wall_start_gps, wall_end_gps, drone_gps, drone_yaw_degrees):
         super().__init__()
@@ -99,7 +111,7 @@ class DroneLidar(tk.Tk):
         lidar_readings_gps = [None] * 360
 
         for i in range(360):
-            angle = (self.drone_yaw_degrees + i) % 360
+            angle = (self.drone_yaw_degrees - i + 90) % 360
             angle_rad = math.radians(angle)
 
             dx = math.cos(angle_rad)
@@ -126,6 +138,15 @@ class DroneLidar(tk.Tk):
 
         return lidar_readings_gps
 
+def lidar_reading_to_deltaxy(lidar_angle, distance):
+    shifted_angle = 90 - lidar_angle
+    shifted_angle_rad = math.radians(shifted_angle)
+
+    delta_x = math.cos(shifted_angle_rad) * distance
+    delta_y = math.sin(shifted_angle_rad) * distance
+
+    return delta_x, delta_y
+
 def move_drone_left(app):
     while True:
         time.sleep(1)
@@ -143,17 +164,22 @@ def move_drone_left(app):
         for index, lidar_distance in enumerate(lidar_readings_gps):
             # If lidar_distance != null
             if lidar_distance is not None:
-                # lidar_gps = (cos(index) * lidar_distance, sin(index) * lidar_distance)
-                lidar_gps = (math.cos(math.radians(index)) * lidar_distance, math.sin(math.radians(index)) * lidar_distance)
+                lidar_gps = lidar_reading_to_deltaxy(index, lidar_distance)
                 # call this function: app.draw_point(lidar_gps)
-                app.draw_point(lidar_gps)
+                # app.draw_point(lidar_gps - drone_gps)
+                # app.draw_point(wall_start_gps)
+                # app.draw_point(wall_end_gps)
+                app.draw_point(tuple(a + b for a, b in zip(lidar_gps, drone_gps)))
+
+                # app.draw_point(tuple(-b for a, b in zip(lidar_gps, drone_gps)));
+                # app.draw_point(tuple(- b - a for a, b in zip(lidar_gps, drone_gps)));
         
         app.update_canvas()
         
 
 if __name__ == '__main__':
-    wall_start_gps = (0, 0)
-    wall_end_gps = (0, 1)
+    wall_start_gps = (0, -0.5)
+    wall_end_gps = (0, 0.5)
     drone_gps = (0.5, 0.5)
     drone_yaw_degrees = 0
 
@@ -165,23 +191,3 @@ if __name__ == '__main__':
     move_drone_thread.start()
 
     app.mainloop()
-
-"""
-# example usage
-if __name__ == '__main__':
-    wall_start_gps = (0, 0)
-    wall_end_gps = (0, 1)
-    drone_gps = (0.5, 0.5)
-    drone_yaw_degrees = 0
-
-    app = DroneLidar(wall_start_gps, wall_end_gps, drone_gps, drone_yaw_degrees)
-    app.mainloop()
-"""
-    
-"""
-This will create a GUI window with the drone and the wall displayed relative to the drone's position.
-The drone is represented as an elongated triangle, and the wall is represented as a line.
-Note that this example does not include any interaction or updates to the drone's position or yaw angle.
-You could modify the DroneLidar class to include a method for redrawing the drone and the wall when the drone's position
-or yaw angle is updated.
-"""
