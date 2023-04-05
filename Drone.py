@@ -28,6 +28,12 @@ class Drone:
     def __init__(self):
         pass
 
+    def get_lidar_readings_gps(self):
+        pass
+
+    def set_drone_velocity(self, drone_velocity):
+        pass
+
     def take_off(self):
         # Implement take_off logic
         pass
@@ -163,7 +169,7 @@ class Simulated_Drone(Drone, tk.Tk):
 
     def set_drone_velocity(self, drone_velocity):
         self.drone_velocity = drone_velocity
-        
+
 
 class Simulated_Drone_Simple_Physics(Simulated_Drone):
     def __init__(self, wall_start_gps, wall_end_gps, drone_gps): #, drone_yaw_degrees
