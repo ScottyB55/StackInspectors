@@ -33,7 +33,7 @@ Another thing to add: we want two controllers
 2. One that makes 
 """
 
-from Drone import Drone
+from Drone_Class import Drone
 
 class Drone:
     def __init__(self, Drone):

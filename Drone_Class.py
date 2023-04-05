@@ -1,4 +1,6 @@
-from mouse_and_keyboard import mouse_relative_position_from_center_normalized
+# This is based on V2_Lidar_Sim_Class.py in the Reference Files Folder
+
+from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 
 import tkinter as tk
 from matplotlib.figure import Figure

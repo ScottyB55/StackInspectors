@@ -1,5 +1,5 @@
 import unittest
-from V2_Lidar_Sim_Class import DroneLidar, lidar_reading_to_deltaxy
+from Reference_Files.V2_Lidar_Sim_Class import DroneLidar, lidar_reading_to_deltaxy
 import math
 
 class TestDroneLidar(unittest.TestCase):
