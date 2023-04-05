@@ -76,20 +76,21 @@ class Drone:
     # Add other common methods and properties for all drones
 
 
-class Real_Life_Drone(Drone):
+class Real_Drone_Realistic_Physics(Drone):
     """
     Represents a real-life drone inheriting from the base Drone class.
     """
     def __init__(self):
         """
-        Initialize a Real_Life_Drone object.
+        Initialize a Real_Drone_Realistic_Physics object.
         """
         super().__init__()
 
-
-class Simulated_Drone(Drone, tk.Tk):
+class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
     """
-    Represents a simulated drone with a GUI for displaying LIDAR data.
+    This class is really just a lidar & wall simulator with a GUI
+    Programatically, it would have made more sense to actually have this be a separate class.
+    TODO: move this class up to be the Lidar_and_Wall_Simulator_With_GUI
 
     Args:
         wall_start_gps (tuple): The GPS coordinates of the starting point of the wall.
@@ -99,7 +100,6 @@ class Simulated_Drone(Drone, tk.Tk):
     """
 
     def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
-        Drone.__init__(self)
         tk.Tk.__init__(self)
 
         self.wall_start_gps = wall_start_gps
@@ -249,17 +249,8 @@ class Simulated_Drone(Drone, tk.Tk):
         self.ax.set_xticklabels(np.round(np.arange(self.drone_gps[0] - 4, self.drone_gps[0] + 4, 1), 1))
         self.ax.set_yticklabels(np.round(np.arange(self.drone_gps[1] - 3, self.drone_gps[1] + 3, 1), 1))
 
-    def set_drone_velocity(self, drone_velocity):
-        """
-        Set the velocity of the drone.
 
-        Args:
-            drone_velocity (tuple): A tuple containing the x and y components of the drone's velocity.
-        """
-        self.drone_velocity = drone_velocity
-
-
-class Simulated_Drone_Simple_Physics(Simulated_Drone):
+class Simulated_Drone_Simple_Physics(Drone):
     """
     Represents a simulated drone with simple physics.
 
@@ -271,7 +262,9 @@ class Simulated_Drone_Simple_Physics(Simulated_Drone):
     """
 
     def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
-        super().__init__(wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev)
+        super().__init__()
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev)
+        self.drone_gps = drone_gps
     
     def update_physics(self, timestep):
         """
@@ -281,6 +274,36 @@ class Simulated_Drone_Simple_Physics(Simulated_Drone):
             timestep (float): The duration of the timestep for updating the drone's physics.
         """
         self.drone_gps = tuple(a + b * timestep for a, b in zip(self.drone_gps, self.drone_velocity))
+        self.lidar_and_wall_sim_with_gui.drone_gps = self.drone_gps
+
+    def set_drone_velocity(self, drone_velocity):
+        """
+        Set the velocity of the drone.
+
+        Args:
+            drone_velocity (tuple): A tuple containing the x and y components of the drone's velocity.
+        """
+        self.drone_velocity = drone_velocity
+    
+    def update_gui(self):
+        self.lidar_and_wall_sim_with_gui.create_figure()
+        self.lidar_and_wall_sim_with_gui.draw_drone()
+        self.lidar_and_wall_sim_with_gui.draw_wall()
+        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
+        self.lidar_and_wall_sim_with_gui.update_canvas()
+
+
+class Simulated_Drone_Realistic_Physics(Drone):
+    """
+    Represents a simulated drone with realistic physics using SITL QGroundControl.
+    """
+
+    def __init__(self):
+        """
+        Initialize a Simulated_Drone_Realistic_Physics object.
+        """
+        super().__init__()
+
 
 def run_simulation(drone_app):
     """
@@ -292,29 +315,12 @@ def run_simulation(drone_app):
     timestep = 0.1
     mouse_position_normalized_to_gps_velocity = 0.4
     while True:
-        drone_app.create_figure()
-        drone_app.draw_drone()
-        drone_app.draw_wall()
-        drone_app.draw_lidar_points()
-        drone_app.update_canvas()
+        drone_app.update_gui()
         
         drone_app.set_drone_velocity(tuple(x * mouse_position_normalized_to_gps_velocity for x in mouse_relative_position_from_center_normalized()))
 
-        print("loop" + str(drone_app.drone_gps))
         time.sleep(timestep)
         drone_app.update_physics(timestep)
-
-
-class Simulated_Drone_QGroundControl_Physics(Simulated_Drone):
-    """
-    Represents a simulated drone with QGroundControl physics.
-    """
-
-    def __init__(self):
-        """
-        Initialize a Simulated_Drone_QGroundControl_Physics object.
-        """
-        super().__init__()
 
 
 if __name__ == '__main__':
@@ -339,4 +345,4 @@ if __name__ == '__main__':
     move_drone_thread.start()
 
     # Run the main event loop of the drone application (Tkinter GUI)
-    drone_app.mainloop()
+    drone_app.lidar_and_wall_sim_with_gui.mainloop()
