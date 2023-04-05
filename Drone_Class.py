@@ -53,8 +53,10 @@ class Real_Life_Drone(Drone):
 
 
 class Simulated_Drone(Drone, tk.Tk):
-
-    def __init__(self, wall_start_gps, wall_end_gps, drone_gps): #, drone_yaw_degrees
+    """
+    lidar_noise_gps_standard_dev is the standard deviation
+    """
+    def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
         Drone.__init__(self)
         tk.Tk.__init__(self)
 
@@ -63,6 +65,7 @@ class Simulated_Drone(Drone, tk.Tk):
         self.drone_gps = drone_gps
         """self.drone_yaw_degrees = drone_yaw_degrees"""
         self.scale_factor = 200  # Scale factor to convert GPS units to pixels
+        self.lidar_noise_gps_standard_dev = lidar_noise_gps_standard_dev
 
         self.title('Drone Lidar')
         self.geometry('800x600')
@@ -134,8 +137,10 @@ class Simulated_Drone(Drone, tk.Tk):
 
             if u < 0:
                 continue
-
-            lidar_readings_gps[i] = u
+            
+            # The random component is from a standard normal distribution
+            # With a mean of the lidar reading a standard deviation of 1 lidar_noise_gps_standard_dev
+            lidar_readings_gps[i] = u + lidar_noise_gps_standard_dev * np.random.randn(1)
 
         return lidar_readings_gps
 
@@ -174,16 +179,16 @@ class Simulated_Drone(Drone, tk.Tk):
 
 
 class Simulated_Drone_Simple_Physics(Simulated_Drone):
-    def __init__(self, wall_start_gps, wall_end_gps, drone_gps): #, drone_yaw_degrees
-        super().__init__(wall_start_gps, wall_end_gps, drone_gps)
+    def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
+        super().__init__(wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev)
     
     def update_physics(self, timestep):
         # new_gps = (drone_app.drone_gps[0] + mouse_x * 0.2, drone_app.drone_gps[1] - mouse_y * 0.2)
         self.drone_gps = tuple(a + b * timestep for a, b in zip(self.drone_gps, self.drone_velocity))
 
 def run_simulation(drone_app):
-    timestep = 1
-    mouse_position_normalized_to_gps_velocity = 0.2
+    timestep = 0.1
+    mouse_position_normalized_to_gps_velocity = 0.4
     while True:
         drone_app.create_figure()
         drone_app.draw_drone()
@@ -204,12 +209,13 @@ class Simulated_Drone_QGroundControl_Physics(Simulated_Drone):
 
 
 if __name__ == '__main__':
-    wall_start_gps = (0, -0.5)
-    wall_end_gps = (0, 0.5)
+    wall_start_gps = (0, -1)
+    wall_end_gps = (0, 1)
     drone_gps = (0.5, 0.5)
+    lidar_noise_gps_standard_dev = 0.1
     drone_yaw_degrees = 0
 
-    drone_app = Simulated_Drone_Simple_Physics(wall_start_gps, wall_end_gps, drone_gps) #, drone_yaw_degrees)
+    drone_app = Simulated_Drone_Simple_Physics(wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev) #, drone_yaw_degrees)
 
     # Start a new thread to move the drone left every second
     move_drone_thread = threading.Thread(target=run_simulation, args=(drone_app,))
