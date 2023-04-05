@@ -9,7 +9,7 @@ def mouse_relative_position_from_center_normalized():
     relative_x = (mouse_x - center_x) / (center_x)
     relative_y = (mouse_y - center_y) / (center_y)
 
-    return relative_x, relative_y
+    return relative_x, - relative_y
 
 def on_press(key):
     global target_roll

@@ -147,7 +147,7 @@ def lidar_reading_to_deltaxy(lidar_angle, distance):
 
     return delta_x, delta_y
 
-def move_drone_left(app):
+def run_simulation(app):
     while True:
         time.sleep(1)
         mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     app = DroneLidar(wall_start_gps, wall_end_gps, drone_gps, drone_yaw_degrees)
 
     # Start a new thread to move the drone left every second
-    move_drone_thread = threading.Thread(target=move_drone_left, args=(app,))
+    move_drone_thread = threading.Thread(target=run_simulation, args=(app,))
     move_drone_thread.daemon = True
     move_drone_thread.start()
 
