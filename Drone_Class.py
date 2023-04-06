@@ -116,13 +116,13 @@ class Simulated_Drone_Realistic_Physics(Drone):
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
 
-        self.drone.takeoff(target_altitude=3, altitude_reach_threshold=0.95)
+        self.takeoff(target_altitude=3)
 
         self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
-    def takeoff(self):
-        self.drone.takeoff(target_altitude=3, altitude_reach_threshold=0.95)
+    def takeoff(self, target_altitude):
+        self.drone.takeoff(target_altitude)
     
     def set_drone_velocity_setpoint(self, drone_velocity):
         """

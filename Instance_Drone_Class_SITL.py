@@ -11,7 +11,7 @@ def run_simulation(drone_app):
         drone_app (Simulated_Drone_Simple_Physics): The drone application instance.
     """
     timestep = 0.1
-    mouse_position_normalized_to_meters_velocity = 0.4
+    mouse_position_normalized_to_meters_velocity = 1
     while True:
         drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
         time.sleep(timestep)

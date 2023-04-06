@@ -44,7 +44,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.wall_end_meters = wall_end_meters
         self.drone_location_meters = drone_location_meters
         """self.drone_yaw_degrees = drone_yaw_degrees"""
-        self.scale_factor = 200  # Scale factor to convert meters units to pixels
+        self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
         self.lidar_angle_step_degrees = 1
@@ -182,8 +182,14 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax.set_ylim(drone_pixel_location_y - 300,
                         drone_pixel_location_y + 300)
 
+        # Set the x and y axis ticks
+        x_ticks = np.arange(drone_pixel_location_x - 400, drone_pixel_location_x + 400, 100)
+        y_ticks = np.arange(drone_pixel_location_y - 300, drone_pixel_location_y + 300, 100)
+        self.ax.set_xticks(x_ticks)
+        self.ax.set_yticks(y_ticks)
+
         # Set the x and y axis tick labels in meters units
-        self.ax.set_xticks(np.arange(drone_pixel_location_x - 400, drone_pixel_location_x + 400, 100))
-        self.ax.set_yticks(np.arange(drone_pixel_location_y - 300, drone_pixel_location_y + 300, 100))
-        self.ax.set_xticklabels(np.round(np.arange(self.drone_location_meters[0] - 4, self.drone_location_meters[0] + 4, 1), 1))
-        self.ax.set_yticklabels(np.round(np.arange(self.drone_location_meters[1] - 3, self.drone_location_meters[1] + 3, 1), 1))
+        x_tick_labels = np.round((x_ticks - drone_pixel_location_x) / self.scale_factor + self.drone_location_meters[0], 1)
+        y_tick_labels = np.round((y_ticks - drone_pixel_location_y) / self.scale_factor + self.drone_location_meters[1], 1)
+        self.ax.set_xticklabels(x_tick_labels)
+        self.ax.set_yticklabels(y_tick_labels)

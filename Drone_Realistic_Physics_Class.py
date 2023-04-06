@@ -51,7 +51,7 @@ def rc_listener(self, name, message):
 
 def get_location_metres(original_location, dNorth, dEast, altitude):
     """
-    Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the 
+    Returns a LocationGlobal object containing the longitude/latitude `dEast` and `dNorth` metres from the 
     specified `original_location`.
 
     The function is useful when you want to move the vehicle around specifying locations relative to 
@@ -68,7 +68,7 @@ def get_location_metres(original_location, dNorth, dEast, altitude):
     #New position in decimal degrees
     newlat = original_location.lat + (dLat * 180/math.pi)
     newlon = original_location.lon + (dLon * 180/math.pi)
-    return LocationGlobalRelative(newlat, newlon, altitude)
+    return LocationGlobalRelative(newlon, newlat, altitude)
 
 def get_distance_metres(aLocation1, aLocation2):
     """
@@ -177,20 +177,20 @@ class Drone_Realistic_Physics_Class:
         location_global_relative = self.vehicle.location.global_relative_frame
 
         # Convert latitude and longitude to meters relative to home location
-        x = (location_global_relative.lat - self.vehicle.home_location.lat) * 111139
-        y = (location_global_relative.lon - self.vehicle.home_location.lon) * 111139 * math.cos(math.radians(location_global_relative.lat))
+        y = (location_global_relative.lat - self.vehicle.home_location.lat) * 111139
+        x = (location_global_relative.lon - self.vehicle.home_location.lon) * 111139 * math.cos(math.radians(location_global_relative.lat))
         z = location_global_relative.alt
 
         return x, y, z
 
-    def takeoff(self, target_altitude=3, altitude_reach_threshold=0.95):
+    def takeoff(self, target_altitude=3, altitude_reach_threshold=0.9):
         """
         Arms the drone and performs a takeoff to the specified altitude.
 
         Parameters:
             target_altitude (float): The desired altitude in meters to takeoff to. Default is 3 meters.
             altitude_reach_threshold (float): The fraction of the target altitude at which to break from the takeoff loop.
-                Default is 0.95.
+                Default is 0.9.
 
         Returns:
             None
