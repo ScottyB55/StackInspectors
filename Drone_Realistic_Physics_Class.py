@@ -81,7 +81,7 @@ def get_distance_metres(aLocation1, aLocation2):
     dlong = aLocation2.lon - aLocation1.lon
     return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
 
-class Guided_Drone:
+class Drone_Realistic_Physics_Class:
     """
     A class for controlling a drone in guided mode using DroneKit.
 
@@ -91,16 +91,26 @@ class Guided_Drone:
         rcin_4_center_twice (bool): Indicates whether the RCIN_4 joystick has been centered twice.
     """
 
-    def __init__(self, connection_string):
+    def __init__(self, connection_string=None):
         """
-        Initializes the Guided_Drone object.
+        Initializes the Drone_Realistic_Physics_Class object.
+
+        When instantiating this object, instantiate like this and the connection string command-line arguments
+        will be covered in this class (don't worry, just instantiate like this below)
+        my_instance = MyClass()
+
+        TODO: I don't think the functionality works if the connection_string is provided, but I'm not sure
 
         Parameters:
             connection_string (str): The connection string for the drone.
         """
+        if connection_string is None:
+            connection_string = self.parse_args()
+        self.connection_string = connection_string
+
         # Connect to the Vehicle
-        print('Connecting to vehicle on: %s' % connection_string)
-        self.vehicle = connect(connection_string, wait_ready=False)
+        print('Connecting to vehicle on: %s' % self.connection_string)
+        self.vehicle = connect(self.connection_string, wait_ready=False)
         print('Succesfully connected to vehicle')
         global rcin_4_center
         rcin_4_center = 0
@@ -108,6 +118,19 @@ class Guided_Drone:
         self.rcin_4_center_twice = False
 
         self.vehicle.on_message('RC_CHANNELS')(rc_listener)
+    
+    @staticmethod
+    def parse_args():
+        parser = argparse.ArgumentParser(description='Commands vehicle using vehicle.simple_goto.')
+        parser.add_argument('--connect', help="Vehicle connection target string.")
+        args = parser.parse_args()
+
+        connection_string = args.connect
+
+        if not connection_string:
+            sys.exit('Please specify connection string')
+
+        return connection_string
     
     def distanceToWaypoint(self, coordinates):
         """
@@ -125,8 +148,40 @@ class Guided_Drone:
         """
         self.vehicle.simple_goto(targetLocation)
 
-    def currentLocation(self):
+    def current_location_gps(self):
+        """
+        Retrieves the current location of the vehicle as a global-relative frame.
+
+        The global-relative frame is a coordinate system with the origin at the home location, where
+        the vehicle was armed. The coordinates are in latitude, longitude, and altitude relative
+        to the home location.
+
+        Returns:
+            mavlink.LocationGlobalRelative: The current location of the vehicle in a global-relative frame.
+        """
         return self.vehicle.location.global_relative_frame
+
+    def current_location_meters(self):
+        """
+        Retrieves the current location of the vehicle in meters relative to the home location.
+
+        The home location is where the vehicle was armed. The coordinates are in x, y, and z
+        relative to the home location, where x corresponds to latitude, y corresponds to longitude,
+        and z corresponds to altitude.
+
+        Returns:
+            tuple: A tuple containing the x (latitude), y (longitude), and z (altitude) coordinates
+                   of the vehicle's location in meters relative to the home location.
+        """
+        # Get the current location in global-relative frame
+        location_global_relative = self.vehicle.location.global_relative_frame
+
+        # Convert latitude and longitude to meters relative to home location
+        x = (location_global_relative.lat - self.vehicle.home_location.lat) * 111139
+        y = (location_global_relative.lon - self.vehicle.home_location.lon) * 111139 * math.cos(math.radians(location_global_relative.lat))
+        z = location_global_relative.alt
+
+        return x, y, z
 
     def takeoff(self, target_altitude=3, altitude_reach_threshold=0.95):
         """
@@ -208,6 +263,26 @@ class Guided_Drone:
 
     def rtl(self):
         """
+        Returns the drone to the launch position by switching the vehicle mode to RTL and waiting until the drone has landed.
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
+        # Switch vehicle mode to RTL (Return to Launch)
+        self.vehicle.mode = VehicleMode("RTL")
+
+        # Wait until the drone has landed
+        while self.vehicle.armed:
+            time.sleep(0.5)
+
+        # Close the connection to the drone
+        self.vehicle.close()
+
+    def land(self):
+        """
         Lands the drone by switching the vehicle mode to LAND and waiting until the drone has landed.
 
         Parameters:
@@ -216,12 +291,12 @@ class Guided_Drone:
         Returns:
             None
         """
-        # switch vehicle mode to RTL
-        self.vehicle.mode = VehicleMode("RTL")
+        # Switch vehicle mode to LAND
+        self.vehicle.mode = VehicleMode("LAND")
 
-        # wait until the drone has landed
+        # Wait until the drone has landed
         while self.vehicle.armed:
             time.sleep(0.5)
 
-        # close the connection to the drone
+        # Close the connection to the drone
         self.vehicle.close()

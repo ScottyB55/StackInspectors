@@ -2,27 +2,14 @@ from mouse_and_keyboard_helper_functions import mouse_relative_position_from_cen
 
 import sys
 sys.path.append('/home/srburnett/Stack-Inspectors')
-from Drone_Realistic_Physics_Class import Guided_Drone
+from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
 import math
 import time
 
 # The code to get the drone connected. Now testing to see if the github works
 
-# Set up option parsing to get connection string and mission plan file
-import argparse
-parser = argparse.ArgumentParser(description='Commands vehicle using vehicle.simple_goto.')
-parser.add_argument('--connect', help="Vehicle connection target string.")
-args = parser.parse_args()
-
-# aquire connection_string
-connection_string = args.connect
-
-# Exit if no connection string specified
-if not connection_string:
-    sys.exit('Please specify connection string')
-
-# Instantiate Guided_Drone object
-drone = Guided_Drone(connection_string)
+# Make sure to put the connection string as a command line argument or pass it into the function
+drone = Drone_Realistic_Physics_Class()
 
 drone.takeoff(target_altitude=3, altitude_reach_threshold=0.95)
 
@@ -44,16 +31,16 @@ try:
     with keyboard.Listener(on_press=on_press) as listener:
         while run:
             mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
-            print(f"Mouse relative position from the center of the screen: x={mouse_x:.2f}, y={mouse_y:.2f} pixels")
+            # print(f"Mouse relative position from the center of the screen: x={mouse_x:.2f}, y={mouse_y:.2f} pixels")
 
             # hover_thrust (0-1 where 0.5 is no vertical velocity)
-            drone.set_attitude(target_roll=mouse_x*10, target_pitch=mouse_y*10, target_yaw=0, hover_thrust=0.5)
+            drone.set_attitude(target_roll=mouse_x*10, target_pitch=-mouse_y*10, target_yaw=0, hover_thrust=0.5)
 
-            print(drone.vehicle.location.global_relative_frame)
+            print(drone.current_location_meters())
 
             time.sleep(iteration_time)
             
 except KeyboardInterrupt:
     print('exiting')
 
-drone.rtl()
+drone.land()

@@ -31,21 +31,21 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
     TODO: move this class up to be the Lidar_and_Wall_Simulator_With_GUI
 
     Args:
-        wall_start_gps (tuple): The GPS coordinates of the starting point of the wall.
-        wall_end_gps (tuple): The GPS coordinates of the ending point of the wall.
-        drone_gps (tuple): The GPS coordinates of the drone.
-        lidar_noise_gps_standard_dev (float): The standard deviation of the LIDAR noise.
+        wall_start_meters (tuple): The meters coordinates of the starting point of the wall.
+        wall_end_meters (tuple): The meters coordinates of the ending point of the wall.
+        drone_location_meters (tuple): The meters coordinates of the drone.
+        lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
+    def __init__(self, wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         tk.Tk.__init__(self)
 
-        self.wall_start_gps = wall_start_gps
-        self.wall_end_gps = wall_end_gps
-        self.drone_gps = drone_gps
+        self.wall_start_meters = wall_start_meters
+        self.wall_end_meters = wall_end_meters
+        self.drone_location_meters = drone_location_meters
         """self.drone_yaw_degrees = drone_yaw_degrees"""
-        self.scale_factor = 200  # Scale factor to convert GPS units to pixels
-        self.lidar_noise_gps_standard_dev = lidar_noise_gps_standard_dev
+        self.scale_factor = 200  # Scale factor to convert meters units to pixels
+        self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
         self.lidar_angle_step_degrees = 1
 
@@ -58,7 +58,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
         Draw the drone on the matplotlib figure.
         """
-        drone_center = (self.drone_gps[0] * self.scale_factor, self.drone_gps[1] * self.scale_factor)  # Fixed position at the center of the screen
+        drone_center = (self.drone_location_meters[0] * self.scale_factor, self.drone_location_meters[1] * self.scale_factor)  # Fixed position at the center of the screen
         drone_yaw_rad = 0 #math.radians(self.drone_yaw_degrees)
 
         triangle_points = [
@@ -74,34 +74,34 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
         Draw the wall on the matplotlib figure.
         """
-        wall_start = (self.wall_start_gps[0] * self.scale_factor,
-                      self.wall_start_gps[1] * self.scale_factor)
-        wall_end = (self.wall_end_gps[0] * self.scale_factor,
-                    self.wall_end_gps[1] * self.scale_factor)
+        wall_start = (self.wall_start_meters[0] * self.scale_factor,
+                      self.wall_start_meters[1] * self.scale_factor)
+        wall_end = (self.wall_end_meters[0] * self.scale_factor,
+                    self.wall_end_meters[1] * self.scale_factor)
         self.ax.plot([wall_start[0], wall_end[0]], [wall_start[1], wall_end[1]], 'r-')
 
-    def draw_point(self, point_gps):
+    def draw_point(self, point_meters):
         """
-        Draw a point on the matplotlib figure based on its GPS coordinates.
+        Draw a point on the matplotlib figure based on its meters coordinates.
 
         Args:
-            point_gps (tuple): The GPS coordinates of the point.
+            point_meters (tuple): The meters coordinates of the point.
         """
-        point_x = point_gps[0] * self.scale_factor
-        point_y = point_gps[1] * self.scale_factor
+        point_x = point_meters[0] * self.scale_factor
+        point_y = point_meters[1] * self.scale_factor
         self.ax.plot(point_x, point_y, 'ko', markersize=1)
     
     def draw_lidar_points(self):
         """
         Draw LIDAR points on the matplotlib figure.
         """
-        for lidar_angle, lidar_distance in self.get_lidar_readings_gps():
+        for lidar_angle, lidar_distance in self.lidar_readings:
             # If lidar_distance != null
             if lidar_distance is not None:
-                lidar_gps = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
-                self.draw_point(tuple(a + b for a, b in zip(lidar_gps, self.drone_gps)))
+                lidar_meters = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
+                self.draw_point(tuple(a + b for a, b in zip(lidar_meters, self.drone_location_meters)))
 
-    def get_lidar_readings_gps(self):
+    def get_lidar_readings_meters(self):
         """
         Returns an array of tuples containing (angle, distance) values for LIDAR readings.
 
@@ -122,20 +122,20 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             dx = math.cos(angle_rad)
             dy = math.sin(angle_rad)
 
-            t_denominator = (self.wall_end_gps[1] - self.wall_start_gps[1]) * dx - (self.wall_end_gps[0] - self.wall_start_gps[0]) * dy
+            t_denominator = (self.wall_end_meters[1] - self.wall_start_meters[1]) * dx - (self.wall_end_meters[0] - self.wall_start_meters[0]) * dy
 
             if t_denominator == 0:
                 angle += self.lidar_angle_step_degrees
                 continue
 
-            t_numerator = (self.wall_start_gps[0] - self.drone_gps[0]) * dy - (self.wall_start_gps[1] - self.drone_gps[1]) * dx
+            t_numerator = (self.wall_start_meters[0] - self.drone_location_meters[0]) * dy - (self.wall_start_meters[1] - self.drone_location_meters[1]) * dx
             t = t_numerator / t_denominator
 
             if t < 0 or t > 1:
                 angle += self.lidar_angle_step_degrees
                 continue
 
-            u_numerator = (self.wall_start_gps[0] - self.drone_gps[0]) * (self.wall_end_gps[1] - self.wall_start_gps[1]) - (self.wall_start_gps[1] - self.drone_gps[1]) * (self.wall_end_gps[0] - self.wall_start_gps[0])
+            u_numerator = (self.wall_start_meters[0] - self.drone_location_meters[0]) * (self.wall_end_meters[1] - self.wall_start_meters[1]) - (self.wall_start_meters[1] - self.drone_location_meters[1]) * (self.wall_end_meters[0] - self.wall_start_meters[0])
             u = u_numerator / t_denominator
 
             if u < 0:
@@ -143,12 +143,13 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
                 continue
 
             # The random component is from a standard normal distribution
-            # The mean distance is the lidar reading and the standard deviation is lidar_noise_gps_standard_dev
-            distance = u + self.lidar_noise_gps_standard_dev * np.random.randn(1)
+            # The mean distance is the lidar reading and the standard deviation is lidar_noise_meters_standard_dev
+            distance = u + self.lidar_noise_meters_standard_dev * np.random.randn(1)
             lidar_readings.append((angle, distance[0]))
 
             angle += self.lidar_angle_step_degrees
 
+        self.lidar_readings = lidar_readings
         return lidar_readings
 
     def update_canvas(self):
@@ -172,8 +173,8 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax = self.fig.add_subplot(1, 1, 1)
 
         # Set the x and y axis limits
-        drone_pixel_location_x = self.drone_gps[0] * self.scale_factor
-        drone_pixel_location_y = self.drone_gps[1] * self.scale_factor
+        drone_pixel_location_x = self.drone_location_meters[0] * self.scale_factor
+        drone_pixel_location_y = self.drone_location_meters[1] * self.scale_factor
 
         # The x and y limits here keep everything relative to the position of the drone!
         self.ax.set_xlim(drone_pixel_location_x - 400,
@@ -181,8 +182,8 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax.set_ylim(drone_pixel_location_y - 300,
                         drone_pixel_location_y + 300)
 
-        # Set the x and y axis tick labels in GPS units
+        # Set the x and y axis tick labels in meters units
         self.ax.set_xticks(np.arange(drone_pixel_location_x - 400, drone_pixel_location_x + 400, 100))
         self.ax.set_yticks(np.arange(drone_pixel_location_y - 300, drone_pixel_location_y + 300, 100))
-        self.ax.set_xticklabels(np.round(np.arange(self.drone_gps[0] - 4, self.drone_gps[0] + 4, 1), 1))
-        self.ax.set_yticklabels(np.round(np.arange(self.drone_gps[1] - 3, self.drone_gps[1] + 3, 1), 1))
+        self.ax.set_xticklabels(np.round(np.arange(self.drone_location_meters[0] - 4, self.drone_location_meters[0] + 4, 1), 1))
+        self.ax.set_yticklabels(np.round(np.arange(self.drone_location_meters[1] - 3, self.drone_location_meters[1] + 3, 1), 1))
