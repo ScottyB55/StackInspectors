@@ -23,12 +23,12 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    wall_start_meters = (0, -1)
-    wall_end_meters = (0, 1)
+    wall_start_meters = (0, -2)
+    wall_end_meters = (0, 2)
     # Define the initial meters coordinates of the drone
     drone_location_meters = (0.5, 0.5)
     # Define the standard deviation of the LIDAR noise in meters units
-    lidar_noise_meters_standard_dev = 0
+    lidar_noise_meters_standard_dev = 0.1
     # Define the initial yaw angle of the drone in degrees (not used in this example)
     drone_yaw_degrees = 0
 
