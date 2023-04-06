@@ -1,39 +1,9 @@
-# This is based on V2_Lidar_Sim_Class.py in the Reference Files Folder
-
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-
-import tkinter as tk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import math
-import matplotlib.pyplot as plt
-
-import numpy as np
-
 import time
 import threading
+from Lidar_and_Wall_Simulator_With_GUI import Lidar_and_Wall_Simulator_With_GUI
 
-from collections import namedtuple
-
-def lidar_reading_to_deltaxy(lidar_angle, distance):
-    """
-    Convert a LIDAR reading at a given angle and distance to a change in x and y coordinates.
-
-    Args:
-        lidar_angle (float): The angle of the LIDAR reading in degrees.
-        distance (float): The distance of the LIDAR reading.
-
-    Returns:
-        tuple: A tuple containing the change in x and y coordinates (delta_x, delta_y).
-    """
-    shifted_angle = 90 - lidar_angle
-    shifted_angle_rad = math.radians(shifted_angle)
-
-    delta_x = math.cos(shifted_angle_rad) * distance
-    delta_y = math.sin(shifted_angle_rad) * distance
-
-    return delta_x, delta_y
-
+# Good idea: from collections import namedtuple
 
 
 class Drone:
@@ -86,169 +56,6 @@ class Real_Drone_Realistic_Physics(Drone):
         """
         super().__init__()
 
-class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
-    """
-    This class is really just a lidar & wall simulator with a GUI
-    Programatically, it would have made more sense to actually have this be a separate class.
-    TODO: move this class up to be the Lidar_and_Wall_Simulator_With_GUI
-
-    Args:
-        wall_start_gps (tuple): The GPS coordinates of the starting point of the wall.
-        wall_end_gps (tuple): The GPS coordinates of the ending point of the wall.
-        drone_gps (tuple): The GPS coordinates of the drone.
-        lidar_noise_gps_standard_dev (float): The standard deviation of the LIDAR noise.
-    """
-
-    def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
-        tk.Tk.__init__(self)
-
-        self.wall_start_gps = wall_start_gps
-        self.wall_end_gps = wall_end_gps
-        self.drone_gps = drone_gps
-        """self.drone_yaw_degrees = drone_yaw_degrees"""
-        self.scale_factor = 200  # Scale factor to convert GPS units to pixels
-        self.lidar_noise_gps_standard_dev = lidar_noise_gps_standard_dev
-
-        self.lidar_angle_step_degrees = 1
-
-        self.title('Drone Lidar')
-        self.geometry('800x600')
-        self.create_figure()
-        self.update_canvas()
-
-    def draw_drone(self):
-        """
-        Draw the drone on the matplotlib figure.
-        """
-        drone_center = (self.drone_gps[0] * self.scale_factor, self.drone_gps[1] * self.scale_factor)  # Fixed position at the center of the screen
-        drone_yaw_rad = 0 #math.radians(self.drone_yaw_degrees)
-
-        triangle_points = [
-            (drone_center[0] + 10 * math.sin(drone_yaw_rad), drone_center[1] + 10 * math.cos(drone_yaw_rad)),
-            (drone_center[0] + 5 * math.sin(drone_yaw_rad + math.radians(150)), drone_center[1] + 5 * math.cos(drone_yaw_rad + math.radians(150))),
-            (drone_center[0] + 5 * math.sin(drone_yaw_rad + math.radians(-150)), drone_center[1] + 5 * math.cos(drone_yaw_rad + math.radians(-150)))
-        ]
-
-        drone_shape = plt.Polygon(triangle_points, edgecolor='blue', fill=True)
-        self.ax.add_patch(drone_shape)
-
-    def draw_wall(self):
-        """
-        Draw the wall on the matplotlib figure.
-        """
-        wall_start = (self.wall_start_gps[0] * self.scale_factor,
-                      self.wall_start_gps[1] * self.scale_factor)
-        wall_end = (self.wall_end_gps[0] * self.scale_factor,
-                    self.wall_end_gps[1] * self.scale_factor)
-        self.ax.plot([wall_start[0], wall_end[0]], [wall_start[1], wall_end[1]], 'r-')
-
-    def draw_point(self, point_gps):
-        """
-        Draw a point on the matplotlib figure based on its GPS coordinates.
-
-        Args:
-            point_gps (tuple): The GPS coordinates of the point.
-        """
-        point_x = point_gps[0] * self.scale_factor
-        point_y = point_gps[1] * self.scale_factor
-        self.ax.plot(point_x, point_y, 'ko', markersize=1)
-    
-    def draw_lidar_points(self):
-        """
-        Draw LIDAR points on the matplotlib figure.
-        """
-        for lidar_angle, lidar_distance in self.get_lidar_readings_gps():
-            # If lidar_distance != null
-            if lidar_distance is not None:
-                lidar_gps = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
-                self.draw_point(tuple(a + b for a, b in zip(lidar_gps, self.drone_gps)))
-
-    def get_lidar_readings_gps(self):
-        """
-        Returns an array of tuples containing (angle, distance) values for LIDAR readings.
-
-        The function iterates through angles from 0 to 360 degrees, stepping by self.lidar_angle_step_degrees.
-        If the LIDAR doesn't hit a wall, the distance value in the tuple is set to None.
-
-        Angles start at 0 degrees North and move clockwise. 90 degrees is right, and 270 degrees is left relative to the drone.
-
-        Returns:
-            lidar_readings (list of tuples): A list of tuples where each tuple contains the angle (float) and the LIDAR distance (float or None).
-        """
-        lidar_readings = []
-        angle = 0
-
-        while angle < 360:
-            angle_rad = math.radians(( - angle + 360 + 90) % 360)
-
-            dx = math.cos(angle_rad)
-            dy = math.sin(angle_rad)
-
-            t_denominator = (self.wall_end_gps[1] - self.wall_start_gps[1]) * dx - (self.wall_end_gps[0] - self.wall_start_gps[0]) * dy
-
-            if t_denominator == 0:
-                angle += self.lidar_angle_step_degrees
-                continue
-
-            t_numerator = (self.wall_start_gps[0] - self.drone_gps[0]) * dy - (self.wall_start_gps[1] - self.drone_gps[1]) * dx
-            t = t_numerator / t_denominator
-
-            if t < 0 or t > 1:
-                angle += self.lidar_angle_step_degrees
-                continue
-
-            u_numerator = (self.wall_start_gps[0] - self.drone_gps[0]) * (self.wall_end_gps[1] - self.wall_start_gps[1]) - (self.wall_start_gps[1] - self.drone_gps[1]) * (self.wall_end_gps[0] - self.wall_start_gps[0])
-            u = u_numerator / t_denominator
-
-            if u < 0:
-                angle += self.lidar_angle_step_degrees
-                continue
-
-            # The random component is from a standard normal distribution
-            # The mean distance is the lidar reading and the standard deviation is lidar_noise_gps_standard_dev
-            distance = u + self.lidar_noise_gps_standard_dev * np.random.randn(1)
-            lidar_readings.append((angle, distance[0]))
-
-            angle += self.lidar_angle_step_degrees
-
-        return lidar_readings
-
-    def update_canvas(self):
-        """
-        Update the canvas to display the latest state of the matplotlib figure.
-        """
-        # Create a canvas to display the figure (or update the existing canvas)
-        if not hasattr(self, 'canvas'):
-            self.canvas = FigureCanvasTkAgg(self.fig, master=self)
-            self.canvas.get_tk_widget().pack()
-        else:
-            self.canvas.figure = self.fig
-            self.canvas.draw()
-
-    def create_figure(self):
-        """
-        Create a matplotlib figure to display the drone, wall, and LIDAR data.
-        """
-        # Create a figure
-        self.fig = Figure(figsize=(8, 6), dpi=100)
-        self.ax = self.fig.add_subplot(1, 1, 1)
-
-        # Set the x and y axis limits
-        drone_pixel_location_x = self.drone_gps[0] * self.scale_factor
-        drone_pixel_location_y = self.drone_gps[1] * self.scale_factor
-
-        # The x and y limits here keep everything relative to the position of the drone!
-        self.ax.set_xlim(drone_pixel_location_x - 400,
-                        drone_pixel_location_x + 400)
-        self.ax.set_ylim(drone_pixel_location_y - 300,
-                        drone_pixel_location_y + 300)
-
-        # Set the x and y axis tick labels in GPS units
-        self.ax.set_xticks(np.arange(drone_pixel_location_x - 400, drone_pixel_location_x + 400, 100))
-        self.ax.set_yticks(np.arange(drone_pixel_location_y - 300, drone_pixel_location_y + 300, 100))
-        self.ax.set_xticklabels(np.round(np.arange(self.drone_gps[0] - 4, self.drone_gps[0] + 4, 1), 1))
-        self.ax.set_yticklabels(np.round(np.arange(self.drone_gps[1] - 3, self.drone_gps[1] + 3, 1), 1))
-
 
 class Simulated_Drone_Simple_Physics(Drone):
     """
@@ -296,13 +103,13 @@ class Simulated_Drone_Simple_Physics(Drone):
 class Simulated_Drone_Realistic_Physics(Drone):
     """
     Represents a simulated drone with realistic physics using SITL QGroundControl.
+    
     """
 
-    def __init__(self):
-        """
-        Initialize a Simulated_Drone_Realistic_Physics object.
-        """
+    def __init__(self, wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev): #, drone_yaw_degrees
         super().__init__()
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(wall_start_gps, wall_end_gps, drone_gps, lidar_noise_gps_standard_dev)
+        self.drone_gps = drone_gps
 
 
 def run_simulation(drone_app):

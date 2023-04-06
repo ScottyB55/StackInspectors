@@ -5,6 +5,10 @@ import sys
 import argparse
 import math
 
+"""
+Includes launching and landing!
+"""
+
 # convert euler angles to quaternion to send over mavlink
 def to_quaternion(roll=0.0, pitch=0.0, yaw=0.0):
     """

@@ -2,7 +2,7 @@ from mouse_and_keyboard_helper_functions import mouse_relative_position_from_cen
 
 import sys
 sys.path.append('/home/srburnett/Stack-Inspectors')
-from Drone_Launch_Land_Realistic_Physics_Class import Guided_Drone
+from Drone_Realistic_Physics_Class import Guided_Drone
 import math
 import time
 
