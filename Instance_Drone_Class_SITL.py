@@ -18,6 +18,7 @@ def run_simulation(drone_app):
 
         drone_app.update_location_meters()
         drone_app.update_lidar_readings()
+        drone_app.wipe_gui()
         drone_app.update_gui()
 
 

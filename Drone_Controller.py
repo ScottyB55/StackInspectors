@@ -33,14 +33,32 @@ Another thing to add: we want two controllers
 2. One that makes 
 """
 
+from Drone_Class import Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
+import time
+import threading
+from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
+
 from Drone_Class import Drone
 
-class Drone:
+mouse_position_normalized_to_meters_velocity = 1
+
+class Drone_Controller:
     def __init__(self, Drone):
         self.Drone = Drone
-        self.target_distance = 10   # the target distance between the drone and the wall
+        self.target_distance = 2   # the target distance between the drone and the wall
         self.target_angle = 90      # the target angle between the drone
     
+    def update_drone_velocity(self):
+        # Have calculations to determine the drone velocity here
+
+        # Update the drone's velocity
+        self.Drone.set_drone_velocity_setpoint((1, 0))
+        # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+
+    def draw_perceived_wall(self):
+        
+        pass
+
     def run(self):
         # Get the lidar data
         self.Drone.get_lidar_readings_gps()
@@ -67,3 +85,49 @@ class Drone:
         #   Set this proportional to the mouse y coordinates
 
         # Use something like the set_attitude() function for self.Drone.set_drone_velocity()
+
+def run_simulation(drone_app):
+    """
+    Run the simulation of the drone, updating its position and displaying LIDAR data.
+
+    Args:
+        drone_app (Simulated_Drone_Simple_Physics): The drone application instance.
+    """
+    timestep = 0.1
+    while True:
+        drone_controller.update_drone_velocity()
+
+        # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+        time.sleep(timestep)
+
+        drone_controller.Drone.update_location_meters(timestep)
+        drone_controller.Drone.update_lidar_readings()
+        drone_controller.Drone.wipe_gui()
+        drone_controller.Drone.update_gui()
+
+
+if __name__ == '__main__':
+    # Define the starting and ending meters coordinates of the wall
+    wall_start_meters = (0, -2)
+    wall_end_meters = (0, 2)
+    # Define the initial meters coordinates of the drone
+    drone_location_meters = (0.5, 0.5)
+    # Define the standard deviation of the LIDAR noise in meters units
+    lidar_noise_meters_standard_dev = 0.1
+    # Define the initial yaw angle of the drone in degrees (not used in this example)
+    drone_yaw_degrees = 0
+
+    # Create a simulated drone object with simple physics
+    drone_app = Simulated_Drone_Simple_Physics(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
+
+    drone_controller = Drone_Controller(drone_app)
+
+    # Start a new thread to run the simulation, updating the drone's position and LIDAR data
+    move_drone_thread = threading.Thread(target=run_simulation, args=(drone_controller.Drone,))
+    # Set the thread as a daemon thread so it will automatically exit when the main program exits
+    move_drone_thread.daemon = True
+    # Start the simulation thread
+    move_drone_thread.start()
+
+    # Run the main event loop of the drone application (Tkinter GUI)
+    drone_controller.Drone.lidar_and_wall_sim_with_gui.mainloop()

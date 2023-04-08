@@ -98,8 +98,10 @@ class Simulated_Drone_Simple_Physics(Drone):
         """
         self.drone_velocity = drone_velocity
     
-    def update_gui(self):
+    def wipe_gui(self):
         self.lidar_and_wall_sim_with_gui.create_figure()
+
+    def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
         self.lidar_and_wall_sim_with_gui.draw_wall()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
@@ -147,11 +149,10 @@ class Simulated_Drone_Realistic_Physics(Drone):
         self.lidar_and_wall_sim_with_gui.drone_location_meters = self.drone_location_meters
         return self.drone_location_meters
 
-    def land(self):
-        self.drone.land()
+    def wipe_gui(self):
+        self.lidar_and_wall_sim_with_gui.create_figure()
 
     def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
         self.lidar_and_wall_sim_with_gui.draw_drone()
         self.lidar_and_wall_sim_with_gui.draw_wall()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
@@ -173,6 +174,7 @@ def run_simulation(drone_app):
 
         drone_app.update_location_meters(timestep)
         drone_app.update_lidar_readings()
+        drone_app.wipe_gui()
         drone_app.update_gui()
 
 
