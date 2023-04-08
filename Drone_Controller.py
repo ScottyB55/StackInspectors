@@ -56,12 +56,11 @@ class Drone_Controller:
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
     def draw_perceived_wall(self):
-        
-        pass
+        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((2, 0), (2, 1), 'b-')
 
     def run(self):
         # Get the lidar data
-        self.Drone.get_lidar_readings_gps()
+        self.Drone.update_lidar_readings()
 
         # Optional: factor the drone's roll & pitch into the lidar data
 
@@ -103,6 +102,7 @@ def run_simulation(drone_app):
         drone_controller.Drone.update_location_meters(timestep)
         drone_controller.Drone.update_lidar_readings()
         drone_controller.Drone.wipe_gui()
+        drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
 
 

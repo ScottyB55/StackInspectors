@@ -74,11 +74,17 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
         Draw the wall on the matplotlib figure.
         """
-        wall_start = (self.wall_start_meters[0] * self.scale_factor,
-                      self.wall_start_meters[1] * self.scale_factor)
-        wall_end = (self.wall_end_meters[0] * self.scale_factor,
-                    self.wall_end_meters[1] * self.scale_factor)
-        self.ax.plot([wall_start[0], wall_end[0]], [wall_start[1], wall_end[1]], 'r-')
+        self.draw_wall_from_coordinates(self.wall_start_meters, self.wall_end_meters)
+    
+    def draw_wall_from_coordinates(self, wall_start_meters_tuple, wall_end_meters_tuple, color = 'r-'):
+        """
+        Draw the wall on the matplotlib figure.
+        """
+        wall_start = (wall_start_meters_tuple[0] * self.scale_factor,
+                      wall_start_meters_tuple[1] * self.scale_factor)
+        wall_end = (wall_end_meters_tuple[0] * self.scale_factor,
+                    wall_end_meters_tuple[1] * self.scale_factor)
+        self.ax.plot([wall_start[0], wall_end[0]], [wall_start[1], wall_end[1]], color)
 
     def draw_point(self, point_meters):
         """
