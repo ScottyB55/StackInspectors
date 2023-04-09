@@ -32,3 +32,23 @@ while True:
     plt.scatter(data[:,0], data[:,1])
     plt.plot(filtered_data[:,0], line_data, 'r')
     plt.show()
+    
+    #plot the drone’s setpoint velocity in terms of parallel & perpendicular components to the lidar line of best fit.
+#import numpy as np
+
+# assume we have the lidar line of best fit as a numpy array 'line'
+# assume we have the drone's velocity setpoint as a numpy array 'velocity'
+
+# calculate the parallel component of velocity
+parallel_velocity = np.dot(velocity, line) / np.linalg.norm(line)
+
+# calculate the perpendicular component of velocity
+perpendicular_velocity = np.cross(velocity, line) / np.linalg.norm(line)
+
+# plot the parallel and perpendicular components
+import matplotlib.pyplot as plt
+
+plt.plot(parallel_velocity, label='Parallel Component')
+plt.plot(perpendicular_velocity, label='Perpendicular Component')
+plt.legend()
+plt.show()
