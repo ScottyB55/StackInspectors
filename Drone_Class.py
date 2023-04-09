@@ -105,6 +105,7 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.lidar_and_wall_sim_with_gui.draw_drone()
         self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
+        # self.lidar_and_wall_sim_with_gui.draw_lidar_points_cluster()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 
 
