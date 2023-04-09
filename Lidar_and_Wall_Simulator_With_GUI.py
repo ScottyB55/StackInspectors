@@ -96,7 +96,13 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         point_x = point_meters[0] * self.scale_factor
         point_y = point_meters[1] * self.scale_factor
         self.ax.plot(point_x, point_y, 'ko', markersize=1)
-    
+
+    def draw_point_cluster(self, point_meters, label):
+        cdict = {0: 'red', 1: 'blue', 2: 'green'}
+        point_x = point_meters[0] * self.scale_factor
+        point_y = point_meters[1] * self.scale_factor
+        self.ax.plot(point_x, point_y, 'o', markersize=1, c=cdict[label])
+
     def draw_lidar_points(self):
         """
         Draw LIDAR points on the matplotlib figure.
@@ -107,6 +113,25 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
                 lidar_readings_xy_meters_relative = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
                 lidar_readings_xy_meters_absolute = tuple(a + b for a, b in zip(lidar_readings_xy_meters_relative, self.drone_location_meters))
                 self.draw_point(lidar_readings_xy_meters_absolute)
+
+    def draw_lidar_points_cluster(self):
+
+        lidar_readings_absolute = []
+
+        for lidar_angle, lidar_distance in self.lidar_readings_angle_deg_dist_m:
+            # If lidar_distance != null
+            if lidar_distance is not None:
+                lidar_readings_xy_meters_relative = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
+                lidar_readings_xy_meters_absolute = tuple(a + b for a, b in zip(lidar_readings_xy_meters_relative, self.drone_location_meters))
+                lidar_readings_absolute.append(lidar_readings_xy_meters_absolute)
+                # self.draw_point(lidar_readings_xy_meters_absolute)
+        
+        from sklearn.cluster import DBSCAN
+        clustering = DBSCAN(eps=3, min_samples=2).fit(lidar_readings_absolute)
+        
+        # print(len(lidar_readings_absolute))
+        for i, point in enumerate(lidar_readings_absolute):
+            self.draw_point_cluster(point, clustering.labels_[i])
 
     def get_lidar_readings_angle_deg_dist_m(self):
         """
