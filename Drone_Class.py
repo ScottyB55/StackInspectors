@@ -181,8 +181,7 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    wall_start_meters = (0, -2)
-    wall_end_meters = (0, 2)
+    walls = [((1, -2), (1, 2)), ((1, -2), (3, -2))]
     # Define the initial meters coordinates of the drone
     drone_location_meters = (0.5, 0.5)
     # Define the standard deviation of the LIDAR noise in meters units
@@ -191,7 +190,7 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
-    drone_app = Simulated_Drone_Simple_Physics(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
 
     # Start a new thread to run the simulation, updating the drone's position and LIDAR data
     move_drone_thread = threading.Thread(target=run_simulation, args=(drone_app,))
