@@ -37,11 +37,12 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         tk.Tk.__init__(self)
-
-        self.wall_start_meters = wall_start_meters
-        self.wall_end_meters = wall_end_meters
+        # walls is an array of tuples of tuples
+        self.walls = walls#[(wall_start_meters, wall_end_meters)]
+        #self.wall_start_meters = wall_start_meters
+        #self.wall_end_meters = wall_end_meters
         self.drone_location_meters = drone_location_meters
         """self.drone_yaw_degrees = drone_yaw_degrees"""
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
@@ -70,11 +71,14 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         drone_shape = plt.Polygon(triangle_points, edgecolor='blue', fill=True)
         self.ax.add_patch(drone_shape)
 
-    def draw_wall(self):
+    def draw_walls(self):
         """
         Draw the wall on the matplotlib figure.
         """
-        self.draw_wall_from_coordinates(self.wall_start_meters, self.wall_end_meters)
+
+        for wall in self.walls:
+            wall_start_meters, wall_end_meters = wall
+            self.draw_wall_from_coordinates(wall_start_meters, wall_end_meters)
     
     def draw_wall_from_coordinates(self, wall_start_meters_tuple, wall_end_meters_tuple, color = 'r-'):
         """
@@ -129,30 +133,39 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             dx = math.cos(angle_rad)
             dy = math.sin(angle_rad)
 
-            t_denominator = (self.wall_end_meters[1] - self.wall_start_meters[1]) * dx - (self.wall_end_meters[0] - self.wall_start_meters[0]) * dy
+            distance_min = None
 
-            if t_denominator == 0:
-                angle += self.lidar_angle_step_degrees
-                continue
+            for wall in self.walls:
+                wall_start_meters, wall_end_meters = wall
 
-            t_numerator = (self.wall_start_meters[0] - self.drone_location_meters[0]) * dy - (self.wall_start_meters[1] - self.drone_location_meters[1]) * dx
-            t = t_numerator / t_denominator
+                t_denominator = (wall_end_meters[1] - wall_start_meters[1]) * dx - (wall_end_meters[0] - wall_start_meters[0]) * dy
 
-            if t < 0 or t > 1:
-                angle += self.lidar_angle_step_degrees
-                continue
+                if t_denominator == 0:
+                    angle += self.lidar_angle_step_degrees
+                    continue
 
-            u_numerator = (self.wall_start_meters[0] - self.drone_location_meters[0]) * (self.wall_end_meters[1] - self.wall_start_meters[1]) - (self.wall_start_meters[1] - self.drone_location_meters[1]) * (self.wall_end_meters[0] - self.wall_start_meters[0])
-            u = u_numerator / t_denominator
+                t_numerator = (wall_start_meters[0] - self.drone_location_meters[0]) * dy - (wall_start_meters[1] - self.drone_location_meters[1]) * dx
+                t = t_numerator / t_denominator
 
-            if u < 0:
-                angle += self.lidar_angle_step_degrees
-                continue
+                if t < 0 or t > 1:
+                    angle += self.lidar_angle_step_degrees
+                    continue
 
-            # The random component is from a standard normal distribution
-            # The mean distance is the lidar reading and the standard deviation is lidar_noise_meters_standard_dev
-            distance = u + self.lidar_noise_meters_standard_dev * np.random.randn(1)
-            lidar_readings.append((angle, distance[0]))
+                u_numerator = (wall_start_meters[0] - self.drone_location_meters[0]) * (wall_end_meters[1] - wall_start_meters[1]) - (wall_start_meters[1] - self.drone_location_meters[1]) * (wall_end_meters[0] - wall_start_meters[0])
+                u = u_numerator / t_denominator
+
+                if u < 0:
+                    angle += self.lidar_angle_step_degrees
+                    continue
+
+                # The random component is from a standard normal distribution
+                # The mean distance is the lidar reading and the standard deviation is lidar_noise_meters_standard_dev
+                distance = (u + self.lidar_noise_meters_standard_dev * np.random.randn(1))[0]
+
+                if ((distance_min == None) or (distance < distance_min)):
+                    distance_min = distance
+                    
+            lidar_readings.append((angle, distance_min))
 
             angle += self.lidar_angle_step_degrees
 

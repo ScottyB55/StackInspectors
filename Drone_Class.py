@@ -69,9 +69,9 @@ class Simulated_Drone_Simple_Physics(Drone):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, drone_location_meters, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
     
     def update_lidar_readings(self):
@@ -103,7 +103,7 @@ class Simulated_Drone_Simple_Physics(Drone):
 
     def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_wall()
+        self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 
@@ -113,14 +113,14 @@ class Simulated_Drone_Realistic_Physics(Drone):
     Represents a simulated drone with realistic physics using SITL QGroundControl.
     """
 
-    def __init__(self, wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
 
         self.takeoff(target_altitude=3)
 
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, drone_location_meters, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
@@ -154,7 +154,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
 
     def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_wall()
+        self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 

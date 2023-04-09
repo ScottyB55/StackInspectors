@@ -186,8 +186,7 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    wall_start_meters = (1, -2)
-    wall_end_meters = (1, 2)
+    walls = [((1, -2), (1, 2)), ((-2, 0), (2, 0))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
@@ -200,7 +199,7 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
-    drone_app = Simulated_Drone_Simple_Physics(wall_start_meters, wall_end_meters, drone_location_meters, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
