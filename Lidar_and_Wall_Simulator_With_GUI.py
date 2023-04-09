@@ -201,6 +201,9 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
                         drone_pixel_location_x + 400)
         self.ax.set_ylim(drone_pixel_location_y - 300,
                         drone_pixel_location_y + 300)
+        
+        self.x_window_min = self.drone_location_meters[0] - 400 / self.scale_factor
+        self.x_window_max = self.drone_location_meters[0] + 400 / self.scale_factor
 
         # Set the x and y axis ticks
         x_ticks = np.arange(drone_pixel_location_x - 400, drone_pixel_location_x + 400, 100)

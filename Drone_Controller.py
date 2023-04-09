@@ -40,6 +40,15 @@ from mouse_and_keyboard_helper_functions import mouse_relative_position_from_cen
 
 from Drone_Class import Drone
 
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import odr
+
+# Define the linear function for ODR
+def linear_function(params, x):
+    m, c = params
+    return m * x + c
+
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
@@ -57,6 +66,35 @@ class Drone_Controller:
 
     def draw_perceived_wall(self):
         lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
+
+        # Separate the x and y coordinates
+        x_values = [point[0] for point in lidar_readings]
+        y_values = [point[1] for point in lidar_readings]
+
+        # Option 1: ODR regression (works for both horizontal and vertical)
+        # Create a model for the orthogonal distance regression
+        linear_model = odr.Model(linear_function)
+        # Create the input data for the ODR
+        data = odr.RealData(x_values, y_values)
+        # Initialize the ODR with the model, the data, and an initial guess for the parameters (m and c)
+        odr_instance = odr.ODR(data, linear_model, beta0=[1, 0])
+        # Run the ODR
+        output = odr_instance.run()
+        # Extract the fitted parameters (m and c)
+        slope, intercept = output.beta
+
+        # Option 2: linear regression (not as good for vertical)
+        # slope, intercept = np.polyfit(x_values, y_values, 1)
+
+        x0 = self.Drone.lidar_and_wall_sim_with_gui.x_window_min
+        x1 = self.Drone.lidar_and_wall_sim_with_gui.x_window_max
+
+        y0 = slope * x0 + intercept
+        y1 = slope * x1 + intercept
+
+        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((x0, y0), (x1, y1), 'b-')
+
+        """
         # Check if the array is not empty
         if len(lidar_readings) > 0:
             # Get the first element
@@ -68,6 +106,7 @@ class Drone_Controller:
             print("The array is empty.")
         
         self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates(first_element, last_element, 'b-')
+        """
 
     def run(self):
         # Get the lidar data
