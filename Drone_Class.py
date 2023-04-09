@@ -139,7 +139,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
     def update_lidar_readings(self):
         return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
     
-    def update_location_meters(self):
+    def update_location_meters(self, timestep):
         """
         Update the meters location of the drone based on the given timestep.
 

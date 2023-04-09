@@ -65,6 +65,15 @@ def distance(point1, point2):
     """Calculate the distance between two points."""
     return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
+def dot_product(v1, v2):
+    return v1[0] * v2[0] + v1[1] * v2[1]
+
+def scalar_multiply(v, scalar):
+    return (v[0] * scalar, v[1] * scalar)
+
+def vector_subtract(v1, v2):
+    return (v1[0] - v2[0], v1[1] - v2[1])
+
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
@@ -77,6 +86,37 @@ class Drone_Controller:
     
     def update_drone_velocity(self):
         # Have calculations to determine the drone velocity here
+        drone_location_meters = self.Drone.drone_location_meters
+
+        closest_point = self.find_closest_point()
+
+        # Find the angle from the given point that strikes the line perpendicularly
+        delta_x = closest_point[0] - drone_location_meters[0]
+        delta_y = closest_point[1] - drone_location_meters[1]
+
+        distance = math.sqrt(delta_x**2 + delta_y**2)
+
+        delta_x_unit = delta_x / distance
+        delta_y_unit = delta_y / distance
+
+        distance_error = distance - self.target_distance
+
+        self.velocity_x_setpoint = delta_x_unit * distance_error
+        self.velocity_y_setpoint = delta_y_unit * distance_error
+
+        mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
+
+        # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
+        projection_scale = dot_product((mouse_x, mouse_y), (delta_x_unit, delta_y_unit))
+        projection = scalar_multiply((delta_x_unit, delta_y_unit), projection_scale)
+
+        # Subtract the projection from the original vector to get the perpendicular component
+        perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
+
+        self.velocity_x_setpoint += perpendicular_component[0]
+        self.velocity_y_setpoint += perpendicular_component[1]
+
+        print(f"distance = {distance} distance_error = {distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
         # Update the drone's velocity
         self.Drone.set_drone_velocity_setpoint((self.velocity_x_setpoint, self.velocity_y_setpoint))
@@ -141,25 +181,7 @@ class Drone_Controller:
             return (x_on_line, y_on_line)
 
     def draw_perceived_wall(self):
-        drone_location_meters = self.Drone.drone_location_meters
-
-        closest_point = self.find_closest_point()
-
-        # Find the angle from the given point that strikes the line perpendicularly
-        delta_x = closest_point[0] - drone_location_meters[0]
-        delta_y = closest_point[1] - drone_location_meters[1]
-
-        distance = math.sqrt(delta_x**2 + delta_y**2)
-
-        delta_x_unit = delta_x / distance
-        delta_y_unit = delta_y / distance
-
-        distance_error = distance - self.target_distance
-
-        self.velocity_x_setpoint = delta_x_unit * distance_error
-        self.velocity_y_setpoint = delta_y_unit * distance_error
-
-        print(f"distance = {distance} distance_error = {distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
+        pass
 
     def run(self):
         # Get the lidar data
@@ -196,24 +218,26 @@ def run_simulation(drone_app):
         drone_app (Simulated_Drone_Simple_Physics): The drone application instance.
     """
     timestep = 0.1
-    drone_controller.update_drone_velocity()
+    drone_controller.Drone.update_lidar_readings()
+    
     while True:
-        
+        drone_controller.update_drone_velocity()
+
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
         time.sleep(timestep)
 
         drone_controller.Drone.update_location_meters(timestep)
         drone_controller.Drone.update_lidar_readings()
         drone_controller.Drone.wipe_gui()
-        drone_controller.draw_perceived_wall()
+        # drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
 
-        drone_controller.update_drone_velocity()
+        
 
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((1, -2), (1, 2)), ((1, -2), (5, -2))]
+    walls = [((1, -2), (1, 4)), ((1, -2), (7, -2))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
@@ -228,7 +252,8 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
-    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
