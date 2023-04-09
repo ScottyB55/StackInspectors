@@ -101,13 +101,14 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
         Draw LIDAR points on the matplotlib figure.
         """
-        for lidar_angle, lidar_distance in self.lidar_readings:
+        for lidar_angle, lidar_distance in self.lidar_readings_angle_deg_dist_m:
             # If lidar_distance != null
             if lidar_distance is not None:
-                lidar_meters = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
-                self.draw_point(tuple(a + b for a, b in zip(lidar_meters, self.drone_location_meters)))
+                lidar_readings_xy_meters_relative = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
+                lidar_readings_xy_meters_absolute = tuple(a + b for a, b in zip(lidar_readings_xy_meters_relative, self.drone_location_meters))
+                self.draw_point(lidar_readings_xy_meters_absolute)
 
-    def get_lidar_readings_meters(self):
+    def get_lidar_readings_angle_deg_dist_m(self):
         """
         Returns an array of tuples containing (angle, distance) values for LIDAR readings.
 
@@ -155,7 +156,20 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
             angle += self.lidar_angle_step_degrees
 
-        self.lidar_readings = lidar_readings
+        self.lidar_readings_angle_deg_dist_m = lidar_readings
+
+        # Initialize the array
+        self.lidar_readings_xy_meters_absolute = []
+
+        for lidar_angle, lidar_distance in self.lidar_readings_angle_deg_dist_m:
+            # If lidar_distance != null
+            if lidar_distance is not None:
+                lidar_reading_xy_meters_relative = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
+                lidar_reading_xy_meters_absolute = tuple(a + b for a, b in zip(lidar_reading_xy_meters_relative, self.drone_location_meters))
+
+                # Add the point to the array
+                self.lidar_readings_xy_meters_absolute.append(lidar_reading_xy_meters_absolute)
+
         return lidar_readings
 
     def update_canvas(self):

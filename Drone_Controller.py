@@ -56,11 +56,22 @@ class Drone_Controller:
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
     def draw_perceived_wall(self):
-        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((2, 0), (2, 1), 'b-')
+        lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
+        # Check if the array is not empty
+        if len(lidar_readings) > 0:
+            # Get the first element
+            first_element = lidar_readings[0]
+
+            # Get the last element
+            last_element = lidar_readings[-1]
+        else:
+            print("The array is empty.")
+        
+        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates(first_element, last_element, 'b-')
 
     def run(self):
         # Get the lidar data
-        self.Drone.update_lidar_readings()
+        self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
 
         # Optional: factor the drone's roll & pitch into the lidar data
 
