@@ -31,6 +31,14 @@ You can further improve the performance by fusing data from multiple sensors and
 Another thing to add: we want two controllers
 1. One that makes the drone face the wall
 2. One that makes 
+
+Terminal to send simple messages over terminal
+Start scan, stop scan
+Turn on lindar, turn off lidar, ask for kinds of messages
+The encoding messages from the lidar sensor
+Nothing is readable
+
+Firmware update
 """
 
 from Drone_Class import Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
@@ -43,11 +51,15 @@ from Drone_Class import Drone
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
+import math
 
 # Define the linear function for ODR
 def linear_function(params, x):
     m, c = params
     return m * x + c
+
+def point_line_distance(x0, y0, m, b):
+    return abs(m * x0 - y0 + b) / math.sqrt(m**2 + 1)
 
 mouse_position_normalized_to_meters_velocity = 1
 
@@ -85,6 +97,22 @@ class Drone_Controller:
 
         # Option 2: linear regression (not as good for vertical)
         # slope, intercept = np.polyfit(x_values, y_values, 1)
+
+        distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
+                                       slope, intercept)
+        
+        # Find the angle from the origin that strikes the line perpendicularly
+        perpendicular_slope = -1 / slope
+        theta = math.atan(perpendicular_slope)
+        angle_degrees = math.degrees(theta)
+
+        # Check the sign of the slope and adjust the angle accordingly
+        if slope < 0:
+            angle_degrees += 180
+
+        print(f"distance = {distance} angle = {angle_degrees} slope = {slope} intercept = {intercept}")
+
+        # Plot the perceived line
 
         x0 = self.Drone.lidar_and_wall_sim_with_gui.x_window_min
         x1 = self.Drone.lidar_and_wall_sim_with_gui.x_window_max
@@ -158,8 +186,12 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    wall_start_meters = (0, -2)
-    wall_end_meters = (0, 2)
+    wall_start_meters = (1, -2)
+    wall_end_meters = (1, 2)
+
+    #wall_start_meters = (-2, 0)
+    #wall_end_meters = (2, 0)
+
     # Define the initial meters coordinates of the drone
     drone_location_meters = (0.5, 0.5)
     # Define the standard deviation of the LIDAR noise in meters units
