@@ -89,3 +89,48 @@ while True:
 
     # Get the mouse control input
     parallel_vel = get_mouse_control()
+    
+#Create another mostly independent controller to make the drone face the wall by adjusting the drone’s yaw
+    
+import math
+import time
+from pymavlink import mavutil
+from PID import PID  # Import the PID class
+
+# Initialize the PID controller with the desired parameters
+kp = 1
+ki = 0
+kd = 0.1
+yaw_pid = PID(kp, ki, kd, output_limits=(-1, 1))
+
+# Connect to the MAVLink system and start the autopilot
+master = mavutil.mavlink_connection('udp:127.0.0.1:14550')
+master.wait_heartbeat()
+
+# Main control loop
+while True:
+    # Get the lidar data and calculate the line of best fit
+    lidar_data = get_lidar_data()
+    line_of_best_fit = calculate_line_of_best_fit(lidar_data)
+
+    # Get the drone's position and calculate the distance to the line of best fit
+    drone_position = get_drone_position()
+    distance_to_line = calculate_distance_to_line(drone_position, line_of_best_fit)
+
+    # Calculate the desired yaw angle based on the orientation of the line of best fit
+    desired_yaw = math.atan(line_of_best_fit[1])
+
+    # Calculate the current yaw angle of the drone
+    current_yaw = get_drone_yaw()
+
+    # Calculate the error between the desired and current yaw angles
+    yaw_error = desired_yaw - current_yaw
+
+    # Calculate the yaw velocity required to correct the error using the PID controller
+    yaw_velocity = yaw_pid(yaw_error)
+
+    # Set the yaw velocity of the drone
+    set_yaw_velocity(yaw_velocity)
+
+    # Wait for a short period before the next iteration
+    time.sleep(0.1)
