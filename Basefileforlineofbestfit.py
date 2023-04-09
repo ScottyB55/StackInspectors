@@ -52,3 +52,40 @@ plt.plot(parallel_velocity, label='Parallel Component')
 plt.plot(perpendicular_velocity, label='Perpendicular Component')
 plt.legend()
 plt.show()
+
+#make the mouse only control the drone’s parallel component
+
+#import numpy as np
+#import matplotlib.pyplot as plt
+#from pymavlink import mavutil
+
+# Connect to the drone
+master = mavutil.mavlink_connection('udp:127.0.0.1:14550')
+
+# Define the wall line of best fit
+x = np.linspace(0, 10, 11)
+y = 2*x + 1
+
+# Define the mouse control function
+def get_mouse_control():
+    mouse_pos = plt.ginput(1)
+    parallel_vel = mouse_pos[0][0] - drone_pos[0]
+    return parallel_vel
+
+# Set the initial drone position
+drone_pos = (5, 5)
+
+# Initialize the plot
+fig, ax = plt.subplots()
+ax.plot(x, y, '-')
+
+# Start the loop
+while True:
+    # Get the drone position from the flight controller
+    msg = master.recv_match(type='LOCAL_POSITION_NED')
+    if not msg:
+        continue
+    drone_pos = (msg.x, msg.y)
+
+    # Get the mouse control input
+    parallel_vel = get_mouse_control()
