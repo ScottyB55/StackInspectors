@@ -61,6 +61,10 @@ def linear_function(params, x):
 def point_line_distance(x0, y0, m, b):
     return abs(m * x0 - y0 + b) / math.sqrt(m**2 + 1)
 
+def distance(point1, point2):
+    """Calculate the distance between two points."""
+    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
@@ -79,40 +83,71 @@ class Drone_Controller:
 
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
-    def draw_perceived_wall(self):
+    def find_closest_point(self):
         lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
-
-        # Separate the x and y coordinates
-        x_values = [point[0] for point in lidar_readings]
-        y_values = [point[1] for point in lidar_readings]
-
-        # Option 1: ODR regression (works for both horizontal and vertical)
-        # Create a model for the orthogonal distance regression
-        linear_model = odr.Model(linear_function)
-        # Create the input data for the ODR
-        data = odr.RealData(x_values, y_values)
-        # Initialize the ODR with the model, the data, and an initial guess for the parameters (m and c)
-        odr_instance = odr.ODR(data, linear_model, beta0=[1, 0])
-        # Run the ODR
-        output = odr_instance.run()
-        # Extract the fitted parameters (m and c)
-        slope, intercept = output.beta
-
-        # Option 2: linear regression (not as good for vertical)
-        # slope, intercept = np.polyfit(x_values, y_values, 1)
-
-        # distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
-        #                                slope, intercept)
 
         drone_location_meters = self.Drone.drone_location_meters
 
-        # Find the point on the line that is closest to the given point
-        x_on_line = (drone_location_meters[0] + slope * drone_location_meters[1] - slope * intercept) / (1 + slope**2)
-        y_on_line = slope * x_on_line + intercept
+        if (True):
+            min_distance = None
+            closest_point = None
+
+            for point in lidar_readings:
+                dist = distance(drone_location_meters, point)
+                if min_distance is None or dist < min_distance:
+                    min_distance = dist
+                    closest_point = point
+            return (closest_point)
+        else:
+            # Line implementation
+            # Separate the x and y coordinates
+            x_values = [point[0] for point in lidar_readings]
+            y_values = [point[1] for point in lidar_readings]
+
+            # Option 1: ODR regression (works for both horizontal and vertical)
+            # Create a model for the orthogonal distance regression
+            linear_model = odr.Model(linear_function)
+            # Create the input data for the ODR
+            data = odr.RealData(x_values, y_values)
+            # Initialize the ODR with the model, the data, and an initial guess for the parameters (m and c)
+            odr_instance = odr.ODR(data, linear_model, beta0=[1, 0])
+            # Run the ODR
+            output = odr_instance.run()
+            # Extract the fitted parameters (m and c)
+            slope, intercept = output.beta
+
+            # Option 2: linear regression (not as good for vertical)
+            # slope, intercept = np.polyfit(x_values, y_values, 1)
+
+            # distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
+            #                                slope, intercept)
+
+            drone_location_meters = self.Drone.drone_location_meters
+
+            # Find the point on the line that is closest to the given point
+            x_on_line = (drone_location_meters[0] + slope * drone_location_meters[1] - slope * intercept) / (1 + slope**2)
+            y_on_line = slope * x_on_line + intercept
+
+            # Plot the perceived line
+
+            x0 = self.Drone.lidar_and_wall_sim_with_gui.x_window_min
+            x1 = self.Drone.lidar_and_wall_sim_with_gui.x_window_max
+
+            y0 = slope * x0 + intercept
+            y1 = slope * x1 + intercept
+
+            self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((x0, y0), (x1, y1), 'b-')
+        
+            return (x_on_line, y_on_line)
+
+    def draw_perceived_wall(self):
+        drone_location_meters = self.Drone.drone_location_meters
+
+        closest_point = self.find_closest_point()
 
         # Find the angle from the given point that strikes the line perpendicularly
-        delta_x = x_on_line - drone_location_meters[0]
-        delta_y = y_on_line - drone_location_meters[1]
+        delta_x = closest_point[0] - drone_location_meters[0]
+        delta_y = closest_point[1] - drone_location_meters[1]
 
         distance = math.sqrt(delta_x**2 + delta_y**2)
 
@@ -125,41 +160,6 @@ class Drone_Controller:
         self.velocity_y_setpoint = delta_y_unit * distance_error
 
         print(f"distance = {distance} distance_error = {distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
-        
-        # Find the angle from the origin that strikes the line perpendicularly
-        #perpendicular_slope = -1 / slope
-        #theta = math.atan(perpendicular_slope)
-        #angle_degrees = math.degrees(theta)
-
-        # Check the sign of the slope and adjust the angle accordingly
-        #if slope < 0:
-        #    angle_degrees += 180
-
-        #print(f"distance = {distance} angle = {angle_degrees} slope = {slope} intercept = {intercept}")
-
-        # Plot the perceived line
-
-        x0 = self.Drone.lidar_and_wall_sim_with_gui.x_window_min
-        x1 = self.Drone.lidar_and_wall_sim_with_gui.x_window_max
-
-        y0 = slope * x0 + intercept
-        y1 = slope * x1 + intercept
-
-        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((x0, y0), (x1, y1), 'b-')
-
-        """
-        # Check if the array is not empty
-        if len(lidar_readings) > 0:
-            # Get the first element
-            first_element = lidar_readings[0]
-
-            # Get the last element
-            last_element = lidar_readings[-1]
-        else:
-            print("The array is empty.")
-        
-        self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates(first_element, last_element, 'b-')
-        """
 
     def run(self):
         # Get the lidar data
@@ -213,13 +213,15 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((1, -2), (1, 2))]#, ((1, -2), (3, -2))]
+    walls = [((1, -2), (1, 2)), ((1, -2), (5, -2))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
 
     # Define the initial meters coordinates of the drone
-    drone_location_meters = (0.5, 0.5)
+    drone_location_meters = (1.5, 1)
+    drone_location_meters = (4, -1.5)
+
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0.1
     # Define the initial yaw angle of the drone in degrees (not used in this example)
