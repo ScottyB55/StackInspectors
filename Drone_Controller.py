@@ -186,7 +186,7 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((1, -2), (1, 2)), ((-2, 0), (2, 0))]
+    walls = [((1, -2), (1, 2)), ((1, -2), (3, -2))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
