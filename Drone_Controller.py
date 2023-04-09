@@ -68,12 +68,15 @@ class Drone_Controller:
         self.Drone = Drone
         self.target_distance = 2   # the target distance between the drone and the wall
         self.target_angle = 90      # the target angle between the drone
+        self.velocity_x_setpoint = 0
+        self.velocity_y_setpoint = 0
     
     def update_drone_velocity(self):
         # Have calculations to determine the drone velocity here
 
         # Update the drone's velocity
-        self.Drone.set_drone_velocity_setpoint((1, 0))
+        self.Drone.set_drone_velocity_setpoint((self.velocity_x_setpoint, self.velocity_y_setpoint))
+
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
     def draw_perceived_wall(self):
@@ -98,19 +101,41 @@ class Drone_Controller:
         # Option 2: linear regression (not as good for vertical)
         # slope, intercept = np.polyfit(x_values, y_values, 1)
 
-        distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
-                                       slope, intercept)
+        # distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
+        #                                slope, intercept)
+
+        drone_location_meters = self.Drone.drone_location_meters
+
+        # Find the point on the line that is closest to the given point
+        x_on_line = (drone_location_meters[0] + slope * drone_location_meters[1] - slope * intercept) / (1 + slope**2)
+        y_on_line = slope * x_on_line + intercept
+
+        # Find the angle from the given point that strikes the line perpendicularly
+        delta_x = x_on_line - drone_location_meters[0]
+        delta_y = y_on_line - drone_location_meters[1]
+
+        distance = math.sqrt(delta_x**2 + delta_y**2)
+
+        delta_x_unit = delta_x / distance
+        delta_y_unit = delta_y / distance
+
+        distance_error = distance - self.target_distance
+
+        self.velocity_x_setpoint = delta_x_unit * distance_error
+        self.velocity_y_setpoint = delta_y_unit * distance_error
+
+        print(f"distance = {distance} distance_error = {distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
         
         # Find the angle from the origin that strikes the line perpendicularly
-        perpendicular_slope = -1 / slope
-        theta = math.atan(perpendicular_slope)
-        angle_degrees = math.degrees(theta)
+        #perpendicular_slope = -1 / slope
+        #theta = math.atan(perpendicular_slope)
+        #angle_degrees = math.degrees(theta)
 
         # Check the sign of the slope and adjust the angle accordingly
-        if slope < 0:
-            angle_degrees += 180
+        #if slope < 0:
+        #    angle_degrees += 180
 
-        print(f"distance = {distance} angle = {angle_degrees} slope = {slope} intercept = {intercept}")
+        #print(f"distance = {distance} angle = {angle_degrees} slope = {slope} intercept = {intercept}")
 
         # Plot the perceived line
 
@@ -171,9 +196,9 @@ def run_simulation(drone_app):
         drone_app (Simulated_Drone_Simple_Physics): The drone application instance.
     """
     timestep = 0.1
+    drone_controller.update_drone_velocity()
     while True:
-        drone_controller.update_drone_velocity()
-
+        
         # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
         time.sleep(timestep)
 
@@ -183,10 +208,12 @@ def run_simulation(drone_app):
         drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
 
+        drone_controller.update_drone_velocity()
+
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((1, -2), (1, 2)), ((1, -2), (3, -2))]
+    walls = [((1, -2), (1, 2))]#, ((1, -2), (3, -2))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
