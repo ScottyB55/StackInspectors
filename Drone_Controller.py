@@ -83,6 +83,7 @@ class Drone_Controller:
         self.target_angle = 90      # the target angle between the drone
         self.velocity_x_setpoint = 0
         self.velocity_y_setpoint = 0
+        self.distance_error = None
     
     def update_drone_velocity(self):
         # Have calculations to determine the drone velocity here
@@ -90,20 +91,31 @@ class Drone_Controller:
 
         closest_point = self.find_closest_point()
 
-        # Find the angle from the given point that strikes the line perpendicularly
+        # Find the displacement between the drone and the closest point
         delta_x = closest_point[0] - drone_location_meters[0]
         delta_y = closest_point[1] - drone_location_meters[1]
 
         distance = math.sqrt(delta_x**2 + delta_y**2)
 
+        # Scale this distance to a unit vector
         delta_x_unit = delta_x / distance
         delta_y_unit = delta_y / distance
 
-        distance_error = distance - self.target_distance
+        derivative_error = 0
+        distance_error_prev = self.distance_error
+        self.distance_error = distance - self.target_distance
 
-        self.velocity_x_setpoint = delta_x_unit * distance_error
-        self.velocity_y_setpoint = delta_y_unit * distance_error
+        if (distance_error_prev != None):
+            derivative_error = self.distance_error - distance_error_prev
+        
+        Kp = 1
+        Kd = 5
 
+        # put in the PID setpoint that is in line with the displacement to the closest point
+        self.velocity_x_setpoint = delta_x_unit * (Kp * self.distance_error + Kd * derivative_error)
+        self.velocity_y_setpoint = delta_y_unit * (Kp * self.distance_error + Kd * derivative_error)
+
+        # Get the mouse input so we can move the drone parallel to the line between nearest point & drone
         mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
 
         # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
@@ -113,10 +125,11 @@ class Drone_Controller:
         # Subtract the projection from the original vector to get the perpendicular component
         perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
 
+        # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
         self.velocity_x_setpoint += perpendicular_component[0]
         self.velocity_y_setpoint += perpendicular_component[1]
 
-        print(f"distance = {distance} distance_error = {distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
+        print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
         # Update the drone's velocity
         self.Drone.set_drone_velocity_setpoint((self.velocity_x_setpoint, self.velocity_y_setpoint))

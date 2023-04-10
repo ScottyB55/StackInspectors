@@ -134,7 +134,8 @@ class Simulated_Drone_Realistic_Physics(Drone):
         Args:
             drone_velocity (tuple): A tuple containing the x and y components of the drone's velocity.
         """
-        self.drone.set_attitude(target_roll=drone_velocity[0]*1, target_pitch=-drone_velocity[1]*1, target_yaw=0, hover_thrust=0.5)
+        gain = 2
+        self.drone.set_attitude(target_roll=drone_velocity[0]*gain, target_pitch=-drone_velocity[1]*gain, target_yaw=0, hover_thrust=0.5)
 
     def update_lidar_readings(self):
         return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
