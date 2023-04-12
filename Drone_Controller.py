@@ -250,14 +250,13 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((1, -2), (1, 4)), ((1, -2), (7, -2))]
+    walls = [((-3, -6), (0, 0)), ((0, 0), (6, 0)), ((6, 0), (6, -4)), ((6, -4), (0, 0))]
 
     #wall_start_meters = (-2, 0)
     #wall_end_meters = (2, 0)
 
     # Define the initial meters coordinates of the drone
-    drone_location_meters = (1.5, 1)
-    drone_location_meters = (4, -1.5)
+    drone_location_meters = (0, -1)
 
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0.1
@@ -265,6 +264,7 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
+    # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
     drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
     #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
 
