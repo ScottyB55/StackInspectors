@@ -131,10 +131,10 @@ class Drone_Controller:
 
         print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
-        # Update the drone's velocity
-        self.Drone.set_drone_velocity_setpoint((self.velocity_x_setpoint, self.velocity_y_setpoint))
+        # Update the drone's velocity using defaults for yaw and throttle
+        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint)
 
-        # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+        # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
     def find_closest_point(self):
         lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
@@ -236,7 +236,7 @@ def run_simulation(drone_app):
     while True:
         drone_controller.update_drone_velocity()
 
-        # drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+        # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
         time.sleep(timestep)
 
         drone_controller.Drone.update_location_meters(timestep)
@@ -265,8 +265,8 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
-    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
-    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 

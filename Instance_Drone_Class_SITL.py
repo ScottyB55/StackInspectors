@@ -13,7 +13,10 @@ def run_simulation(drone_app):
     timestep = 0.1
     mouse_position_normalized_to_meters_velocity = 1
     while True:
-        drone_app.set_drone_velocity_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+        roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
+        # using the defaults for yaw and throttle
+        drone_app.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
+        # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
         time.sleep(timestep)
 
         drone_app.update_location_meters()
