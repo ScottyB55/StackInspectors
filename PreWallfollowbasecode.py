@@ -79,3 +79,51 @@ pre_wall_follow_mode()
 
 # Close the connection to the drone
 vehicle.close()
+
+#adjusting P,D
+#
+#
+#
+from pymavlink import mavutil
+import keyboard
+
+# Initialize gains
+Kp = 0.0
+Kd = 0.0
+
+# Connect to SITL using MAVProxy
+master = mavutil.mavlink_connection('udp:127.0.0.1:14550')
+
+# Define callback function for key presses
+def key_pressed(e):
+    global Kp, Kd
+    if e.name == 'p':   # increase P gain by 0.1
+        Kp += 0.1
+    elif e.name == 'P': # decrease P gain by 0.1
+        Kp -= 0.1
+    elif e.name == 'd': # increase D gain by 0.01
+        Kd += 0.01
+    elif e.name == 'D': # decrease D gain by 0.01
+        Kd -= 0.01
+    print(f'P gain: {Kp:.1f}, D gain: {Kd:.2f}')
+    
+    # Send updated gains to drone
+    msg = master.mav.param_set_encode(
+        target_system=1, target_component=mavutil.mavlink.MAV_COMP_ID_CONTROLLER,
+        param_id=b'PID_P', param_value=Kp)
+    master.mav.send(msg)
+    msg = master.mav.param_set_encode(
+        target_system=1, target_component=mavutil.mavlink.MAV_COMP_ID_CONTROLLER,
+        param_id=b'PID_D', param_value=Kd)
+    master.mav.send(msg)
+
+# Register key callback function
+keyboard.on_press(key_pressed)
+
+# Run loop
+while True:
+    # Handle incoming MAVLink messages
+    msg = master.recv_match()
+    if msg:
+        # Handle message here
+        pass
