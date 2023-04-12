@@ -92,10 +92,10 @@ class Drone_Controller:
         closest_point = self.find_closest_point()
 
         # Find the displacement between the drone and the closest point
-        delta_x = closest_point[0] - drone_location_meters[0]
-        delta_y = closest_point[1] - drone_location_meters[1]
+        delta_x = closest_point.x_relative_distance_m
+        delta_y = closest_point.y_relative_distance_m
 
-        distance = math.sqrt(delta_x**2 + delta_y**2)
+        distance = closest_point.total_relative_distance_m
 
         # Scale this distance to a unit vector
         delta_x_unit = delta_x / distance
@@ -137,20 +137,21 @@ class Drone_Controller:
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
     def find_closest_point(self):
-        lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
+        lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings
 
-        drone_location_meters = self.Drone.drone_location_meters
+        # we are actually all looking at relative readings
+        # drone_location_meters = self.Drone.drone_location_meters
 
-        if (True):
-            min_distance = None
-            closest_point = None
+        min_distance = None
+        closest_point = None
 
-            for point in lidar_readings:
-                dist = distance(drone_location_meters, point)
-                if min_distance is None or dist < min_distance:
-                    min_distance = dist
-                    closest_point = point
-            return (closest_point)
+        for lidar_reading in lidar_readings:
+            if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
+                min_distance = lidar_reading.total_relative_distance_m
+                closest_point = lidar_reading
+        
+        return (closest_point)
+        """
         else:
             # Line implementation
             # Separate the x and y coordinates
@@ -192,13 +193,13 @@ class Drone_Controller:
             self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((x0, y0), (x1, y1), 'b-')
         
             return (x_on_line, y_on_line)
+        """
 
     def draw_perceived_wall(self):
         pass
 
     def run(self):
         # Get the lidar data
-        self.Drone.lidar_and_wall_sim_with_gui.lidar_readings_xy_meters_absolute
 
         # Optional: factor the drone's roll & pitch into the lidar data
 
@@ -222,6 +223,7 @@ class Drone_Controller:
         #   Set this proportional to the mouse y coordinates
 
         # Use something like the set_attitude() function for self.Drone.set_drone_velocity()
+        pass
 
 def run_simulation(drone_app):
     """
