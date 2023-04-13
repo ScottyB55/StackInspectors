@@ -3,8 +3,15 @@ import time
 import threading
 from Lidar_and_Wall_Simulator_With_GUI import Lidar_and_Wall_Simulator_With_GUI
 from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
+import math
 
 # Good idea: from collections import namedtuple
+
+def rotate_point(x, y, angle_degrees):
+    angle_radians = math.radians(angle_degrees)
+    new_x = x * math.cos(angle_radians) - y * math.sin(angle_radians)
+    new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
+    return new_x, new_y
 
 
 class Drone:
@@ -69,10 +76,11 @@ class Simulated_Drone_Simple_Physics(Drone):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
+        self.drone_yaw_degrees = drone_yaw_degrees
     
     def update_lidar_readings(self):
         return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
@@ -84,10 +92,18 @@ class Simulated_Drone_Simple_Physics(Drone):
         Args:
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
+
+        self.drone_yaw_degrees += self.target_yaw
+
+        # Rotate the target_roll and target_pitch by drone_yaw_degrees
+        rotated_target_roll, rotated_target_pitch = rotate_point(self.target_roll, self.target_pitch, -self.drone_yaw_degrees)
+        # Update drone_location_meters
+        self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch)))
+        
         # print(self.drone_velocity)
-        self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, self.drone_velocity))
-        self.lidar_and_wall_sim_with_gui.drone_location_meters = self.drone_location_meters
-        return self.drone_location_meters
+        # self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, self.drone_velocity))
+        # self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
+        # return self.drone_location_meters
 
     def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
         """
@@ -97,7 +113,9 @@ class Simulated_Drone_Simple_Physics(Drone):
             drone_velocity (tuple): A tuple containing the x and y components of the drone's velocity.
         """
         # TODO: add functionality here for yaw and thrust
-        self.drone_velocity = (target_roll, target_pitch)
+        self.target_roll = target_roll
+        self.target_pitch = target_pitch
+        self.target_yaw = target_yaw
     
     def wipe_gui(self):
         self.lidar_and_wall_sim_with_gui.create_figure()
@@ -115,14 +133,15 @@ class Simulated_Drone_Realistic_Physics(Drone):
     Represents a simulated drone with realistic physics using SITL QGroundControl.
     """
 
-    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
+        self.drone_yaw_degrees = drone_yaw_degrees
 
         self.takeoff(target_altitude=3)
 
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
@@ -155,7 +174,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
         self.drone_location_meters = self.drone.current_location_meters()
-        self.lidar_and_wall_sim_with_gui.drone_location_meters = self.drone_location_meters
+        self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
 
     def wipe_gui(self):
@@ -177,6 +196,7 @@ def run_simulation(drone_app):
     """
     timestep = 0.1
     mouse_position_normalized_to_meters_velocity = 1
+
     while True:
         roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
         # using the defaults for yaw and throttle

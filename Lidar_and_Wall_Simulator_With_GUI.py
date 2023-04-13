@@ -14,7 +14,7 @@ class LidarReading:
         self.update_relative_xy_distance()
 
     def __repr__(self):
-        return f"LidarReading(angle={self.angle_degrees}, total_dist={self.lidar_reading_distance_m}, x_dist={self.x_relative_distance}, y_dist={self.y_relative_distance})"
+        return f"LidarReading(angle={self.lidar_angle_degrees}, total_dist={self.lidar_reading_distance_m}, x_dist={self.x_relative_distance_m}, y_dist={self.y_relative_distance_m})"
 
     def update_relative_xy_distance(self):
         """
@@ -37,6 +37,36 @@ class LidarReading:
 
         self.total_relative_distance_m = self.lidar_reading_distance_m
 
+class Wall:
+    def __init__(self, wall_start_point_absolute_m, wall_end_point_absolute_m):
+        self.wall_start_point_absolute_m = wall_start_point_absolute_m
+        self.wall_end_point_absolute_m = wall_end_point_absolute_m
+        self.wall_start_point_relative_m = None
+        self.wall_end_point_relative_m = None
+
+    def calculate_relative_walls_to_drone(self, drone):
+        def rotate_and_translate(point, angle, translation):
+            x, y = point
+            x -= translation[0]
+            y -= translation[1]
+            angle_rad = math.radians(angle)
+            x_rotated = x * math.cos(angle_rad) + y * math.sin(angle_rad)
+            y_rotated = -x * math.sin(angle_rad) + y * math.cos(angle_rad)
+            return x_rotated, y_rotated
+        
+        drone_yaw = drone.drone_yaw_degrees
+        drone_position = drone.drone_location_meters
+        
+        self.wall_start_point_relative_m = rotate_and_translate(
+            self.wall_start_point_absolute_m, -drone_yaw, drone_position
+        )
+        self.wall_end_point_relative_m = rotate_and_translate(
+            self.wall_end_point_absolute_m, -drone_yaw, drone_position
+        )
+        
+        #self.wall_start_point_relative_m = (self.wall_start_point_absolute_m[0] - drone_position[0], self.wall_start_point_absolute_m[1] - drone_position[1])
+        #self.wall_end_point_relative_m = (self.wall_end_point_absolute_m[0] - drone_position[0], self.wall_end_point_absolute_m[1] - drone_position[1])
+
 class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
     """
     This class is really just a lidar & wall simulator with a GUI
@@ -50,14 +80,13 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, walls, drone_location_meters, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         tk.Tk.__init__(self)
         # walls is an array of tuples of tuples
         self.walls = walls#[(wall_start_meters, wall_end_meters)]
         #self.wall_start_meters = wall_start_meters
         #self.wall_end_meters = wall_end_meters
-        self.drone_location_meters = drone_location_meters
-        """self.drone_yaw_degrees = drone_yaw_degrees"""
+        self.drone = drone
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
@@ -68,13 +97,16 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.create_figure()
         self.update_canvas()
 
+    def update_walls_relative_to_drone(self):
+        pass
+
     def draw_drone(self):
         """
         Draw the drone on the matplotlib figure.
         """
         # drone_center = (self.drone_location_meters[0] * self.scale_factor, self.drone_location_meters[1] * self.scale_factor)  # Fixed position at the center of the screen
         drone_center = (0, 0)  # Fixed position at the center of the screen
-        drone_yaw_rad = 0 #math.radians(self.drone_yaw_degrees)
+        drone_yaw_rad = 0 # math.radians(self.drone.drone_yaw_degrees)
 
         triangle_points = [
             (drone_center[0] + 10 * math.sin(drone_yaw_rad), drone_center[1] + 10 * math.cos(drone_yaw_rad)),
@@ -91,9 +123,11 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
 
         for wall in self.walls:
-            wall_start_meters, wall_end_meters = wall
-            wall_start_meters = (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
-            wall_end_meters = (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
+            wall_start_meters = wall.wall_start_point_relative_m
+            wall_end_meters = wall.wall_end_point_relative_m 
+            # wall_start_meters, wall_end_meters = wall
+            # wall_start_meters = (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
+            # wall_end_meters = (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
             self.draw_wall_from_coordinates(wall_start_meters, wall_end_meters)
     
     def draw_wall_from_coordinates(self, wall_start_meters_tuple, wall_end_meters_tuple, color = 'r-'):
@@ -164,6 +198,11 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         Returns:
             lidar_readings (list of tuples): A list of tuples where each tuple contains the angle (float) and the LIDAR distance (float or None).
         """
+
+        # Calculate the wall positions relative to the drone
+        for wall in self.walls:
+            wall.calculate_relative_walls_to_drone(self.drone)
+
         self.lidar_readings = []
         angle = 0
 
@@ -176,39 +215,30 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             distance_min = None
 
             for wall in self.walls:
-                wall_start_meters, wall_end_meters = wall
+                # wall_start_meters, wall_end_meters = wall
 
                 # Get the walls in terms of relative
-                wall_start_meters = (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
+                wall_start_meters = wall.wall_start_point_relative_m # (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
 
-                wall_end_meters = (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
+                wall_end_meters = wall.wall_end_point_relative_m # (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
 
                 t_denominator = (wall_end_meters[1] - wall_start_meters[1]) * dx - (wall_end_meters[0] - wall_start_meters[0]) * dy
 
-                if t_denominator == 0:
-                    angle += self.lidar_angle_step_degrees
-                    continue
+                if t_denominator != 0:
+                    t_numerator = (wall_start_meters[0]) * dy - (wall_start_meters[1]) * dx
+                    t = t_numerator / t_denominator
 
-                t_numerator = (wall_start_meters[0]) * dy - (wall_start_meters[1]) * dx
-                t = t_numerator / t_denominator
+                    if not(t < 0 or t > 1):
+                        u_numerator = (wall_start_meters[0]) * (wall_end_meters[1] - wall_start_meters[1]) - (wall_start_meters[1]) * (wall_end_meters[0] - wall_start_meters[0])
+                        u = u_numerator / t_denominator
 
-                if t < 0 or t > 1:
-                    angle += self.lidar_angle_step_degrees
-                    continue
+                        if u >= 0:
+                            # The random component is from a standard normal distribution
+                            # The mean distance is the lidar reading and the standard deviation is lidar_noise_meters_standard_dev
+                            distance = (u + self.lidar_noise_meters_standard_dev * np.random.randn(1))[0]
 
-                u_numerator = (wall_start_meters[0]) * (wall_end_meters[1] - wall_start_meters[1]) - (wall_start_meters[1]) * (wall_end_meters[0] - wall_start_meters[0])
-                u = u_numerator / t_denominator
-
-                if u < 0:
-                    angle += self.lidar_angle_step_degrees
-                    continue
-
-                # The random component is from a standard normal distribution
-                # The mean distance is the lidar reading and the standard deviation is lidar_noise_meters_standard_dev
-                distance = (u + self.lidar_noise_meters_standard_dev * np.random.randn(1))[0]
-
-                if ((distance_min == None) or (distance < distance_min)):
-                    distance_min = distance
+                            if ((distance_min == None) or (distance < distance_min)):
+                                distance_min = distance
             
             if (distance_min != None):
                 self.lidar_readings.append(LidarReading(angle, distance_min))

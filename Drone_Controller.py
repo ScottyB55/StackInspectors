@@ -42,6 +42,7 @@ Firmware update
 """
 
 from Drone_Class import Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
+from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading
 import time
 import threading
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
@@ -86,8 +87,6 @@ class Drone_Controller:
         self.distance_error = None
     
     def update_drone_velocity(self):
-        # Have calculations to determine the drone velocity here
-        drone_location_meters = self.Drone.drone_location_meters
 
         closest_point = self.find_closest_point()
 
@@ -129,10 +128,10 @@ class Drone_Controller:
         self.velocity_x_setpoint += perpendicular_component[0]
         self.velocity_y_setpoint += perpendicular_component[1]
 
-        print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
+        #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
         # Update the drone's velocity using defaults for yaw and throttle
-        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint)
+        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, 10)
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
@@ -234,15 +233,32 @@ def run_simulation(drone_app):
     """
     timestep = 0.1
     drone_controller.Drone.update_lidar_readings()
+
+    def on_key_press(event):
+        K_YAW_INC = 10  # Define the increment value for the yaw change
+        if event.keysym == "Right":
+            drone_app.drone_yaw_degrees += K_YAW_INC
+            print ("pressed")
+        elif event.keysym == "Left":
+            drone_app.drone_yaw_degrees -= K_YAW_INC
+            print ("pressed")
+
+    # Bind the on_key_press function to the key press event
+    drone_app.lidar_and_wall_sim_with_gui.bind("<KeyPress>", on_key_press)
+    # Set the focus to the canvas to receive keyboard events
+    drone_app.lidar_and_wall_sim_with_gui.focus_set()
     
     while True:
         drone_controller.update_drone_velocity()
-
-        # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+        #drone_controller.Drone.set_attitude_setpoint(0, 0)
+        #scaled_mouse_velocity = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
+        #drone_app.set_attitude_setpoint(scaled_mouse_velocity[0], scaled_mouse_velocity[1])
+        
         time.sleep(timestep)
 
         drone_controller.Drone.update_location_meters(timestep)
         drone_controller.Drone.update_lidar_readings()
+        #lidar_readings = drone_controller.Drone.lidar_and_wall_sim_with_gui.lidar_readings
         drone_controller.Drone.wipe_gui()
         # drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
@@ -252,23 +268,23 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [((-3, -6), (0, 0)), ((0, 0), (6, 0)), ((6, 0), (6, -4)), ((6, -4), (0, 0))]
-
-    #wall_start_meters = (-2, 0)
-    #wall_end_meters = (2, 0)
+    walls = [   Wall((-3, -6), (0, 0)),
+                Wall((0, 0), (6, 0)),
+                Wall((6, 0), (6, -4))   ]
+                #Wall((6, -4), (0, 0))   ]
 
     # Define the initial meters coordinates of the drone
     drone_location_meters = (0, -1)
 
     # Define the standard deviation of the LIDAR noise in meters units
-    lidar_noise_meters_standard_dev = 0.1
+    lidar_noise_meters_standard_dev = 0 #0.1
     # Define the initial yaw angle of the drone in degrees (not used in this example)
-    drone_yaw_degrees = 0
+    drone_yaw_degrees = 90
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
-    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
-    #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Realistic_Physics(walls_absolute_locations, drone_location_meters, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
