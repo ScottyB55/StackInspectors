@@ -96,7 +96,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
-        self.lidar_angle_step_degrees = 1
+        self.lidar_angle_step_degrees = 2
 
         self.title('Drone Lidar')
         self.geometry('800x600')

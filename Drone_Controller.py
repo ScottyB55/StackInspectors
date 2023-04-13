@@ -288,9 +288,9 @@ if __name__ == '__main__':
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4)),
                 Wall((0, 4), (0, 8)),
-                Wall((0, 8), (4, 8)),
-                Wall((4, 8), (4, -8)),
-                Wall((4, -8), (0, -8)),
+                Wall((0, 8), (6, 8)),
+                Wall((6, 8), (6, -8)),
+                Wall((6, -8), (0, -8)),
                 Wall((0, -8), (0, -4)),
                 Wall((0, -4), (-4, -4))   ]
 
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     drone_location_meters = (0, 0)
 
     # Define the standard deviation of the LIDAR noise in meters units
-    lidar_noise_meters_standard_dev = 0 #0.1
+    lidar_noise_meters_standard_dev = 0.05
     # Define the initial yaw angle of the drone in degrees (not used in this example)
     drone_yaw_degrees = 90
 
