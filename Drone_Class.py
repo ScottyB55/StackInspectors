@@ -64,6 +64,67 @@ class Real_Drone_Realistic_Physics(Drone):
         """
         super().__init__()
 
+class Simulated_Drone_Realistic_Physics(Drone):
+    """
+    Represents a simulated drone with realistic physics using SITL QGroundControl.
+    """
+
+    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+        super().__init__()
+        # Make sure to put the connection string as a command line argument or pass it into the function
+        self.drone = Drone_Realistic_Physics_Class()
+        self.drone_yaw_degrees = drone_yaw_degrees
+
+        self.takeoff(target_altitude=3)
+
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
+        self.drone_location_meters = drone_location_meters
+
+    def takeoff(self, target_altitude):
+        self.drone.takeoff(target_altitude)
+    
+    def get_current_yaw_angle(self):
+        return self.drone.current_yaw_angle()
+
+    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
+        """
+        Sets an attitude setpoint to the drone.
+
+        Parameters:
+            target_roll (float): Desired roll angle in degrees.
+            target_pitch (float): Desired pitch angle in degrees.
+            target_yaw (float): Desired yaw angle in degrees.
+            hover_thrust (float): Desired thrust value for hovering. Should be between 0 and 1, 0.5 is no vertical velocity.
+
+        Returns:
+            None
+        """
+        gain = 2
+        self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
+
+    def update_lidar_readings(self):
+        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
+    
+    def update_location_meters(self, timestep):
+        """
+        Update the meters location of the drone based on the given timestep.
+
+        Args:
+            timestep (float): The duration of the timestep for updating the drone's meters.
+        """
+        self.drone_location_meters = self.drone.current_location_meters()
+        self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
+        return self.drone_location_meters
+
+    def wipe_gui(self):
+        self.lidar_and_wall_sim_with_gui.create_figure()
+
+    def update_gui(self):
+        self.lidar_and_wall_sim_with_gui.draw_drone()
+        self.lidar_and_wall_sim_with_gui.draw_walls()
+        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
+        self.lidar_and_wall_sim_with_gui.update_canvas()
+
 
 class Simulated_Drone_Simple_Physics(Drone):
     """
@@ -139,68 +200,6 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         # self.lidar_and_wall_sim_with_gui.draw_lidar_points_cluster()
-        self.lidar_and_wall_sim_with_gui.update_canvas()
-
-
-class Simulated_Drone_Realistic_Physics(Drone):
-    """
-    Represents a simulated drone with realistic physics using SITL QGroundControl.
-    """
-
-    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
-        super().__init__()
-        # Make sure to put the connection string as a command line argument or pass it into the function
-        self.drone = Drone_Realistic_Physics_Class()
-        self.drone_yaw_degrees = drone_yaw_degrees
-
-        self.takeoff(target_altitude=3)
-
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
-        self.drone_location_meters = drone_location_meters
-
-    def takeoff(self, target_altitude):
-        self.drone.takeoff(target_altitude)
-    
-    def get_current_yaw_angle(self):
-        return self.drone.current_yaw_angle()
-
-    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
-        """
-        Sets an attitude setpoint to the drone.
-
-        Parameters:
-            target_roll (float): Desired roll angle in degrees.
-            target_pitch (float): Desired pitch angle in degrees.
-            target_yaw (float): Desired yaw angle in degrees.
-            hover_thrust (float): Desired thrust value for hovering. Should be between 0 and 1, 0.5 is no vertical velocity.
-
-        Returns:
-            None
-        """
-        gain = 2
-        self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
-
-    def update_lidar_readings(self):
-        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
-    
-    def update_location_meters(self, timestep):
-        """
-        Update the meters location of the drone based on the given timestep.
-
-        Args:
-            timestep (float): The duration of the timestep for updating the drone's meters.
-        """
-        self.drone_location_meters = self.drone.current_location_meters()
-        self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
-        return self.drone_location_meters
-
-    def wipe_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
-
-    def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_walls()
-        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 
 
