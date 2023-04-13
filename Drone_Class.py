@@ -81,6 +81,7 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
         self.drone_yaw_degrees = drone_yaw_degrees
+        self.target_yaw = drone_yaw_degrees
     
     def update_lidar_readings(self):
         return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
@@ -93,7 +94,17 @@ class Simulated_Drone_Simple_Physics(Drone):
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
 
-        self.drone_yaw_degrees += self.target_yaw
+        K_YAW_CTRL = 33
+
+        error = self.target_yaw - self.drone_yaw_degrees
+        if abs(error) > 180:
+            if error > 0:
+                error -= 360
+            else:
+                error += 360
+
+        self.drone_yaw_degrees += error * K_YAW_CTRL / 100 + 360
+        self.drone_yaw_degrees %= 360
 
         # Rotate the target_roll and target_pitch by drone_yaw_degrees
         rotated_target_roll, rotated_target_pitch = rotate_point(self.target_roll, self.target_pitch, -self.drone_yaw_degrees)
@@ -104,6 +115,9 @@ class Simulated_Drone_Simple_Physics(Drone):
         # self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, self.drone_velocity))
         # self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         # return self.drone_location_meters
+
+    def get_current_yaw_angle(self):
+        return self.drone_yaw_degrees
 
     def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
         """
@@ -146,6 +160,9 @@ class Simulated_Drone_Realistic_Physics(Drone):
 
     def takeoff(self, target_altitude):
         self.drone.takeoff(target_altitude)
+    
+    def get_current_yaw_angle(self):
+        return self.drone.current_yaw_angle()
 
     def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
         """

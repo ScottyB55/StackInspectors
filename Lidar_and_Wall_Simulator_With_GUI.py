@@ -5,6 +5,10 @@ import tkinter as tk
 from matplotlib.figure import Figure
 import numpy as np
 
+# This is here so we treat self.drone like a drone and not like a tuple
+#from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
+
+
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
         self.lidar_angle_degrees = angle_degrees
@@ -54,7 +58,8 @@ class Wall:
             y_rotated = -x * math.sin(angle_rad) + y * math.cos(angle_rad)
             return x_rotated, y_rotated
         
-        drone_yaw = drone.drone_yaw_degrees
+        print("Calculate Fn: Drone object type:", type(drone))
+        drone_yaw = drone.get_current_yaw_angle()
         drone_position = drone.drone_location_meters
         
         self.wall_start_point_relative_m = rotate_and_translate(
@@ -87,6 +92,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         #self.wall_start_meters = wall_start_meters
         #self.wall_end_meters = wall_end_meters
         self.drone = drone
+        print("Constructor: Drone object type:", type(drone))
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 

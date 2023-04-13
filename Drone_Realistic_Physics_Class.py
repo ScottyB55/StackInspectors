@@ -182,7 +182,22 @@ class Drone_Realistic_Physics_Class:
         z = location_global_relative.alt
 
         return x, y, z
+    
+    def current_yaw_angle(self):
+        """
+        Retrieves the current yaw angle of the vehicle in degrees.
 
+        Returns:
+            float: The current yaw angle of the vehicle in degrees.
+        """
+        # Get the current yaw angle in radians
+        yaw_radians = self.vehicle.attitude.yaw
+
+        # Convert yaw angle to degrees
+        yaw_degrees = math.degrees(yaw_radians)
+
+        return yaw_degrees
+    
     def takeoff(self, target_altitude=3, altitude_reach_threshold=0.9):
         """
         Arms the drone and performs a takeoff to the specified altitude.

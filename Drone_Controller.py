@@ -41,13 +41,11 @@ Nothing is readable
 Firmware update
 """
 
-from Drone_Class import Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
+from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading
 import time
 import threading
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-
-from Drone_Class import Drone
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -130,8 +128,10 @@ class Drone_Controller:
 
         #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
+        yaw_setpoint = self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees
+
         # Update the drone's velocity using defaults for yaw and throttle
-        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, 10)
+        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, yaw_setpoint)
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
@@ -235,12 +235,12 @@ def run_simulation(drone_app):
     drone_controller.Drone.update_lidar_readings()
 
     def on_key_press(event):
-        K_YAW_INC = 10  # Define the increment value for the yaw change
+        K_YAW_INC = 30  # Define the increment value for the yaw change
         if event.keysym == "Right":
-            drone_app.drone_yaw_degrees += K_YAW_INC
+            drone_app.target_yaw = (drone_app.target_yaw + K_YAW_INC) % 360
             print ("pressed")
         elif event.keysym == "Left":
-            drone_app.drone_yaw_degrees -= K_YAW_INC
+            drone_app.target_yaw = (drone_app.target_yaw - K_YAW_INC + 360) % 360
             print ("pressed")
 
     # Bind the on_key_press function to the key press event
@@ -283,8 +283,8 @@ if __name__ == '__main__':
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
-    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
-    #drone_app = Simulated_Drone_Realistic_Physics(walls_absolute_locations, drone_location_meters, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
