@@ -84,7 +84,7 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_yaw = drone_yaw_degrees
     
     def update_lidar_readings(self):
-        return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
+        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
     
     def update_location_meters(self, timestep):
         """
@@ -181,7 +181,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
         self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
 
     def update_lidar_readings(self):
-        return self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
+        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """

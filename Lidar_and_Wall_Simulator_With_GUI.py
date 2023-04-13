@@ -58,7 +58,7 @@ class Wall:
             y_rotated = -x * math.sin(angle_rad) + y * math.cos(angle_rad)
             return x_rotated, y_rotated
         
-        print("Calculate Fn: Drone object type:", type(drone))
+        #print("Lidar sim calculate relative wall fn: type: ", type(drone))
         drone_yaw = drone.get_current_yaw_angle()
         drone_position = drone.drone_location_meters
         
@@ -92,7 +92,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         #self.wall_start_meters = wall_start_meters
         #self.wall_end_meters = wall_end_meters
         self.drone = drone
-        print("Constructor: Drone object type:", type(drone))
+        print("Lidar sim Constructor: type: ", type(drone))
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
@@ -102,9 +102,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.geometry('800x600')
         self.create_figure()
         self.update_canvas()
-
-    def update_walls_relative_to_drone(self):
-        pass
 
     def draw_drone(self):
         """
@@ -192,7 +189,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             self.draw_point_cluster(point, clustering.labels_[i])
     """
 
-    def get_lidar_readings_angle_deg_dist_m(self):
+    def get_lidar_readings_angle_deg_dist_m(self, drone):
         """
         Returns an array of tuples containing (angle, distance) values for LIDAR readings.
 
@@ -204,7 +201,10 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         Returns:
             lidar_readings (list of tuples): A list of tuples where each tuple contains the angle (float) and the LIDAR distance (float or None).
         """
+        # Keep updating the reference to the drone object here! Otherwise we get an error!
+        self.drone = drone
 
+        #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(self.drone))
         # Calculate the wall positions relative to the drone
         for wall in self.walls:
             wall.calculate_relative_walls_to_drone(self.drone)

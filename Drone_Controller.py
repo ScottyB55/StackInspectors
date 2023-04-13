@@ -128,10 +128,25 @@ class Drone_Controller:
 
         #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
 
-        yaw_setpoint = self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees
+        K_YAW_CTRL = 50
+
+        current_yaw = self.Drone.get_current_yaw_angle()
+        target_yaw = current_yaw + closest_point.lidar_angle_degrees
+        error_yaw = target_yaw - current_yaw
+        while (abs(error_yaw) > 180):
+            if error_yaw > 0:
+                error_yaw -= 360
+            else:
+                error_yaw += 360
+
+        setpoint_yaw1 = (current_yaw + error_yaw * K_YAW_CTRL / 100 + 360) % 360
+
+        setpoint_yaw2 = (self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees + 360) % 360
+
+        print(f"Pt1: {setpoint_yaw1} Pt2: {setpoint_yaw2}")
 
         # Update the drone's velocity using defaults for yaw and throttle
-        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, yaw_setpoint)
+        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1)
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
@@ -257,11 +272,13 @@ def run_simulation(drone_app):
         time.sleep(timestep)
 
         drone_controller.Drone.update_location_meters(timestep)
+        #print(f"iter {i}: Pre update_lidar_readings: ", type(drone_controller.Drone))
         drone_controller.Drone.update_lidar_readings()
         #lidar_readings = drone_controller.Drone.lidar_and_wall_sim_with_gui.lidar_readings
         drone_controller.Drone.wipe_gui()
         # drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
+
 
         
 
@@ -283,8 +300,8 @@ if __name__ == '__main__':
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
-    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
-    #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
