@@ -283,8 +283,8 @@ if __name__ == '__main__':
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
-    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
-    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 
