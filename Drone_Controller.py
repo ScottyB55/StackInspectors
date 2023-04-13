@@ -295,7 +295,7 @@ if __name__ == '__main__':
                 Wall((0, -4), (-4, -4))   ]
 
     # Define the initial meters coordinates of the drone
-    drone_location_meters = (0, -1)
+    drone_location_meters = (0, 0)
 
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0 #0.1
