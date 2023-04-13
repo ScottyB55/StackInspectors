@@ -285,10 +285,14 @@ def run_simulation(drone_app):
 
 if __name__ == '__main__':
     # Define the starting and ending meters coordinates of the wall
-    walls = [   Wall((-3, -6), (0, 0)),
-                Wall((0, 0), (6, 0)),
-                Wall((6, 0), (6, -4))   ]
-                #Wall((6, -4), (0, 0))   ]
+    walls = [   Wall((-4, -4), (-4, 4)),
+                Wall((-4, 4), (0, 4)),
+                Wall((0, 4), (0, 8)),
+                Wall((0, 8), (4, 8)),
+                Wall((4, 8), (4, -8)),
+                Wall((4, -8), (0, -8)),
+                Wall((0, -8), (0, -4)),
+                Wall((0, -4), (-4, -4))   ]
 
     # Define the initial meters coordinates of the drone
     drone_location_meters = (0, -1)
