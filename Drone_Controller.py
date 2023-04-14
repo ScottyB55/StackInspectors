@@ -257,19 +257,44 @@ def run_simulation(drone_app):
 
     def on_key_press(event):
         K_YAW_INC = 30  # Define the increment value for the yaw change
-        if event.keysym == "Right": # Right arrow key
+        if event.keysym == "Right":  # Right arrow key
             drone_app.target_yaw = (drone_app.target_yaw + K_YAW_INC) % 360
-            print ("pressed")
-        elif event.keysym == "Left": # Left arrow key
+            print("pressed")
+        elif event.keysym == "Left":  # Left arrow key
             drone_app.target_yaw = (drone_app.target_yaw - K_YAW_INC + 360) % 360
-            print ("pressed")
+            print("pressed")
         elif event.keysym == "L" or event.keysym == "l":
             pass
+        elif event.keysym == "Escape":
+            pass
+        else:
+            if event.keysym == "Return":
+                # Process the command
+                command = drone_app.input_buffer.strip()
+                drone_app.input_buffer = ""
+                print(f"command received: {command}")
+
+                if command.startswith("goto"):
+                    print("command starts with goto")
+                    try:
+                        pass
+                        # x, y = map(float, command[4:].split(","))
+                        # drone_app.goto(x, y)
+                    except ValueError:
+                        print("Invalid goto command")
+            else:
+                # Log the keys pressed
+                drone_app.input_buffer += event.char
 
     # Bind the on_key_press function to the key press event
     drone_app.lidar_and_wall_sim_with_gui.bind("<KeyPress>", on_key_press)
     # Set the focus to the canvas to receive keyboard events
     drone_app.lidar_and_wall_sim_with_gui.focus_set()
+
+    # Bind the on_command_entry_key_release method to the command_entry widget
+    # drone_app.lidar_and_wall_sim_with_gui.command_entry.bind("<KeyRelease>", drone_app.lidar_and_wall_sim_with_gui.on_command_entry_key_release)
+
+
     
     while True:
         drone_controller.update_drone_velocity()
@@ -285,11 +310,10 @@ def run_simulation(drone_app):
         #lidar_readings = drone_controller.Drone.lidar_and_wall_sim_with_gui.lidar_readings
         drone_controller.Drone.wipe_gui()
         # drone_controller.draw_perceived_wall()
+        drone_controller.Drone.lidar_and_wall_sim_with_gui.add_text(
+            f'Altitude: {drone_controller.Drone.drone_location_meters[2]:.1f}m\n'
+            f'Mode: {"mode1"}')
         drone_controller.Drone.update_gui()
-
-        print(f"Altitude: {drone_controller.Drone.drone_location_meters[2]}m")
-
-
         
 
 

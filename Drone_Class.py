@@ -22,7 +22,7 @@ class Drone:
         """
         Initialize a Drone object.
         """
-        pass
+        self.input_buffer = ""
 
     def get_lidar_readings_meters(self):
         """

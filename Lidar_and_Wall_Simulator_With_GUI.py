@@ -103,6 +103,32 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.create_figure()
         self.update_canvas()
 
+        # Create the Entry widget
+        self.command_entry = tk.Entry(self)
+        self.command_entry.pack()
+
+        # Add a label for the Entry widget (optional)
+        command_label = tk.Label(self, text="Enter command:")
+        command_label.pack()
+    """
+    def on_command_entry_key_release(self, event):
+        if event.keysym == "Return":
+            command = self.command_entry.get()
+            self.command_entry.delete(0, 'end')
+
+            print(f"command received: {command}")
+            if command.startswith("goto"):
+                print("command starts with goto")
+                try:
+                    pass
+                    #x, y = map(float, command[4:].split(","))
+                    #drone_app.goto(x, y)
+                except ValueError:
+                    print("Invalid goto command")
+
+            # Set the focus back to the canvas after processing the command
+            self.focus_set()
+    """
     def draw_drone(self):
         """
         Draw the drone on the matplotlib figure.
@@ -262,6 +288,9 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         else:
             self.canvas.figure = self.fig
             self.canvas.draw()
+    
+    def add_text(self, text):
+        self.ax.text(-390, 290, text, fontsize=12, color='black', verticalalignment='top')
 
     def create_figure(self):
         """
