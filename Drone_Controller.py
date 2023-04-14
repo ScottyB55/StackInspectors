@@ -112,7 +112,7 @@ class Drone_Controller:
         self.velocity_x_setpoint = delta_x_unit * (Kp * self.distance_error + Kd * derivative_error)
         self.velocity_y_setpoint = delta_y_unit * (Kp * self.distance_error + Kd * derivative_error)
 
-        # Get the mouse input so we can move the drone parallel to the line between nearest point & drone
+        # Get the mouse input so we can move the drone perpendicular to the line between nearest point & drone
         mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
 
         # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
@@ -143,10 +143,16 @@ class Drone_Controller:
 
         setpoint_yaw2 = (self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees + 360) % 360
 
-        print(f"Pt1: {setpoint_yaw1} Pt2: {setpoint_yaw2}")
+        #print(f"Pt1: {setpoint_yaw1} Pt2: {setpoint_yaw2}")
+
+        # Hover thrust ranges from 0 to 1
+        # Mouse_Y ranges from -1 to 1
+        hover_thrust_range_fraction = 0.5
+        hover_thrust_setpoint = 0.5 + mouse_y * hover_thrust_range_fraction / 2
+        # TODO: add a feature to allow the user to fix the hover thrust at a particular level
 
         # Update the drone's velocity using defaults for yaw and throttle
-        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1)
+        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, hover_thrust_setpoint)
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
@@ -251,12 +257,14 @@ def run_simulation(drone_app):
 
     def on_key_press(event):
         K_YAW_INC = 30  # Define the increment value for the yaw change
-        if event.keysym == "Right":
+        if event.keysym == "Right": # Right arrow key
             drone_app.target_yaw = (drone_app.target_yaw + K_YAW_INC) % 360
             print ("pressed")
-        elif event.keysym == "Left":
+        elif event.keysym == "Left": # Left arrow key
             drone_app.target_yaw = (drone_app.target_yaw - K_YAW_INC + 360) % 360
             print ("pressed")
+        elif event.keysym == "L" or event.keysym == "l":
+            pass
 
     # Bind the on_key_press function to the key press event
     drone_app.lidar_and_wall_sim_with_gui.bind("<KeyPress>", on_key_press)
@@ -279,6 +287,8 @@ def run_simulation(drone_app):
         # drone_controller.draw_perceived_wall()
         drone_controller.Drone.update_gui()
 
+        print(f"Altitude: {drone_controller.Drone.drone_location_meters[2]}m")
+
 
         
 
@@ -295,7 +305,7 @@ if __name__ == '__main__':
                 Wall((0, -4), (-4, -4))   ]
 
     # Define the initial meters coordinates of the drone
-    drone_location_meters = (0, 0)
+    drone_location_meters = (0, 0, 0)
 
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0.05
@@ -304,8 +314,8 @@ if __name__ == '__main__':
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
-    #drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
-    drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
+    #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
 
     drone_controller = Drone_Controller(drone_app)
 

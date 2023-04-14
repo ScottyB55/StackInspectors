@@ -112,6 +112,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
         Args:
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
+        # This is already 3 dimensional
         self.drone_location_meters = self.drone.current_location_meters()
         self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
@@ -145,7 +146,7 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_yaw = drone_yaw_degrees
     
     def update_lidar_readings(self):
-        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m()
+        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """
@@ -169,8 +170,11 @@ class Simulated_Drone_Simple_Physics(Drone):
 
         # Rotate the target_roll and target_pitch by drone_yaw_degrees
         rotated_target_roll, rotated_target_pitch = rotate_point(self.target_roll, self.target_pitch, -self.drone_yaw_degrees)
+
+        hover_increment = self.target_hover_thrust - 0.5
+
         # Update drone_location_meters
-        self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch)))
+        self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch, hover_increment)))
         
         # print(self.drone_velocity)
         # self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, self.drone_velocity))
@@ -191,6 +195,7 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_roll = target_roll
         self.target_pitch = target_pitch
         self.target_yaw = target_yaw
+        self.target_hover_thrust = hover_thrust
     
     def wipe_gui(self):
         self.lidar_and_wall_sim_with_gui.create_figure()
