@@ -8,7 +8,7 @@ import numpy as np
 #import rplidar_sdk
 
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
-
+import s2lidar
 
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
@@ -110,6 +110,23 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         # Add a label for the Entry widget (optional)
         command_label = tk.Label(self, text="Enter command:")
         command_label.pack()
+
+        
+        import time
+        import math
+        from matplotlib import pyplot as plt
+        import serial.tools.list_ports
+        # from pyserial import serial.tools.list_ports
+
+        serialPortName = ""
+        serialports = serial.tools.list_ports.comports()
+        for port in serialports:
+            if port.device.startswith("/dev/ttyUSB"):
+                serialPortName = port.device
+        print(serialports, serialPortName)
+
+        s2lidar.init(serialPortName)
+        time.sleep(2)
     """
     def on_command_entry_key_release(self, event):
         if event.keysym == "Return":
@@ -290,11 +307,18 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
         self.lidar_readings = []
 
-        while 1:
-            distance_min = s2lidar.lidarprocess.s[0]
-            angle = s2lidar.lidarprocess.s[1]
-            if (distance_min != None):
-                self.lidar_readings.append(LidarReading(angle, distance_min))
+        # while 1:
+        #     distance_min = s2lidar.lidarprocess.s[0]
+        #     angle = s2lidar.lidarprocess.s[1]
+        #     if (distance_min != None):
+        #         self.lidar_readings.append(LidarReading(angle, distance_min))
+
+        scan = s2lidar.get_scan()
+
+        for s in scan:
+            if s[2] != 0:
+                self.lidar_readings.append(LidarReading(s[0], s[1]))
+
 
 
     def update_canvas(self):
