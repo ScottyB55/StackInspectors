@@ -139,7 +139,9 @@ class Drone_Controller:
             else:
                 error_yaw += 360
 
-        setpoint_yaw1 = (current_yaw + error_yaw * K_YAW_CTRL / 100 + 360) % 360
+        error_yaw = error_yaw * K_YAW_CTRL / 100
+
+        setpoint_yaw1 = (current_yaw + error_yaw + 360) % 360
 
         setpoint_yaw2 = (self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees + 360) % 360
 
@@ -153,6 +155,9 @@ class Drone_Controller:
 
         # Update the drone's velocity using defaults for yaw and throttle
         self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, hover_thrust_setpoint)
+
+        print(f"A: {closest_point.lidar_angle_degrees} D: {closest_point.total_relative_distance_m}")
+        print(f"R: {self.velocity_x_setpoint:.3f}, P: {self.velocity_y_setpoint:.3f}, Y: {error_yaw:.3f}")
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
