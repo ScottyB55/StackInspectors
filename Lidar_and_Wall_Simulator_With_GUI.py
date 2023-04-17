@@ -317,7 +317,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
         for s in scan:
             if s[2] != 0:
-                self.lidar_readings.append(LidarReading(s[0], s[1]/ 100))
+                self.lidar_readings.append(LidarReading(s[0], s[1]/ 1000))
 
 
 
