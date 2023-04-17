@@ -1,3 +1,3 @@
 [submodule "py_rplidar_sdk"]
-        path = py_rplidar_sdk
-        url = https://github.com/aamijar/py_rplidar_sdk
+	path = py_rplidar_sdk
+	url = https://github.com/aamijar/py_rplidar_sdk
