@@ -307,7 +307,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         import time
 
         start = time.time()
-        print(start)
+        # print(start)
         
         self.lidar_readings = []
 
