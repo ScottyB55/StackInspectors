@@ -1,3 +1,7 @@
 [submodule "py_rplidar_sdk"]
 	path = py_rplidar_sdk
 	url = https://github.com/aamijar/py_rplidar_sdk
+
+[submodule "dronekit-python"]
+	path = dronekit-python
+	url = https://github.com/dronekit/dronekit-python
