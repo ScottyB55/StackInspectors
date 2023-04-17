@@ -312,13 +312,13 @@ def run_simulation(drone_app):
         #print(f"iter {i}: Pre update_lidar_readings: ", type(drone_controller.Drone))
         drone_controller.Drone.update_lidar_readings()
         #lidar_readings = drone_controller.Drone.lidar_and_wall_sim_with_gui.lidar_readings
-        drone_controller.Drone.wipe_gui()
+        # drone_controller.Drone.wipe_gui()
         # drone_controller.draw_perceived_wall()
-        drone_controller.Drone.lidar_and_wall_sim_with_gui.add_text(
-            f'{drone_app.input_buffer}\n'
-            f'Altitude: {drone_controller.Drone.drone_location_meters[2]:.1f}m\n'
-            f'Mode: {"mode1"}')
-        drone_controller.Drone.update_gui()
+        # drone_controller.Drone.lidar_and_wall_sim_with_gui.add_text(
+        #     f'{drone_app.input_buffer}\n'
+        #     f'Altitude: {drone_controller.Drone.drone_location_meters[2]:.1f}m\n'
+        #     f'Mode: {"mode1"}')
+        # drone_controller.Drone.update_gui()
         
 
 

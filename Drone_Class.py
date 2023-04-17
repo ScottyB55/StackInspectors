@@ -112,7 +112,7 @@ class Real_Drone_Realistic_Physics(Drone):
 
     def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_walls()
+        #self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 class Simulated_Drone_Realistic_Physics(Drone):
@@ -173,7 +173,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
 
     def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_walls()
+        #self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         self.lidar_and_wall_sim_with_gui.update_canvas()
 
@@ -197,8 +197,8 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_yaw = drone_yaw_degrees
     
     def update_lidar_readings(self):
-        #self.lidar_and_wall_sim_with_gui.get_real_lidar_readings(self)
-        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
+        self.lidar_and_wall_sim_with_gui.get_real_lidar_readings(self)
+        # self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """
@@ -257,7 +257,7 @@ class Simulated_Drone_Simple_Physics(Drone):
 
     def update_gui(self):
         self.lidar_and_wall_sim_with_gui.draw_drone()
-        self.lidar_and_wall_sim_with_gui.draw_walls()
+        #self.lidar_and_wall_sim_with_gui.draw_walls()
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         # self.lidar_and_wall_sim_with_gui.draw_lidar_points_cluster()
         self.lidar_and_wall_sim_with_gui.update_canvas()

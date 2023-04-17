@@ -8,7 +8,7 @@ import numpy as np
 #import rplidar_sdk
 
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
-import s2lidar
+import py_rplidar_sdk.s2lidar as s2lidar
 
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
@@ -317,7 +317,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
         for s in scan:
             if s[2] != 0:
-                self.lidar_readings.append(LidarReading(s[0], s[1]))
+                self.lidar_readings.append(LidarReading(s[0], s[1]/ 100))
 
 
 
