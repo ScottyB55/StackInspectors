@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 from matplotlib.figure import Figure
 import numpy as np
+import s2lidar
 
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 
@@ -269,6 +270,31 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
                 self.lidar_readings.append(LidarReading(angle, distance_min))
 
             angle += self.lidar_angle_step_degrees
+
+
+
+    def get_real_lidar_readings(self, drone):
+        """
+        Returns an array of tuples containing (angle, distance) values for LIDAR readings from the s2lidar sensor
+
+        The function iterates through angles from 0 to 360 degrees
+
+        Returns:
+            lidar_readings (list of tuples): A list of tuples where each tuple contains the angle (float) and the LIDAR distance (float or None).
+        """
+        # Pass in the reference to the drone object here! Otherwise we get an error!
+
+        #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(drone))
+        # Calculate the wall positions relative to the drone
+
+        self.lidar_readings = []
+
+        while 1:
+            distance_min = s2lidar.lidarprocess.s[0]
+            angle = s2lidar.lidarprocess.s[1]
+            if (distance_min != None):
+                self.lidar_readings.append(LidarReading(angle, distance_min))
+
 
     def update_canvas(self):
         """
