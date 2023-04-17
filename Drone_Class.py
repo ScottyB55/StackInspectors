@@ -127,7 +127,7 @@ class Simulated_Drone_Realistic_Physics(Drone):
 
         self.takeoff(target_altitude=3)
 
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
