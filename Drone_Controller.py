@@ -263,8 +263,8 @@ def run_simulation(drone_app):
         elif event.keysym == "Left":  # Left arrow key
             drone_app.target_yaw = (drone_app.target_yaw - K_YAW_INC + 360) % 360
             print("pressed")
-        elif event.keysym == "L" or event.keysym == "l":
-            pass
+        #elif event.keysym == "L" or event.keysym == "l":
+        #    pass
         elif event.keysym == "Escape":
             pass
         else:
@@ -282,6 +282,10 @@ def run_simulation(drone_app):
                         # drone_app.goto(x, y)
                     except ValueError:
                         print("Invalid goto command")
+            elif event.keysym == "BackSpace":
+                # Remove the last character from input_buffer unless it's empty
+                if len(drone_app.input_buffer) > 0:
+                    drone_app.input_buffer = drone_app.input_buffer[:-1]
             else:
                 # Log the keys pressed
                 drone_app.input_buffer += event.char
@@ -311,6 +315,7 @@ def run_simulation(drone_app):
         drone_controller.Drone.wipe_gui()
         # drone_controller.draw_perceived_wall()
         drone_controller.Drone.lidar_and_wall_sim_with_gui.add_text(
+            f'{drone_app.input_buffer}\n'
             f'Altitude: {drone_controller.Drone.drone_location_meters[2]:.1f}m\n'
             f'Mode: {"mode1"}')
         drone_controller.Drone.update_gui()

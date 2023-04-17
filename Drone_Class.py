@@ -4,6 +4,7 @@ import threading
 from Lidar_and_Wall_Simulator_With_GUI import Lidar_and_Wall_Simulator_With_GUI
 from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
 import math
+from enum import Enum
 
 # Good idea: from collections import namedtuple
 
@@ -13,6 +14,16 @@ def rotate_point(x, y, angle_degrees):
     new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
     return new_x, new_y
 
+class DroneMode(Enum):
+    ON_GROUND = 1
+    LAUNCH = 2
+    GOTO = 3
+    WALL_FOLLOW = 4
+    LAND = 5
+
+    def __str__(self):
+        # enum value's name with underscores replaced by spaces and each word's first letter capitalized
+        return self.name.replace("_", " ").title()
 
 class Drone:
     """
@@ -23,6 +34,7 @@ class Drone:
         Initialize a Drone object.
         """
         self.input_buffer = ""
+        self.current_mode = DroneMode.ON_GROUND
 
     def get_lidar_readings_meters(self):
         """
@@ -156,30 +168,38 @@ class Simulated_Drone_Simple_Physics(Drone):
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
 
-        K_YAW_CTRL = 33
+        if self.current_mode == DroneMode.WALL_FOLLOW:
+            K_YAW_CTRL = 33
 
-        error = self.target_yaw - self.drone_yaw_degrees
-        if abs(error) > 180:
-            if error > 0:
-                error -= 360
-            else:
-                error += 360
+            error = self.target_yaw - self.drone_yaw_degrees
+            if abs(error) > 180:
+                if error > 0:
+                    error -= 360
+                else:
+                    error += 360
 
-        self.drone_yaw_degrees += error * K_YAW_CTRL / 100 + 360
-        self.drone_yaw_degrees %= 360
+            self.drone_yaw_degrees += error * K_YAW_CTRL / 100 + 360
+            self.drone_yaw_degrees %= 360
 
-        # Rotate the target_roll and target_pitch by drone_yaw_degrees
-        rotated_target_roll, rotated_target_pitch = rotate_point(self.target_roll, self.target_pitch, -self.drone_yaw_degrees)
+            # Rotate the target_roll and target_pitch by drone_yaw_degrees
+            rotated_target_roll, rotated_target_pitch = rotate_point(self.target_roll, self.target_pitch, -self.drone_yaw_degrees)
 
-        hover_increment = self.target_hover_thrust - 0.5
+            hover_increment = self.target_hover_thrust - 0.5
 
-        # Update drone_location_meters
-        self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch, hover_increment)))
-        
-        # print(self.drone_velocity)
-        # self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, self.drone_velocity))
-        # self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
-        # return self.drone_location_meters
+            # Update drone_location_meters
+            self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch, hover_increment)))
+        elif self.current_mode == DroneMode.ON_GROUND:
+            # Add code for ON_GROUND mode
+            pass
+        elif self.current_mode == DroneMode.LAUNCH:
+            # Add code for LAUNCH mode
+            pass
+        elif self.current_mode == DroneMode.GOTO:
+            # Add code for GOTO mode
+            pass
+        elif self.current_mode == DroneMode.LAND:
+            # Add code for LAND mode
+            pass
 
     def get_current_yaw_angle(self):
         return self.drone_yaw_degrees
