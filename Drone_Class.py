@@ -190,7 +190,7 @@ class Simulated_Drone_Simple_Physics(Drone):
 
     def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
+        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
         self.drone_yaw_degrees = drone_yaw_degrees
         self.target_yaw = drone_yaw_degrees

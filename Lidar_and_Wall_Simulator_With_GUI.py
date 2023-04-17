@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import tkinter as tk
 from matplotlib.figure import Figure
 import numpy as np
-from py_rplidar_sdk import s2lidar
+#from py_rplidar_sdk import s2lidar
 #import rplidar_sdk
 
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
