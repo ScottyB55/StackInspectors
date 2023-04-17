@@ -248,6 +248,9 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_pitch = target_pitch
         self.target_yaw = target_yaw
         self.target_hover_thrust = hover_thrust
+
+        print(f"R: {target_roll:.3f}, P: {target_pitch:.3f}, Y: {target_yaw:.3f}")
+
     
     def wipe_gui(self):
         self.lidar_and_wall_sim_with_gui.create_figure()
