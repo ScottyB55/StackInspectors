@@ -304,7 +304,11 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
         #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(drone))
         # Calculate the wall positions relative to the drone
+        import time
 
+        start = time.time()
+        print(start)
+        
         self.lidar_readings = []
 
         # while 1:
@@ -318,7 +322,8 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         for s in scan:
             if s[2] != 0:
                 self.lidar_readings.append(LidarReading(s[0], s[1]/ 1000))
-
+        end = time.time()
+        print(end - start)
 
 
     def update_canvas(self):
