@@ -5,7 +5,6 @@ import tkinter as tk
 from matplotlib.figure import Figure
 import numpy as np
 
-# This is here so we treat self.drone like a drone and not like a tuple
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 
 
@@ -85,14 +84,13 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, walls, drone, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         tk.Tk.__init__(self)
         # walls is an array of tuples of tuples
         self.walls = walls#[(wall_start_meters, wall_end_meters)]
         #self.wall_start_meters = wall_start_meters
         #self.wall_end_meters = wall_end_meters
-        self.drone = drone
-        print("Lidar sim Constructor: type: ", type(drone))
+        #print("Lidar sim Constructor: type: ", type(drone))
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
@@ -133,9 +131,8 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         """
         Draw the drone on the matplotlib figure.
         """
-        # drone_center = (self.drone_location_meters[0] * self.scale_factor, self.drone_location_meters[1] * self.scale_factor)  # Fixed position at the center of the screen
         drone_center = (0, 0)  # Fixed position at the center of the screen
-        drone_yaw_rad = 0 # math.radians(self.drone.drone_yaw_degrees)
+        drone_yaw_rad = 0 
 
         triangle_points = [
             (drone_center[0] + 10 * math.sin(drone_yaw_rad), drone_center[1] + 10 * math.cos(drone_yaw_rad)),
@@ -155,8 +152,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             wall_start_meters = wall.wall_start_point_relative_m
             wall_end_meters = wall.wall_end_point_relative_m 
             # wall_start_meters, wall_end_meters = wall
-            # wall_start_meters = (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
-            # wall_end_meters = (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
             self.draw_wall_from_coordinates(wall_start_meters, wall_end_meters)
     
     def draw_wall_from_coordinates(self, wall_start_meters_tuple, wall_end_meters_tuple, color = 'r-'):
@@ -203,7 +198,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
             # If lidar_distance != null
             if lidar_distance is not None:
                 lidar_readings_xy_meters_relative = lidar_reading_to_deltaxy(lidar_angle, lidar_distance)
-                lidar_readings_xy_meters_absolute = tuple(a + b for a, b in zip(lidar_readings_xy_meters_relative, self.drone_location_meters))
                 lidar_readings_absolute.append(lidar_readings_xy_meters_absolute)
                 # self.draw_point(lidar_readings_xy_meters_absolute)
         
@@ -227,13 +221,12 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         Returns:
             lidar_readings (list of tuples): A list of tuples where each tuple contains the angle (float) and the LIDAR distance (float or None).
         """
-        # Keep updating the reference to the drone object here! Otherwise we get an error!
-        self.drone = drone
+        # Pass in the reference to the drone object here! Otherwise we get an error!
 
-        #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(self.drone))
+        #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(drone))
         # Calculate the wall positions relative to the drone
         for wall in self.walls:
-            wall.calculate_relative_walls_to_drone(self.drone)
+            wall.calculate_relative_walls_to_drone(drone)
 
         self.lidar_readings = []
         angle = 0
@@ -250,9 +243,9 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
                 # wall_start_meters, wall_end_meters = wall
 
                 # Get the walls in terms of relative
-                wall_start_meters = wall.wall_start_point_relative_m # (wall_start_meters[0] - self.drone_location_meters[0], wall_start_meters[1] - self.drone_location_meters[1])
+                wall_start_meters = wall.wall_start_point_relative_m
 
-                wall_end_meters = wall.wall_end_point_relative_m # (wall_end_meters[0] - self.drone_location_meters[0], wall_end_meters[1] - self.drone_location_meters[1])
+                wall_end_meters = wall.wall_end_point_relative_m
 
                 t_denominator = (wall_end_meters[1] - wall_start_meters[1]) * dx - (wall_end_meters[0] - wall_start_meters[0]) * dy
 
@@ -301,8 +294,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax = self.fig.add_subplot(1, 1, 1)
 
         # Set the x and y axis limits
-        # drone_pixel_location_x = self.drone_location_meters[0] * self.scale_factor
-        # drone_pixel_location_y = self.drone_location_meters[1] * self.scale_factor
         drone_pixel_location_x = 0
         drone_pixel_location_y = 0
 
@@ -312,8 +303,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax.set_ylim(drone_pixel_location_y - 300,
                         drone_pixel_location_y + 300)
         
-        # self.x_window_min = self.drone_location_meters[0] - 400 / self.scale_factor
-        # self.x_window_max = self.drone_location_meters[0] + 400 / self.scale_factor
         self.x_window_min = 0 - 400 / self.scale_factor
         self.x_window_max = 0 + 400 / self.scale_factor
 
@@ -324,8 +313,6 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
         self.ax.set_yticks(y_ticks)
 
         # Set the x and y axis tick labels in meters units
-        # x_tick_labels = np.round((x_ticks - drone_pixel_location_x) / self.scale_factor + self.drone_location_meters[0], 1)
-        # y_tick_labels = np.round((y_ticks - drone_pixel_location_y) / self.scale_factor + self.drone_location_meters[1], 1)
         x_tick_labels = np.round((x_ticks - drone_pixel_location_x) / self.scale_factor, 1)
         y_tick_labels = np.round((y_ticks - drone_pixel_location_y) / self.scale_factor, 1)
         self.ax.set_xticklabels(x_tick_labels)

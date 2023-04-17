@@ -42,7 +42,7 @@ Firmware update
 """
 
 from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
-from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading
+from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall_Simulator_With_GUI
 import time
 import threading
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
@@ -343,6 +343,8 @@ if __name__ == '__main__':
 
     # Create a simulated drone object with simple physics
     # TODO note: simulated drone with the derivative is jumpy, this is OK, whatever
+    lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
+    # TODO pass in the lidar_and_wall_sim_with_gui to the drone object
     drone_app = Simulated_Drone_Simple_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
     #drone_app = Simulated_Drone_Realistic_Physics(walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev)
 
