@@ -29,13 +29,14 @@ class Drone:
     """
     Base class for representing a drone with common methods and properties for all drones.
     """
-    def __init__(self, drone_mode, drone_environment, lidar_and_wall_sim_with_gui):
+    def __init__(self, drone_mode, drone_environment, lidar_and_wall_sim_with_gui, drone_location_meters):
         """
         Initialize a Drone object.
         """
         self.input_buffer = ""
         self.drone_environment = drone_environment
         self.drone_mode = drone_mode
+        self.drone_location_meters = drone_location_meters
 
         self.lidar_and_wall_sim_with_gui = lidar_and_wall_sim_with_gui
 
@@ -49,6 +50,9 @@ class Drone:
         self.lidar_and_wall_sim_with_gui.draw_lidar_points()
         # self.lidar_and_wall_sim_with_gui.draw_lidar_points_cluster()
         self.lidar_and_wall_sim_with_gui.update_canvas()
+
+    def update_location_meters(self, timestep):
+        self.drone_location_meters = self.drone_environment.update_location_meters(timestep, self.drone_location_meters)
 
     def update_lidar_readings(self):
         """
@@ -66,7 +70,7 @@ class Drone:
         """
         self.drone_environment.set_attitude_setpoint(target_roll, target_pitch, target_yaw, hover_thrust)
 
-    def take_off(self):
+    def takeoff(self):
         """
         Implement the take_off logic for the drone.
         """
@@ -99,7 +103,7 @@ class Simulated_Drone_Realistic_Physics(DroneEnvironment):
     Represents a simulated drone with realistic physics using SITL QGroundControl.
     """
 
-    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
@@ -107,7 +111,7 @@ class Simulated_Drone_Realistic_Physics(DroneEnvironment):
 
         self.takeoff(target_altitude=3)
 
-        self.drone_location_meters = drone_location_meters
+
 
     def takeoff(self, target_altitude):
         self.drone.takeoff(target_altitude)
@@ -134,17 +138,15 @@ class Simulated_Drone_Realistic_Physics(DroneEnvironment):
     def update_lidar_readings(self, lidar_and_wall_sim_with_gui):
         lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
-    def update_location_meters(self, timestep):
+    def update_location_meters(self, timestep, drone_location_meters):
         """
         Update the meters location of the drone based on the given timestep.
 
         Args:
             timestep (float): The duration of the timestep for updating the drone's meters.
         """
-        # This is already 3 dimensional
-        self.drone_location_meters = self.drone.current_location_meters()
-        self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
-        return self.drone_location_meters
+        # This is 3 dimensional
+        return self.drone.current_location_meters()
 
 
 class Simulated_Drone_Simple_Physics(DroneEnvironment):
@@ -158,16 +160,15 @@ class Simulated_Drone_Simple_Physics(DroneEnvironment):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self, walls, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
         super().__init__()
-        self.drone_location_meters = drone_location_meters
         self.drone_yaw_degrees = drone_yaw_degrees
         self.target_yaw = drone_yaw_degrees
     
-    def update_lidar_readings(self):
+    def update_lidar_readings(self, lidar_and_wall_sim_with_gui):
         lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
-    def update_location_meters(self, timestep):
+    def update_location_meters(self, timestep, drone_location_meters):
         """
         Update the meters location of the drone based on the given timestep.
 
@@ -194,7 +195,7 @@ class Simulated_Drone_Simple_Physics(DroneEnvironment):
             hover_increment = self.target_hover_thrust - 0.5
 
             # Update drone_location_meters
-            self.drone_location_meters = tuple(a + b * timestep for a, b in zip(self.drone_location_meters, (rotated_target_roll, rotated_target_pitch, hover_increment)))
+            return tuple(a + b * timestep for a, b in zip(drone_location_meters, (rotated_target_roll, rotated_target_pitch, hover_increment)))
         elif self.current_mode == DroneMode.ON_GROUND:
             # Add code for ON_GROUND mode
             pass
