@@ -113,9 +113,8 @@ class Drone_Controller:
         # Update the drone's velocity using defaults for yaw and throttle
         self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, hover_thrust_setpoint)
 
-        print(f"A: {closest_point.lidar_angle_degrees:.3f} D: {closest_point.total_relative_distance_m:.3f},",
-            f"R: {self.velocity_x_setpoint:.3f}, P: {self.velocity_y_setpoint:.3f}, Y: {error_yaw:.3f}")
-
+        self.closest_point = closest_point
+        self.error_yaw = error_yaw
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
 
@@ -134,79 +133,6 @@ class Drone_Controller:
                 closest_point = lidar_reading
         
         return (closest_point)
-        """
-        else:
-            # Line implementation
-            # Separate the x and y coordinates
-            x_values = [point[0] for point in lidar_readings]
-            y_values = [point[1] for point in lidar_readings]
-
-            # Option 1: ODR regression (works for both horizontal and vertical)
-            # Create a model for the orthogonal distance regression
-            linear_model = odr.Model(linear_function)
-            # Create the input data for the ODR
-            data = odr.RealData(x_values, y_values)
-            # Initialize the ODR with the model, the data, and an initial guess for the parameters (m and c)
-            odr_instance = odr.ODR(data, linear_model, beta0=[1, 0])
-            # Run the ODR
-            output = odr_instance.run()
-            # Extract the fitted parameters (m and c)
-            slope, intercept = output.beta
-
-            # Option 2: linear regression (not as good for vertical)
-            # slope, intercept = np.polyfit(x_values, y_values, 1)
-
-            # distance = point_line_distance(self.Drone.drone_location_meters[0], self.Drone.drone_location_meters[1], 
-            #                                slope, intercept)
-
-            drone_location_meters = self.Drone.drone_location_meters
-
-            # Find the point on the line that is closest to the given point
-            x_on_line = (drone_location_meters[0] + slope * drone_location_meters[1] - slope * intercept) / (1 + slope**2)
-            y_on_line = slope * x_on_line + intercept
-
-            # Plot the perceived line
-
-            x0 = self.Drone.lidar_and_wall_sim_with_gui.x_window_min
-            x1 = self.Drone.lidar_and_wall_sim_with_gui.x_window_max
-
-            y0 = slope * x0 + intercept
-            y1 = slope * x1 + intercept
-
-            self.Drone.lidar_and_wall_sim_with_gui.draw_wall_from_coordinates((x0, y0), (x1, y1), 'b-')
-        
-            return (x_on_line, y_on_line)
-        """
-
-    def draw_perceived_wall(self):
-        pass
-
-    def run(self):
-        # Get the lidar data
-
-        # Optional: factor the drone's roll & pitch into the lidar data
-
-        # Optional: cluster on the lidar data
-
-        # TODO: get the line of best fit for the lidar data
-
-        # Control Loop 1: adjust the drone's target_yaw to make the drone face towards the wall
-        #   1. Calculate the angle between the line where the drone is facing & the lidar line of best fit
-        #   2. This angle should be 90 degrees. Pass the error difference through a control function & feed back to the drone's target_yaw
-
-        # Control Loop 2: adjust the drone's roll & pitch to make the drone maintain a constant distance from the wall
-        #   1. Calculate the closest distance between the drone and the lidar line of best fit
-        #   2. Establish some sort of matrix relationship as follows:
-        #       Input: target angles parallel & perpendicular to the lidar line of best fit
-        #       Output: target_roll and target_pitch for the drone
-        #   3. Set the parallel input component to the difference between the desired distance & the actual distance
-        #   4. Set the perpendicular input component to the mouse x coordinates
-
-        # Additional Control: remember that there is an additional hover_thrust input that controls how much the drone moves up or down
-        #   Set this proportional to the mouse y coordinates
-
-        # Use something like the set_attitude() function for self.Drone.set_drone_velocity()
-        pass
 
 def run_simulation(drone_app):
     """
@@ -266,6 +192,20 @@ def run_simulation(drone_app):
     
     while True:
         drone_controller.update_drone_velocity()
+
+        # TODO: add drone_app.input_buffer
+        # TODO: It is not getting updated on the key press, fix this
+        # print(drone_app.input_buffer)
+        
+        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
+            drone_controller.closest_point.lidar_angle_degrees,
+            drone_controller.closest_point.total_relative_distance_m,
+            drone_controller.velocity_x_setpoint,
+            drone_controller.velocity_y_setpoint,
+            drone_controller.error_yaw
+        ))
+        
+
         #drone_controller.Drone.set_attitude_setpoint(0, 0)
         #scaled_mouse_velocity = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
         #drone_app.set_attitude_setpoint(scaled_mouse_velocity[0], scaled_mouse_velocity[1])
