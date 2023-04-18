@@ -3,6 +3,9 @@ mav.tlog
 mav.tlog.raw
 .vscode
 
+dronekit-python/
+py_rplidar_sdk/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
