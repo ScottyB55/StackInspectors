@@ -8,7 +8,26 @@ import numpy as np
 #import rplidar_sdk
 
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
-import py_rplidar_sdk.s2lidar as s2lidar
+
+
+import json
+
+def read_config(file_path):
+    with open(file_path, "r") as file:
+        config = json.load(file)
+    return config
+
+config = read_config("config.json")
+lidar_type = config["lidar"]
+
+if lidar_type == "real":
+    #import real_lidar_module as lidar_module
+    import py_rplidar_sdk.s2lidar as s2lidar
+elif lidar_type == "simulated":
+    #import simulated_lidar_module as lidar_module
+    pass
+else:
+    raise ValueError("Invalid lidar type specified in config.json")
 
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
@@ -115,18 +134,22 @@ class Lidar_and_Wall_Simulator_With_GUI():#tk.Tk
         import time
         import math
         from matplotlib import pyplot as plt
-        import serial.tools.list_ports
-        # from pyserial import serial.tools.list_ports
 
-        serialPortName = ""
-        serialports = serial.tools.list_ports.comports()
-        for port in serialports:
-            if port.device.startswith("/dev/ttyUSB"):
-                serialPortName = port.device
-        print(serialports, serialPortName)
+        self.lidar_type = lidar_type
 
-        s2lidar.init(serialPortName)
-        time.sleep(2)
+        if lidar_type == "real":
+            import serial.tools.list_ports
+            # from pyserial import serial.tools.list_ports
+
+            serialPortName = ""
+            serialports = serial.tools.list_ports.comports()
+            for port in serialports:
+                if port.device.startswith("/dev/ttyUSB"):
+                    serialPortName = port.device
+            print(serialports, serialPortName)
+
+            s2lidar.init(serialPortName)
+            time.sleep(2)
     """
     def on_command_entry_key_release(self, event):
         if event.keysym == "Return":
