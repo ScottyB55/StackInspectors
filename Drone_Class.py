@@ -1,4 +1,4 @@
-from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
+#from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 import time
 import threading
 from Lidar_and_Wall_Simulator_With_GUI import Lidar_and_Wall_Simulator_With_GUI

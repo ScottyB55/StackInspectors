@@ -1,7 +1,7 @@
 import math
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-import tkinter as tk
+#import tkinter as tk
 from matplotlib.figure import Figure
 import numpy as np
 #from py_rplidar_sdk import s2lidar
@@ -73,7 +73,7 @@ class Wall:
         #self.wall_start_point_relative_m = (self.wall_start_point_absolute_m[0] - drone_position[0], self.wall_start_point_absolute_m[1] - drone_position[1])
         #self.wall_end_point_relative_m = (self.wall_end_point_absolute_m[0] - drone_position[0], self.wall_end_point_absolute_m[1] - drone_position[1])
 
-class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
+class Lidar_and_Wall_Simulator_With_GUI():#tk.Tk
     """
     This class is really just a lidar & wall simulator with a GUI
     Programatically, it would have made more sense to actually have this be a separate class.
@@ -87,7 +87,7 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
     """
 
     def __init__(self, walls, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
-        tk.Tk.__init__(self)
+        #tk.Tk.__init__(self)
         # walls is an array of tuples of tuples
         self.walls = walls#[(wall_start_meters, wall_end_meters)]
         #self.wall_start_meters = wall_start_meters
@@ -98,18 +98,18 @@ class Lidar_and_Wall_Simulator_With_GUI(tk.Tk):
 
         self.lidar_angle_step_degrees = 2
 
-        self.title('Drone Lidar')
-        self.geometry('800x600')
-        self.create_figure()
-        self.update_canvas()
+        #self.title('Drone Lidar')
+        #self.geometry('800x600')
+        #self.create_figure()
+        #self.update_canvas()
 
         # Create the Entry widget
-        self.command_entry = tk.Entry(self)
-        self.command_entry.pack()
+        #self.command_entry = tk.Entry(self)
+        #self.command_entry.pack()
 
         # Add a label for the Entry widget (optional)
-        command_label = tk.Label(self, text="Enter command:")
-        command_label.pack()
+        #command_label = tk.Label(self, text="Enter command:")
+        #command_label.pack()
 
         
         import time

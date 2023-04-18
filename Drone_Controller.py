@@ -45,7 +45,7 @@ from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Dron
 from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall_Simulator_With_GUI
 import time
 import threading
-from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
+#from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -113,7 +113,7 @@ class Drone_Controller:
         self.velocity_y_setpoint = delta_y_unit * (Kp * self.distance_error + Kd * derivative_error)
 
         # Get the mouse input so we can move the drone perpendicular to the line between nearest point & drone
-        mouse_x, mouse_y = mouse_relative_position_from_center_normalized()
+        mouse_x, mouse_y = 0, 0#mouse_relative_position_from_center_normalized()
 
         # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
         projection_scale = dot_product((mouse_x, mouse_y), (delta_x_unit, delta_y_unit))
@@ -296,10 +296,11 @@ def run_simulation(drone_app):
                 # Log the keys pressed
                 drone_app.input_buffer += event.char
 
+    # TODO GET THE KEY PRESSES AGAIN HERE
     # Bind the on_key_press function to the key press event
-    drone_app.lidar_and_wall_sim_with_gui.bind("<KeyPress>", on_key_press)
+    #drone_app.lidar_and_wall_sim_with_gui.bind("<KeyPress>", on_key_press)
     # Set the focus to the canvas to receive keyboard events
-    drone_app.lidar_and_wall_sim_with_gui.focus_set()
+    #drone_app.lidar_and_wall_sim_with_gui.focus_set()
 
     # Bind the on_command_entry_key_release method to the command_entry widget
     # drone_app.lidar_and_wall_sim_with_gui.command_entry.bind("<KeyRelease>", drone_app.lidar_and_wall_sim_with_gui.on_command_entry_key_release)
@@ -366,4 +367,5 @@ if __name__ == '__main__':
     move_drone_thread.start()
 
     # Run the main event loop of the drone application (Tkinter GUI)
-    drone_controller.Drone.lidar_and_wall_sim_with_gui.mainloop()
+    run_simulation(drone_app)
+    #drone_controller.Drone.lidar_and_wall_sim_with_gui.mainloop()
