@@ -6,36 +6,6 @@ import threading
 from mouse_and_keyboard_helper_functions import on_press, on_release, start_listening
 from pynput import keyboard
 
-global key_roll
-global key_yaw
-global key_pitch
-def on_press(key):
-    print("onpress started")
-    try:
-        if key.char == 'w':
-            print('W pressed')
-            key_pitch = 1
-        elif key.char == 'a':
-            print('A pressed')
-            key_roll = -1
-        elif key.char == 's':
-            print('S pressed')
-            key_pitch = -1
-        elif key.char == 'd':
-            print('D pressed')
-            key_roll = 1
-    except AttributeError:
-        pass
-
-def keyboard_listener():
-    print("keyboard thread started")
-    with keyboard.Listener(on_press=on_press) as listener:
-        listener.join()
-
-# create the keyboard listener thread
-thread = threading.Thread(target=keyboard_listener)
-thread.daemon = True # set the thread as a daemon so it will exit when the program exits
-thread.start()
 
 
 def run_simulation(drone_app):
