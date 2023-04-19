@@ -8,36 +8,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
-from pynput import keyboard
-import getch
 
-def on_press(key):
-    global target_roll
-    global target_pitch
-    if key.char == "w":
-        print("w pressed")
-        target_pitch = -10
-    elif key.char == "a":
-        print("a pressed")
-        target_roll = -10
-    elif key.char == "s":
-        print("s pressed")
-        target_pitch = 10
-    elif key.char == "d":
-        print("d pressed")
-        target_roll = 10
+import threading
+import keyboard
 
-def on_release(key):
-    # Stop listener on ESC key
-    if key == keyboard.Key.esc:
-        return False
-
-def start_listening():
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-
-listener_thread = threading.Thread(target=start_listening)
-listener_thread.start()
+def key_press_thread():
+    while True:
+        event = keyboard.read_event()
+        if event.name == "w":
+            print("w pressed")
+        if event.name == "a":
+            print("a pressed")
+        elif event.name == "s":
+            print("s pressed")
+        elif event.name == "d":
+            print("d pressed")
 
 
 # Define the linear function for ODR
@@ -299,6 +284,11 @@ if __name__ == '__main__':
     move_drone_thread.daemon = True
     # Start the simulation thread
     move_drone_thread.start()
+
+
+    # start the keyboard listener thread
+    t = threading.Thread(target=key_press_thread)
+    t.start()
 
     # Run the main event loop of the drone application (Tkinter GUI)
     run_simulation(drone_app)
