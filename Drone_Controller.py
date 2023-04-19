@@ -11,29 +11,22 @@ import math
 from pynput import keyboard
 import getch
 
-def listen_for_keys():
-    # Map the key names to their respective actions
-    key_actions = {
-        'w': 'move forward',
-        'a': 'move left',
-        's': 'move backward',
-        'd': 'move right'
-    }
-
-    # Continuously listen for key presses
+def listen_for_input():
     while True:
         event = keyboard.read_event()
-        if event.event_type == 'down' and event.name in key_actions:
-            action = key_actions[event.name]
-            print(f'{event.name} pressed: {action}')
+        if event.event_type == "down":
+            if event.name == "w":
+                print("Key w pressed")
+            elif event.name == "a":
+                print("Key a pressed")
+            elif event.name == "s":
+                print("Key s pressed")
+            elif event.name == "d":
+                print("Key d pressed")
 
-# Start a thread to listen for key presses
-thread = threading.Thread(target=listen_for_keys)
-thread.daemon = True
-thread.start()
-
-# Wait for the thread to finish (which it never will, so this just keeps the program from exiting immediately)
-thread.join()
+input_thread = threading.Thread(target=listen_for_input)
+input_thread.daemon = True
+input_thread.start()
 
 
 # Define the linear function for ODR
