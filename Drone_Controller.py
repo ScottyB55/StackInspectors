@@ -3,13 +3,12 @@ from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall
 import time
 import threading
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-#from mouse_and_keyboard_helper_functions import on_press, start_listening
+from mouse_and_keyboard_helper_functions import on_press, start_listening
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
-#from pynput import keyboard
-import keyboard
+from pynput import keyboard
 
 
 
@@ -87,10 +86,9 @@ class Drone_Controller:
         self.velocity_x_setpoint += perpendicular_component[0]
         self.velocity_y_setpoint += perpendicular_component[1]
 
-        print(keyboard.read_key())
         
         #adding velocity's from keyboard onpress
-        #start_listening()
+        start_listening()
         #self.velocity_x_setpoin += on_press().target_pitch
         #self.velocity_y_setpoint += on_press().target_pitch
         #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
