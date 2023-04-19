@@ -128,11 +128,7 @@ class Drone_Controller:
         closest_point = None
 
         for lidar_reading in lidar_readings:
-<<<<<<< HEAD
             if min_distance is None or lidar_reading.total_relative_distance_m < min_distance or (lidar_reading.shifted_angle>50 and lidar_reading.shifted_angle<60) or (lidar_reading.shifted_angle>135 and lidar_reading.shifted_angle<145) or (lidar_reading.shifted_angle>215 and lidar_reading.shifted_angle<225) or (lidar_reading.shifted_angle>300 and lidar_reading.shifted_angle<310):
-=======
-            if min_distance is None or lidar_reading.total_relative_distance_m < min_distance or (lidar_reading.s[0]>50 and lidar_reading.s[0]<60) or (lidar_reading.s[0]>135 and lidar_reading.s[0]<145) or (lidar_reading.s[0]>215 and lidar_reading.s[0]<225) or (lidar_reading.s[0]>300 and lidar_reading.s[0]<310):
->>>>>>> f0aa964ab65c66ca8a9dc15d365d1c903b81cf18
                 min_distance = lidar_reading.total_relative_distance_m
                 closest_point = lidar_reading
         
