@@ -9,8 +9,19 @@ import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
-listening_thread = threading.Thread(target=start_listening())
-listening_thread.start()
+from msvcrt import getch
+
+key = "lol"
+
+def thread1():
+    global key
+    lock = threading.Lock()
+    while True:
+        with lock:
+            key = getch()
+
+threading.Thread(target = thread1).start()
+
 
 
 # Define the linear function for ODR
