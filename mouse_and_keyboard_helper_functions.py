@@ -1,8 +1,8 @@
 # import pygetwindow as gw
 #import pyautogui
-""""
-from pynput import keyboard
 
+from pynput import keyboard
+""""
 def mouse_relative_position_from_center_normalized():
     screen_width, screen_height = pyautogui.size()
     center_x, center_y = screen_width / 2, screen_height / 2
@@ -12,7 +12,7 @@ def mouse_relative_position_from_center_normalized():
     relative_y = (mouse_y - center_y) / (center_y)
 
     return relative_x, - relative_y
-
+"""
 
 
 def on_press(key):
@@ -40,4 +40,4 @@ def start_listening():
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
 
-        """
+        
