@@ -26,9 +26,10 @@ def on_press(key):
         pass
 
 def keyboard_listener():
-    print("keyboard thread started")
-    with keyboard.Listener(on_press=on_press) as listener:
-        listener.join()
+    while 1:
+        print("keyboard thread started")
+        with keyboard.Listener(on_press=on_press) as listener:
+            listener.join()
 
 # create the keyboard listener thread
 thread = threading.Thread(target=keyboard_listener)
