@@ -12,10 +12,11 @@ import math
 import threading
 import keyboard
 
-global key_roll
-global key_pitch
+key_roll = 0
+key_pitch = 0
 def key_press_thread():
     while True:
+        global key_roll, key_pitch
         event = keyboard.read_event()
         if event.name == "w":
             print("w pressed")
@@ -110,6 +111,8 @@ class Drone_Controller:
         perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
 
         # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
+        
+        print("keyroll: " + str(key_roll), "keypitch: " + str(key_pitch))
         self.velocity_x_setpoint += key_roll
         self.velocity_y_setpoint += key_pitch
 
