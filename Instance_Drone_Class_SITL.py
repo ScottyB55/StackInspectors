@@ -1,7 +1,7 @@
 from Drone_Class import Simulated_Drone_Realistic_Physics
 import time
 import threading
-from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
+#from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 
 def run_simulation(drone_app):
     """
@@ -13,7 +13,8 @@ def run_simulation(drone_app):
     timestep = 0.1
     mouse_position_normalized_to_meters_velocity = 1
     while True:
-        roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
+        #roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
+        roll_pitch_setpoint_tuple = tuple(0,0)
         # using the defaults for yaw and throttle
         drone_app.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
