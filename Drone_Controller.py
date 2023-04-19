@@ -36,6 +36,7 @@ thread.daemon = True # set the thread as a daemon so it will exit when the progr
 thread.start()
 
 
+
 # Define the linear function for ODR
 def linear_function(params, x):
     m, c = params
