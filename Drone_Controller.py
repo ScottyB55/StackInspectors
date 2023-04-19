@@ -3,32 +3,39 @@ from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall
 import time
 import threading
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-from mouse_and_keyboard_helper_functions import on_press, on_release, start_listening
+#from mouse_and_keyboard_helper_functions import on_press, on_release, start_listening
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
-import getch
 
 def on_press(key):
-    print("onpress started")
-    try:
-        if key.char == 'w':
-            print('W pressed')
-        elif key.char == 'a':
-            print('A pressed')
-        elif key.char == 's':
-            print('S pressed')
-        elif key.char == 'd':
-            print('D pressed')
-    except AttributeError:
-        pass
+    global target_roll
+    global target_pitch
+    if key.char == "w":
+        print("w pressed")
+        target_pitch = -10
+    elif key.char == "a":
+        print("a pressed")
+        target_roll = -10
+    elif key.char == "s":
+        print("s pressed")
+        target_pitch = 10
+    elif key.char == "d":
+        print("d pressed")
+        target_roll = 10
 
-def keyboard_listener():
-    print("keyboard thread started")
-    with keyboard.Listener(on_press=on_press) as listener:
+def on_release(key):
+    # Stop listener on ESC key
+    if key == keyboard.Key.esc:
+        return False
+
+def start_listening():
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
+
+        
 
 # create the keyboard listener thread
 thread = threading.Thread(target=keyboard_listener)
