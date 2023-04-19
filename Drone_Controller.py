@@ -9,28 +9,28 @@ import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
+import getch
 
-import threading
-import sys
+def on_press(key):
+    print("onpress started")
+    try:
+        if key.char == 'w':
+            print('W pressed')
+        elif key.char == 'a':
+            print('A pressed')
+        elif key.char == 's':
+            print('S pressed')
+        elif key.char == 'd':
+            print('D pressed')
+    except AttributeError:
+        pass
 
-def listen_for_keys():
-    # Map the key names to their respective actions
-    key_actions = {
-        'w': 'move forward',
-        'a': 'move left',
-        's': 'move backward',
-        'd': 'move right'
-    }
+def keyboard_listener():
+    print("keyboard thread started")
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
 
-    # Continuously listen for key presses
-    while True:
-        event = keyboard.read_event()
-        if event.event_type == 'down' and event.name in key_actions:
-            action = key_actions[event.name]
-            print(f'{event.name} pressed: {action}')
-
-# Start a thread to listen for key presses
-thread = threading.Thread(target=listen_for_keys)
+thread = threading.Thread(target=listen_keyboard_input)
 thread.daemon = True
 thread.start()
 
