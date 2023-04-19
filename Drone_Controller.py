@@ -12,17 +12,31 @@ import math
 import threading
 import keyboard
 
+global key_roll
+global key_pitch
 def key_press_thread():
     while True:
         event = keyboard.read_event()
         if event.name == "w":
             print("w pressed")
+            key_pitch = 0.2
+            time.sleep(.5)
+            key_pitch = 0
         if event.name == "a":
             print("a pressed")
+            key_roll = -0.2
+            time.sleep(.5)
+            key_roll = 0
         elif event.name == "s":
             print("s pressed")
+            key_pitch = -0.2
+            time.sleep(.5)
+            key_pitch = 0
         elif event.name == "d":
             print("d pressed")
+            key_roll = 0.2
+            time.sleep(.5)
+            key_roll = 0
 
 
 # Define the linear function for ODR
@@ -96,8 +110,8 @@ class Drone_Controller:
         perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
 
         # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
-        self.velocity_x_setpoint += perpendicular_component[0]
-        self.velocity_y_setpoint += perpendicular_component[1]
+        self.velocity_x_setpoint += key_roll
+        self.velocity_y_setpoint += key_pitch
 
         
         #adding velocity's from keyboard onpress
