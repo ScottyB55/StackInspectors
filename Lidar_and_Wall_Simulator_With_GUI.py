@@ -345,7 +345,10 @@ class Lidar_and_Wall_Simulator_With_GUI():#tk.Tk
         for s in scan:
             if s[2] != 0:
                 angle=s[0]
-                self.lidar_readings.append(LidarReading(angle, s[1]/ 1000))
+                if ~((angle>50 and angle<60) or (angle>135 and angle<145) or (angle>215 and angle<225) or (angle>300 and angle<310)):
+                    self.lidar_readings.append(LidarReading(angle, s[1]/ 1000))
+                else :
+                    None
         end = time.time()
         print(end - start)
 
