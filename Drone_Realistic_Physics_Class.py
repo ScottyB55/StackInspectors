@@ -6,8 +6,6 @@ import argparse
 import math
 import threading
 
-from msvcrt import getch
-
 
 """
 Includes launching and landing!
