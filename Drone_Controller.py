@@ -131,6 +131,8 @@ class Drone_Controller:
             if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
                 min_distance = lidar_reading.total_relative_distance_m
                 closest_point = lidar_reading
+                if closest_point.lidar_angle_degrees<50:
+                    closest_point=[0,0]
         
         return (closest_point)
 
