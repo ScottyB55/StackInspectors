@@ -13,22 +13,29 @@ from pynput import keyboard
 import threading
 import sys
 
-def listen_keyboard_input():
-    while True:
-        char = sys.stdin.read(1)
-        if char == 'w':
-            print('The w key was pressed')
-        elif char == 'a':
-            print('The a key was pressed')
-        elif char == 's':
-            print('The s key was pressed')
-        elif char == 'd':
-            print('The d key was pressed')
+def listen_for_keys():
+    # Map the key names to their respective actions
+    key_actions = {
+        'w': 'move forward',
+        'a': 'move left',
+        's': 'move backward',
+        'd': 'move right'
+    }
 
-thread = threading.Thread(target=listen_keyboard_input)
+    # Continuously listen for key presses
+    while True:
+        event = keyboard.read_event()
+        if event.event_type == 'down' and event.name in key_actions:
+            action = key_actions[event.name]
+            print(f'{event.name} pressed: {action}')
+
+# Start a thread to listen for key presses
+thread = threading.Thread(target=listen_for_keys)
 thread.daemon = True
 thread.start()
 
+# Wait for the thread to finish (which it never will, so this just keeps the program from exiting immediately)
+thread.join()
 
 
 # Define the linear function for ODR
