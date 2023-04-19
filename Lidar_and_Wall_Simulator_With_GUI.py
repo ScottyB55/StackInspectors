@@ -344,7 +344,8 @@ class Lidar_and_Wall_Simulator_With_GUI():#tk.Tk
 
         for s in scan:
             if s[2] != 0:
-                self.lidar_readings.append(LidarReading(s[0], s[1]/ 1000))
+                angle=s[0]
+                self.lidar_readings.append(LidarReading(angle, s[1]/ 1000))
         end = time.time()
         print(end - start)
 
