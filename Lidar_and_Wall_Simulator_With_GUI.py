@@ -60,6 +60,7 @@ class LidarReading:
         self.y_relative_distance_m = math.sin(shifted_angle_rad) * self.lidar_reading_distance_m
 
         self.total_relative_distance_m = self.lidar_reading_distance_m
+        self.angle=self.lidar_angle_degrees
 
 class Wall:
     def __init__(self, wall_start_point_absolute_m, wall_end_point_absolute_m):
