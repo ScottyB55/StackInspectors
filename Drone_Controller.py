@@ -11,22 +11,33 @@ import math
 from pynput import keyboard
 import getch
 
-def listen_for_input():
-    while True:
-        event = keyboard.read_event()
-        if event.event_type == "down":
-            if event.name == "w":
-                print("Key w pressed")
-            elif event.name == "a":
-                print("Key a pressed")
-            elif event.name == "s":
-                print("Key s pressed")
-            elif event.name == "d":
-                print("Key d pressed")
+def on_press(key):
+    global target_roll
+    global target_pitch
+    if key.char == "w":
+        print("w pressed")
+        target_pitch = -10
+    elif key.char == "a":
+        print("a pressed")
+        target_roll = -10
+    elif key.char == "s":
+        print("s pressed")
+        target_pitch = 10
+    elif key.char == "d":
+        print("d pressed")
+        target_roll = 10
 
-input_thread = threading.Thread(target=listen_for_input)
-input_thread.daemon = True
-input_thread.start()
+def on_release(key):
+    # Stop listener on ESC key
+    if key == keyboard.Key.esc:
+        return False
+
+def start_listening():
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
+
+listener_thread = threading.Thread(target=start_listening)
+listener_thread.start()
 
 
 # Define the linear function for ODR
