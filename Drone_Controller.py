@@ -38,7 +38,7 @@ def start_listening():
         
 
 # create the keyboard listener thread
-thread = threading.Thread(target=keyboard_listener)
+thread = threading.Thread(target=start_listening)
 thread.daemon = True # set the thread as a daemon so it will exit when the program exits
 thread.start()
 
