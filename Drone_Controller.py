@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
-
+listening_thread = threading.Thread(target=start_listening())
+listening_thread.start()
 
 
 # Define the linear function for ODR
@@ -88,7 +89,6 @@ class Drone_Controller:
 
         
         #adding velocity's from keyboard onpress
-        start_listening()
         #self.velocity_x_setpoin += on_press().target_pitch
         #self.velocity_y_setpoint += on_press().target_pitch
         #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
