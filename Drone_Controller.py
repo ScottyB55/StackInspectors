@@ -11,12 +11,22 @@ import math
 from pynput import keyboard
 import getch
 
-def thread1():
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
+def keyboard_listener():
+    while True:
+        if keyboard.is_pressed('w'):
+            print('W pressed')
+        elif keyboard.is_pressed('a'):
+            print('A pressed')
+        elif keyboard.is_pressed('s'):
+            print('S pressed')
+        elif keyboard.is_pressed('d'):
+            print('D pressed')
+        time.sleep(0.1) # sleep for 100ms to avoid using too much CPU
 
-threading.Thread(target = thread1).start()
-
+# create the keyboard listener thread
+thread = threading.Thread(target=keyboard_listener)
+thread.daemon = True # set the thread as a daemon so it will exit when the program exits
+thread.start()
 
 
 # Define the linear function for ODR
