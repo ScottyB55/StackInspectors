@@ -73,7 +73,7 @@ if __name__ == '__main__':
     drone_yaw_degrees = 0
 
     # Create a simulated drone object with simple physics
-    drone_app = Sam4_Drone(0, drone_location_meters, 0)
+    drone_app = Sam4_Drone(0, drone_location_meters, drone_yaw_degrees)
     
     # Start a new thread to run the simulation, updating the drone's position and LIDAR data
     move_drone_thread = threading.Thread(target=run_simulation, args=(drone_app,))
