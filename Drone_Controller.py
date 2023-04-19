@@ -12,6 +12,7 @@ from pynput import keyboard
 import getch
 
 def on_press(key):
+    print("onpress started")
     try:
         if key.char == 'w':
             print('W pressed')
@@ -25,6 +26,7 @@ def on_press(key):
         pass
 
 def keyboard_listener():
+    print("keyboard thread started")
     with keyboard.Listener(on_press=on_press) as listener:
         listener.join()
 
@@ -226,7 +228,7 @@ def run_simulation(drone_app):
         # TODO: add drone_app.input_buffer
         # TODO: It is not getting updated on the key press, fix this
         # print(drone_app.input_buffer)
-        """"
+        
         print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
             drone_controller.closest_point.lidar_angle_degrees,
             drone_controller.closest_point.total_relative_distance_m,
@@ -234,7 +236,7 @@ def run_simulation(drone_app):
             drone_controller.velocity_y_setpoint,
             drone_controller.error_yaw
         ))
-        """
+        
         
 
         #drone_controller.Drone.set_attitude_setpoint(0, 0)
