@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
-from pynput import keyboard
+#from pynput import keyboard
+import keyboard
 
 
 
