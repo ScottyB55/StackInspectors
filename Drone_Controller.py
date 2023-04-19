@@ -9,36 +9,29 @@ import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
+import getch
 
 def on_press(key):
-    global target_roll
-    global target_pitch
-    if key.char == "w":
-        print("w pressed")
-        target_pitch = -10
-    elif key.char == "a":
-        print("a pressed")
-        target_roll = -10
-    elif key.char == "s":
-        print("s pressed")
-        target_pitch = 10
-    elif key.char == "d":
-        print("d pressed")
-        target_roll = 10
+    print("onpress started")
+    try:
+        if key.char == 'w':
+            print('W pressed')
+        elif key.char == 'a':
+            print('A pressed')
+        elif key.char == 's':
+            print('S pressed')
+        elif key.char == 'd':
+            print('D pressed')
+    except AttributeError:
+        pass
 
-def on_release(key):
-    # Stop listener on ESC key
-    if key == keyboard.Key.esc:
-        return False
-
-def start_listening():
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+def keyboard_listener():
+    print("keyboard thread started")
+    with keyboard.Listener(on_press=on_press) as listener:
         listener.join()
 
-        
-
 # create the keyboard listener thread
-thread = threading.Thread(target=start_listening)
+thread = threading.Thread(target=keyboard_listener)
 thread.daemon = True # set the thread as a daemon so it will exit when the program exits
 thread.start()
 
