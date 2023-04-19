@@ -1,5 +1,6 @@
 # import pygetwindow as gw
 #import pyautogui
+from pynput import keyboard
 """
 def mouse_relative_position_from_center_normalized():
     screen_width, screen_height = pyautogui.size()
@@ -11,6 +12,8 @@ def mouse_relative_position_from_center_normalized():
 
     return relative_x, - relative_y
 """
+
+
 def on_press(key):
     global target_roll
     global target_pitch
@@ -26,3 +29,12 @@ def on_press(key):
     elif key.char == "d":
         print("d pressed")
         target_roll = 10
+
+def on_release(key):
+    # Stop listener on ESC key
+    if key == keyboard.Key.esc:
+        return False
+
+def start_listening():
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
