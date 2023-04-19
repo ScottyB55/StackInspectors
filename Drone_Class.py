@@ -57,7 +57,7 @@ class Sam4_Drone(Drone):
     """
     Represents a real-life drone inheriting from the base Drone class.
     """
-    def __init__(self): #, drone_yaw_degrees
+    def __init__(self,drone_location_meters, drone_yaw_degrees,): #, drone_yaw_degrees
         super().__init__()
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
