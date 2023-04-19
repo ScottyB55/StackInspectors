@@ -226,7 +226,7 @@ def run_simulation(drone_app):
         # TODO: add drone_app.input_buffer
         # TODO: It is not getting updated on the key press, fix this
         # print(drone_app.input_buffer)
-        
+        """"
         print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
             drone_controller.closest_point.lidar_angle_degrees,
             drone_controller.closest_point.total_relative_distance_m,
@@ -234,6 +234,7 @@ def run_simulation(drone_app):
             drone_controller.velocity_y_setpoint,
             drone_controller.error_yaw
         ))
+        """
         
 
         #drone_controller.Drone.set_attitude_setpoint(0, 0)
