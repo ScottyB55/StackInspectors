@@ -3,7 +3,7 @@ from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall
 import time
 import threading
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-from mouse_and_keyboard_helper_functions import on_press, start_listening
+from mouse_and_keyboard_helper_functions import on_press, on_release, start_listening
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
@@ -11,14 +11,9 @@ import math
 from pynput import keyboard
 import getch
 
-key = "lol"
-
 def thread1():
-    global key
-    lock = threading.Lock()
-    while True:
-        with lock:
-            key = getch()
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
 
 threading.Thread(target = thread1).start()
 
