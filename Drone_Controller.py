@@ -10,37 +10,25 @@ from scipy import odr
 import math
 from pynput import keyboard
 
-def on_press(key):
-    global target_roll
-    global target_pitch
-    if key.char == "w":
-        print("w pressed")
-        target_pitch = -10
-    elif key.char == "a":
-        print("a pressed")
-        target_roll = -10
-    elif key.char == "s":
-        print("s pressed")
-        target_pitch = 10
-    elif key.char == "d":
-        print("d pressed")
-        target_roll = 10
+import threading
+import sys
 
-def on_release(key):
-    # Stop listener on ESC key
-    if key == keyboard.Key.esc:
-        return False
+def listen_keyboard_input():
+    while True:
+        char = sys.stdin.read(1)
+        if char == 'w':
+            print('The w key was pressed')
+        elif char == 'a':
+            print('The a key was pressed')
+        elif char == 's':
+            print('The s key was pressed')
+        elif char == 'd':
+            print('The d key was pressed')
 
-def start_listening():
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-
-        
-
-# create the keyboard listener thread
-thread = threading.Thread(target=start_listening)
-thread.daemon = True # set the thread as a daemon so it will exit when the program exits
+thread = threading.Thread(target=listen_keyboard_input)
+thread.daemon = True
 thread.start()
+
 
 
 # Define the linear function for ODR
