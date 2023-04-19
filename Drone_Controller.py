@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from scipy import odr
 import math
 from pynput import keyboard
-from msvcrt import getch
+import getch
 
 key = "lol"
 
