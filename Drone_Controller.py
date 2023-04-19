@@ -11,17 +11,22 @@ import math
 from pynput import keyboard
 import getch
 
-def keyboard_listener():
-    while True:
-        if keyboard.is_pressed('w'):
+def on_press(key):
+    try:
+        if key.char == 'w':
             print('W pressed')
-        elif keyboard.is_pressed('a'):
+        elif key.char == 'a':
             print('A pressed')
-        elif keyboard.is_pressed('s'):
+        elif key.char == 's':
             print('S pressed')
-        elif keyboard.is_pressed('d'):
+        elif key.char == 'd':
             print('D pressed')
-        time.sleep(0.1) # sleep for 100ms to avoid using too much CPU
+    except AttributeError:
+        pass
+
+def keyboard_listener():
+    with keyboard.Listener(on_press=on_press) as listener:
+        listener.join()
 
 # create the keyboard listener thread
 thread = threading.Thread(target=keyboard_listener)
