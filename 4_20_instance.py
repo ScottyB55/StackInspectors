@@ -11,7 +11,7 @@ from mouse_and_keyboard_helper_functions import mouse_relative_position_from_cen
 
 hover_thrust_range_fraction = 0.5
 
-def run_simulation():
+def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):
     """
     Run the simulation of the drone, updating its position and displaying LIDAR data.
 
@@ -27,7 +27,6 @@ def run_simulation():
         # Pure mouse input
         #roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
         #drone_inst.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
-
 
         # Wait and get the new lidar readings
         time.sleep(timestep)
@@ -55,16 +54,22 @@ def run_simulation():
         # Set the new velocity setpoint
         drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
 
-        
-        # Update the GUI
-        GUI_inst.create_figure()
-        GUI_inst.draw_drone()
-        GUI_inst.draw_walls(walls)
-        GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
-        GUI_inst.update_canvas()
+        if (use_gui):
+            # Update the GUI
+            GUI_inst.create_figure()
+            GUI_inst.draw_drone()
+            GUI_inst.draw_walls(walls)
+            GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
+            GUI_inst.update_canvas()
+        else:
+            # Print the information to the console (or any other non-GUI logic)
+            print("Drone position:", drone_inst.get_location_meters())
+            print("Closest LIDAR point:", closest_point_relative)
 
 
 if __name__ == '__main__':
+    use_gui = True  # Set this to False if you don't want to use the GUI
+
     # Define the starting and ending meters coordinates of the wall
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4))]
@@ -78,14 +83,19 @@ if __name__ == '__main__':
     drone_inst = Simulated_Drone_Simple_Physics()
 
     drone_controller_inst = Drone_Controller()
-    
+
+    if use_gui:
+        GUI_inst = GUI()
+    else:
+        GUI_inst = None
+
     # Start a new thread to run the simulation, updating the drone's position and LIDAR data
-    move_drone_thread = threading.Thread(target=run_simulation, args=())
+    move_drone_thread = threading.Thread(target=run_simulation, args=(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst,))
     # Set the thread as a daemon thread so it will automatically exit when the main program exits
     move_drone_thread.daemon = True
     # Start the simulation thread
     move_drone_thread.start()
 
-    GUI_inst = GUI()
-    # Run the main event loop of the drone application (Tkinter GUI)
-    GUI_inst.mainloop()
+    if use_gui:
+        # Run the main event loop of the drone application (Tkinter GUI)
+        GUI_inst.mainloop()
