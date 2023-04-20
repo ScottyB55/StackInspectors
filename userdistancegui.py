@@ -26,8 +26,6 @@ def distance_gui():
             print(f'Target Distance: {target_distance}')
             window.close()  # Close the window after processing the data
             return target_distance
-
-    window.close()
     
 if __name__ == '__main__':
     distance_gui()
