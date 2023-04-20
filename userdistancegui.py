@@ -23,3 +23,6 @@ def distance_gui():
         return values
 
     window.close()
+    
+if __name__ == '__main__':
+    distance_gui()
