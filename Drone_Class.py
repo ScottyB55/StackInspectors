@@ -107,7 +107,6 @@ class Sam4_Drone(Drone):
         """
         # This is already 3 dimensional
         self.drone_location_meters = self.drone.current_location_meters()
-        self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
 
 class Real_Drone_Realistic_Physics(Drone):
