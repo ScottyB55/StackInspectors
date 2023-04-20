@@ -13,6 +13,15 @@ def rotate_point(x, y, angle_degrees):
     new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
     return new_x, new_y
 
+from enum import Enum
+
+class DroneMode(Enum):
+    GROUND = 1
+    TAKING_OFF = 2
+    IN_AIR = 3
+    FOLLOWING = 4
+    LANDING = 5
+
 
 class Drone:
     """
@@ -30,6 +39,14 @@ class Drone:
         self.target_hover_thrust = 0.5
 
         self.drone_location_meters = (0, 0, 0)
+
+        self.current_mode = DroneMode.GROUND
+
+    def set_mode(self, mode):
+        self.current_mode = mode
+    
+    def get_mode(self):
+        return self.current_mode
 
     def get_lidar_readings_meters(self):
         """
@@ -72,12 +89,14 @@ class Sam4_Drone(Drone):
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
 
-        self.takeoff(target_altitude=3)
+        #self.takeoff(target_altitude=3)
 
         # self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
+        self.current_mode = DroneMode.TAKING_OFF
         self.drone.takeoff(target_altitude)
+        self.current_mode = DroneMode.IN_AIR
     
     def get_current_yaw_angle(self):
         return self.drone.current_yaw_angle()
@@ -108,6 +127,11 @@ class Sam4_Drone(Drone):
         # This is already 3 dimensional
         self.drone_location_meters = self.drone.current_location_meters()
         return self.drone_location_meters
+    
+    def land(self):
+        self.current_mode = DroneMode.LANDING
+        self.drone.land()
+        self.current_mode = DroneMode.GROUND
 
 class Real_Drone_Realistic_Physics(Drone):
     """
