@@ -1,5 +1,5 @@
 from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics, Real_Drone_Realistic_Physics
-from Lidar_and_Wall_Simulator import Wall, LidarReading, Lidar_and_Wall_Simulator
+from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall_Simulator_With_GUI
 import time
 import threading
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
@@ -8,36 +8,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
-
+import userdistancegui
 import threading
 import keyboard
 
-key_roll = 0
-key_pitch = 0
 def key_press_thread():
     while True:
-        global key_roll, key_pitch
         event = keyboard.read_event()
         if event.name == "w":
             print("w pressed")
             key_pitch = 0.2
-            time.sleep(.5)
-            key_pitch = 0
         if event.name == "a":
             print("a pressed")
             key_roll = -0.2
             time.sleep(.5)
-            key_roll = 0
         elif event.name == "s":
             print("s pressed")
             key_pitch = -0.2
             time.sleep(.5)
-            key_pitch = 0
         elif event.name == "d":
             print("d pressed")
             key_roll = 0.2
             time.sleep(.5)
-            key_roll = 0
 
 
 # Define the linear function for ODR
@@ -48,7 +40,7 @@ def linear_function(params, x):
 def point_line_distance(x0, y0, m, b):
     return abs(m * x0 - y0 + b) / math.sqrt(m**2 + 1)
 
-def distance(point1, point2):
+def distancegui(point1, point2):
     """Calculate the distance between two points."""
     return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
@@ -64,8 +56,9 @@ def vector_subtract(v1, v2):
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
-    def __init__(self):
-        self.target_distance = 0.5   # the target distance between the drone and the wall
+    def __init__(self, Drone):
+        self.Drone = Drone
+        self.target_distance = userdistancegui.distance_gui  # the target distance between the drone and the wall
         self.target_angle = 90      # the target angle between the drone
         self.velocity_x_setpoint = 0
         self.velocity_y_setpoint = 0
@@ -110,10 +103,8 @@ class Drone_Controller:
         perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
 
         # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
-        
-        print("keyroll: " + str(key_roll), "keypitch: " + str(key_pitch))
-        self.velocity_x_setpoint += key_roll
-        self.velocity_y_setpoint += key_pitch
+        self.velocity_x_setpoint += key_press_thread.key_roll
+        self.velocity_y_setpoint += key_press_thread.key_pitch
 
         
         #adding velocity's from keyboard onpress
@@ -153,6 +144,23 @@ class Drone_Controller:
         self.error_yaw = error_yaw
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
+
+    def find_closest_point(self):
+        lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings
+
+        # we are actually all looking at relative readings
+        # drone_location_meters = self.Drone.drone_location_meters
+
+        min_distance = None
+        closest_point = None
+
+        for lidar_reading in lidar_readings:
+            if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
+                if (not (lidar_reading.angle>50 and lidar_reading.angle<=60)) and (not (lidar_reading.angle>135 and lidar_reading.angle<=145)) and (not (lidar_reading.angle>215 and lidar_reading.angle<=225)) and (not (lidar_reading.angle>300 and lidar_reading.angle<=310)):
+                    min_distance = lidar_reading.total_relative_distance_m
+                    closest_point = lidar_reading
+        
+        return (closest_point)
 
 def run_simulation(drone_app):
     """
