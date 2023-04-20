@@ -82,8 +82,9 @@ if __name__ == '__main__':
     # Create a simulated drone object with simple physics
     #drone_inst = Sam4_Drone()
     drone_inst = Simulated_Drone_Simple_Physics()
-    
-    target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
+    target_distance=0
+    input(target_distance)
+    #target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
     print(f"Target Distance: {target_distance}")
     drone_controller_inst = Drone_Controller(target_distance)
 
