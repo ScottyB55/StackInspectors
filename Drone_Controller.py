@@ -1,5 +1,5 @@
 from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics, Real_Drone_Realistic_Physics
-from Lidar_and_Wall_Simulator_With_GUI import Wall, LidarReading, Lidar_and_Wall_Simulator_With_GUI
+from Lidar_and_Wall_Simulator import Wall, LidarReading, Lidar_and_Wall_Simulator
 import time
 import threading
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
@@ -64,8 +64,7 @@ def vector_subtract(v1, v2):
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
-    def __init__(self, Drone):
-        self.Drone = Drone
+    def __init__(self):
         self.target_distance = 0.5   # the target distance between the drone and the wall
         self.target_angle = 90      # the target angle between the drone
         self.velocity_x_setpoint = 0
@@ -154,23 +153,6 @@ class Drone_Controller:
         self.error_yaw = error_yaw
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
-
-    def find_closest_point(self):
-        lidar_readings = self.Drone.lidar_and_wall_sim_with_gui.lidar_readings
-
-        # we are actually all looking at relative readings
-        # drone_location_meters = self.Drone.drone_location_meters
-
-        min_distance = None
-        closest_point = None
-
-        for lidar_reading in lidar_readings:
-            if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
-                if (not (lidar_reading.angle>50 and lidar_reading.angle<=60)) and (not (lidar_reading.angle>135 and lidar_reading.angle<=145)) and (not (lidar_reading.angle>215 and lidar_reading.angle<=225)) and (not (lidar_reading.angle>300 and lidar_reading.angle<=310)):
-                    min_distance = lidar_reading.total_relative_distance_m
-                    closest_point = lidar_reading
-        
-        return (closest_point)
 
 def run_simulation(drone_app):
     """

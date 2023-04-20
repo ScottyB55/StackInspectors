@@ -1,7 +1,7 @@
 #from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 import time
 import threading
-from Lidar_and_Wall_Simulator_With_GUI import Lidar_and_Wall_Simulator_With_GUI
+#from Lidar_and_Wall_Simulator import Lidar_and_Wall_Simulator
 from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
 import math
 
@@ -57,7 +57,7 @@ class Sam4_Drone(Drone):
     """
     Represents a real-life drone inheriting from the base Drone class.
     """
-    def __init__(self,drone_location_meters, drone_yaw_degrees): #, drone_yaw_degrees
+    def __init__(self): #, drone_yaw_degrees
         super().__init__()
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
@@ -66,7 +66,7 @@ class Sam4_Drone(Drone):
 
         #self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
         self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(0,0)
-        self.drone_location_meters = drone_location_meters
+        # self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
         self.drone.takeoff(target_altitude)
@@ -89,10 +89,6 @@ class Sam4_Drone(Drone):
         """
         gain = 2
         self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
-
-    def update_lidar_readings(self):
-        self.lidar_and_wall_sim_with_gui.get_real_lidar_readings(self)
-        #self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """
@@ -105,16 +101,6 @@ class Sam4_Drone(Drone):
         self.drone_location_meters = self.drone.current_location_meters()
         self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
-
-    def wipe_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
-
-    def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.draw_drone()
-        #self.lidar_and_wall_sim_with_gui.draw_walls()
-        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
-        self.lidar_and_wall_sim_with_gui.update_canvas()
-
 
 class Real_Drone_Realistic_Physics(Drone):
     """
@@ -152,10 +138,6 @@ class Real_Drone_Realistic_Physics(Drone):
         """
         gain = 2
         self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
-
-    def update_lidar_readings(self):
-        self.lidar_and_wall_sim_with_gui.get_real_lidar_readings(self)
-        #self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """
@@ -169,14 +151,6 @@ class Real_Drone_Realistic_Physics(Drone):
         self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
 
-    def wipe_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
-
-    def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.draw_drone()
-        #self.lidar_and_wall_sim_with_gui.draw_walls()
-        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
-        self.lidar_and_wall_sim_with_gui.update_canvas()
 class Simulated_Drone_Realistic_Physics(Drone):
     """
     Represents a simulated drone with realistic physics using SITL QGroundControl.
@@ -214,9 +188,6 @@ class Simulated_Drone_Realistic_Physics(Drone):
         """
         gain = 2
         self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
-
-    def update_lidar_readings(self):
-        self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
     
     def update_location_meters(self, timestep):
         """
@@ -230,15 +201,6 @@ class Simulated_Drone_Realistic_Physics(Drone):
         self.lidar_and_wall_sim_with_gui.drone = self.drone_location_meters
         return self.drone_location_meters
 
-    def wipe_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
-
-    def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.draw_drone()
-        #self.lidar_and_wall_sim_with_gui.draw_walls()
-        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
-        self.lidar_and_wall_sim_with_gui.update_canvas()
-
 
 class Simulated_Drone_Simple_Physics(Drone):
     """
@@ -251,18 +213,12 @@ class Simulated_Drone_Simple_Physics(Drone):
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, walls, drone_location_meters, drone_yaw_degrees, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+    def __init__(self):
         super().__init__()
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
-        self.drone_location_meters = drone_location_meters
-        self.drone_yaw_degrees = drone_yaw_degrees
-        self.target_yaw = drone_yaw_degrees
-    
-    def update_lidar_readings(self):
-        if (self.lidar_and_wall_sim_with_gui.lidar_type == "real"):
-            self.lidar_and_wall_sim_with_gui.get_real_lidar_readings(self)
-        else:
-            self.lidar_and_wall_sim_with_gui.get_lidar_readings_angle_deg_dist_m(self)
+        #self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
+        self.drone_location_meters = (0, 0, 0)
+        self.drone_yaw_degrees = 0
+        self.target_yaw = 0
     
     def update_location_meters(self, timestep):
         """
@@ -312,17 +268,6 @@ class Simulated_Drone_Simple_Physics(Drone):
         self.target_pitch = target_pitch
         self.target_yaw = target_yaw
         self.target_hover_thrust = hover_thrust
-
-    
-    def wipe_gui(self):
-        self.lidar_and_wall_sim_with_gui.create_figure()
-
-    def update_gui(self):
-        self.lidar_and_wall_sim_with_gui.draw_drone()
-        #self.lidar_and_wall_sim_with_gui.draw_walls()
-        self.lidar_and_wall_sim_with_gui.draw_lidar_points()
-        # self.lidar_and_wall_sim_with_gui.draw_lidar_points_cluster()
-        self.lidar_and_wall_sim_with_gui.update_canvas()
 
 
 def run_simulation(drone_app):
