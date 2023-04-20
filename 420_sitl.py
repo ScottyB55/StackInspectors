@@ -51,7 +51,7 @@ def key_press_thread():
             run_program = False
         elif event.name == "t":
             print("t pressed")
-            drone_inst.takeoff(1)
+            drone_inst.takeoff(3)
 
 
 

@@ -245,6 +245,7 @@ class Drone_Realistic_Physics_Class:
 
             while True:
                 # Break just below target altitude.
+                print(f"Simple Takeoff Current Altitude: {self.vehicle.location.global_relative_frame.alt}")
                 if self.vehicle.location.global_relative_frame.alt >= target_altitude - altitude_reach_threshold:
                     break
                 time.sleep(0.5)
