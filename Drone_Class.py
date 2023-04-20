@@ -29,6 +29,8 @@ class Drone:
         self.target_yaw = 0
         self.target_hover_thrust = 0.5
 
+        self.drone_location_meters = (0, 0, 0)
+
     def get_lidar_readings_meters(self):
         """
         Get LIDAR readings for the drone in meters coordinates.
@@ -56,6 +58,9 @@ class Drone:
         """
         pass
 
+    def get_location_meters(self):
+        return self.drone_location_meters
+
     # Add other common methods and properties for all drones
 
 class Sam4_Drone(Drone):
@@ -69,8 +74,6 @@ class Sam4_Drone(Drone):
 
         self.takeoff(target_altitude=3)
 
-        #self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(0,0)
         # self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
@@ -119,7 +122,6 @@ class Real_Drone_Realistic_Physics(Drone):
 
         self.takeoff(target_altitude=3)
 
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, self, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
@@ -169,7 +171,6 @@ class Simulated_Drone_Realistic_Physics(Drone):
 
         self.takeoff(target_altitude=3)
 
-        self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
         self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):

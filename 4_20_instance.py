@@ -103,3 +103,6 @@ if __name__ == '__main__':
     if use_gui:
         # Run the main event loop of the drone application (Tkinter GUI)
         GUI_inst.mainloop()
+    else:
+        # Wait for the move_drone_thread to complete
+        move_drone_thread.join()
