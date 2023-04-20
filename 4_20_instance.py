@@ -64,8 +64,13 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             GUI_inst.update_canvas()
         else:
             # Print the information to the console (or any other non-GUI logic)
-            print("Drone position:", drone_inst.get_location_meters())
-            print("Closest LIDAR point:", closest_point_relative)
+            print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
+            closest_point_relative.lidar_angle_degrees,
+            closest_point_relative.total_relative_distance_m,
+            rpyt[0],
+            rpyt[1],
+            rpyt[2]
+            ))
 
 
 if __name__ == '__main__':
