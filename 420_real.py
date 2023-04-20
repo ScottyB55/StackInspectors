@@ -16,6 +16,8 @@ throttle_ctrl = 0
 key_press_time = 0.5
 key_press_delta = 1
 
+land = False
+
 def key_press_thread():
     global pitch_ctrl, roll_ctrl
     while True:
@@ -25,7 +27,7 @@ def key_press_thread():
             pitch_ctrl = key_press_delta
             time.sleep(key_press_time)
             pitch_ctrl = 0
-        if event.name == "a":
+        elif event.name == "a":
             print("a pressed")
             roll_ctrl = -key_press_delta
             time.sleep(key_press_time)
@@ -40,6 +42,10 @@ def key_press_thread():
             roll_ctrl = key_press_delta
             time.sleep(key_press_time)
             roll_ctrl = 0
+        elif event.name == "l":
+            print("l pressed")
+            land = True
+
 
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):
@@ -114,6 +120,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
 if __name__ == '__main__':
+    use_real_lidar = False
     use_gui = True  # Set this to False if you don't want to use the GUI
 
     # Define the starting and ending meters coordinates of the wall
@@ -122,7 +129,7 @@ if __name__ == '__main__':
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0.1
 
-    lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(True, walls, lidar_noise_meters_standard_dev)
+    lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
 
     # Create a simulated drone object with simple physics
     drone_inst = Sam4_Drone()
