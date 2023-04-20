@@ -8,6 +8,7 @@ from pynput import keyboard
 from Lidar_and_Wall_Simulator import Wall, LidarReading, Lidar_and_Wall_Simulator
 from GUI import GUI
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
+import userdistancegui
 
 hover_thrust_range_fraction = 0.5
 
@@ -81,8 +82,10 @@ if __name__ == '__main__':
     # Create a simulated drone object with simple physics
     #drone_inst = Sam4_Drone()
     drone_inst = Simulated_Drone_Simple_Physics()
-
-    drone_controller_inst = Drone_Controller()
+    
+    target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
+    print(f"Target Distance: {target_distance}")
+    drone_controller_inst = Drone_Controller(target_distance)
 
     if use_gui:
         GUI_inst = GUI()
@@ -99,3 +102,5 @@ if __name__ == '__main__':
     if use_gui:
         # Run the main event loop of the drone application (Tkinter GUI)
         GUI_inst.mainloop()
+
+# That worked, thank you. Print out the additional code that needs to be adjusted or added so that the 

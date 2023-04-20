@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import odr
 import math
-import userdistancegui
 import threading
 import keyboard
 
@@ -55,9 +54,8 @@ def vector_subtract(v1, v2):
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
-    def __init__(self):
-        self.target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
-        print(self.target_distance)
+    def __init__(self, target_distance):
+        self.target_distance = target_distance
         #print(type(self.target_distance))
         #print(type(self.target_distance[0]))
         self.target_angle = 90      # the target angle between the drone
