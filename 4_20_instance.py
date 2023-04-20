@@ -133,13 +133,13 @@ if __name__ == '__main__':
     # Start the simulation thread
     move_drone_thread.start()
 
+    # start the keyboard listener thread
+    key_press_t = threading.Thread(target=key_press_thread)
+    key_press_t.start()
+
     if use_gui:
         # Run the main event loop of the drone application (Tkinter GUI)
         GUI_inst.mainloop()
     else:
         # Wait for the move_drone_thread to complete
         move_drone_thread.join()
-
-    # start the keyboard listener thread
-    key_press_t = threading.Thread(target=key_press_thread)
-    key_press_t.start()
