@@ -20,7 +20,12 @@ def distance_gui():
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Cancel':
             break
-        return values
+        elif event == 'Submit':
+            # Process the submitted data
+            target_distance = float(values[0])  # Typecast input value to float
+            print(f'Target Distance: {target_distance}')
+            window.close()  # Close the window after processing the data
+            return target_distance
 
     window.close()
     

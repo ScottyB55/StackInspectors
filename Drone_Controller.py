@@ -56,7 +56,7 @@ mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
     def __init__(self):
-        self.target_distance = float(userdistancegui.distance_gui()[0])  # the target distance between the drone and the wall
+        self.target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
         print(self.target_distance)
         #print(type(self.target_distance))
         #print(type(self.target_distance[0]))
