@@ -24,6 +24,11 @@ class Drone:
         """
         self.input_buffer = ""
 
+        self.target_roll = 0
+        self.target_pitch = 0
+        self.target_yaw = 0
+        self.target_hover_thrust = 0.5
+
     def get_lidar_readings_meters(self):
         """
         Get LIDAR readings for the drone in meters coordinates.
@@ -218,7 +223,6 @@ class Simulated_Drone_Simple_Physics(Drone):
         #self.lidar_and_wall_sim_with_gui = Lidar_and_Wall_Simulator_With_GUI(walls, lidar_noise_meters_standard_dev)
         self.drone_location_meters = (0, 0, 0)
         self.drone_yaw_degrees = 0
-        self.target_yaw = 0
     
     def update_location_meters(self, timestep):
         """

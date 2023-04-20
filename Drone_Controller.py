@@ -56,16 +56,16 @@ mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
     def __init__(self):
-        self.target_distance = userdistancegui.distance_gui  # the target distance between the drone and the wall
+        self.target_distance = float(userdistancegui.distance_gui()[0])  # the target distance between the drone and the wall
         print(self.target_distance)
+        #print(type(self.target_distance))
+        #print(type(self.target_distance[0]))
         self.target_angle = 90      # the target angle between the drone
         self.velocity_x_setpoint = 0
         self.velocity_y_setpoint = 0
         self.distance_error = None
     
     def get_target_drone_roll_pitch_yaw_thrust_pid(self, drone, closest_point_relative):
-        closest_point_relative = self.find_closest_point()
-
         # Find the displacement between the drone and the closest point
         delta_x = closest_point_relative.x_relative_distance_m
         delta_y = closest_point_relative.y_relative_distance_m
