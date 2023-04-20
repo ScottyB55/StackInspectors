@@ -243,12 +243,17 @@ class Drone_Realistic_Physics_Class:
             print(f"Taking off to {target_altitude} and threshold of {target_altitude - altitude_reach_threshold}")
             self.vehicle.simple_takeoff(target_altitude)  # Take off to target altitude
 
-            while True:
+            count = 0
+            while count < 30:
                 # Break just below target altitude.
-                print(f"Simple Takeoff Current Altitude: {self.vehicle.location.global_relative_frame.alt}")
+                
                 if self.vehicle.location.global_relative_frame.alt >= target_altitude - altitude_reach_threshold:
                     break
                 time.sleep(0.5)
+                count = count + 1
+
+            if (count == 30):
+                print(f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}")
 
     def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):
         """

@@ -89,7 +89,7 @@ class Sam4_Drone(Drone):
         # Make sure to put the connection string as a command line argument or pass it into the function
         self.drone = Drone_Realistic_Physics_Class()
 
-        #self.takeoff(target_altitude=3)
+        self.takeoff(target_altitude=1)
 
         # self.drone_location_meters = drone_location_meters
 
