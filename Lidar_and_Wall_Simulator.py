@@ -175,7 +175,7 @@ class Lidar_and_Wall_Simulator():#tk.Tk
 
             for s in scan:
                 if s[2] != 0:
-                    angle=s[0]
+                    angle= 360 - s[0]
                     self.lidar_readings.append(LidarReading(angle, s[1]/ 1000))
             
         else:
