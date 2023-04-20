@@ -59,6 +59,7 @@ class Drone_Controller:
     def __init__(self, Drone):
         self.Drone = Drone
         self.target_distance = userdistancegui.distance_gui  # the target distance between the drone and the wall
+        print(self.target_distance)
         self.target_angle = 90      # the target angle between the drone
         self.velocity_x_setpoint = 0
         self.velocity_y_setpoint = 0
