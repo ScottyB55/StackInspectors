@@ -200,7 +200,7 @@ class Drone_Realistic_Physics_Class:
 
         return yaw_degrees
     
-    def takeoff(self, target_altitude=3, altitude_reach_threshold=0.9):
+    def takeoff(self, target_altitude=3, altitude_reach_threshold=0.5):
         """
         Arms the drone and performs a takeoff to the specified altitude.
 
@@ -240,12 +240,12 @@ class Drone_Realistic_Physics_Class:
                 time.sleep(1)
                 
             # Takeoff to short altitude
-            print("Taking off!")
+            print(f"Taking off to {target_altitude} and threshold of {target_altitude - altitude_reach_threshold}")
             self.vehicle.simple_takeoff(target_altitude)  # Take off to target altitude
 
             while True:
                 # Break just below target altitude.
-                if self.vehicle.location.global_relative_frame.alt >= target_altitude * altitude_reach_threshold:
+                if self.vehicle.location.global_relative_frame.alt >= target_altitude - altitude_reach_threshold:
                     break
                 time.sleep(0.5)
 
