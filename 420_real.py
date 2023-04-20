@@ -16,8 +16,8 @@ throttle_ctrl = 0
 key_press_time = 0.5
 key_press_delta = 1
 
-#drone_inst = Sam4_Drone()
-drone_inst = Simulated_Drone_Simple_Physics()
+drone_inst = Sam4_Drone()
+# drone_inst = Simulated_Drone_Simple_Physics()
 
 run_program = True
 
