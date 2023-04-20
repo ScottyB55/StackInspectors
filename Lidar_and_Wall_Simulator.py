@@ -5,7 +5,7 @@ import numpy as np
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 import time
 import json
-#import py_rplidar_sdk.s2lidar as s2lidar
+import py_rplidar_sdk.s2lidar as s2lidar
 
 """
 def read_config(file_path):
@@ -239,7 +239,7 @@ class Lidar_and_Wall_Simulator():#tk.Tk
 
         for lidar_reading in self.lidar_readings:
             if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
-                if (not (lidar_reading.angle>50 and lidar_reading.angle<=60)) and (not (lidar_reading.angle>135 and lidar_reading.angle<=145)) and (not (lidar_reading.angle>215 and lidar_reading.angle<=225)) and (not (lidar_reading.angle>300 and lidar_reading.angle<=310)):
+                if (not (lidar_reading.angle>35 and lidar_reading.angle<=45)) and (not (lidar_reading.angle>120 and lidar_reading.angle<=130)) and (not (lidar_reading.angle>230 and lidar_reading.angle<=240)) and (not (lidar_reading.angle>320 and lidar_reading.angle<=330)):
                     min_distance = lidar_reading.total_relative_distance_m
                     closest_point = lidar_reading
         
