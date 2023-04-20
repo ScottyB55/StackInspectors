@@ -64,15 +64,14 @@ class Drone_Controller:
         self.velocity_y_setpoint = 0
         self.distance_error = None
     
-    def update_drone_velocity(self):
-
-        closest_point = self.find_closest_point()
+    def get_target_drone_roll_pitch_yaw_thrust_pid(self, drone, closest_point_relative):
+        closest_point_relative = self.find_closest_point()
 
         # Find the displacement between the drone and the closest point
-        delta_x = closest_point.x_relative_distance_m
-        delta_y = closest_point.y_relative_distance_m
+        delta_x = closest_point_relative.x_relative_distance_m
+        delta_y = closest_point_relative.y_relative_distance_m
 
-        distance = closest_point.total_relative_distance_m
+        distance = closest_point_relative.total_relative_distance_m
 
         # Scale this distance to a unit vector
         delta_x_unit = delta_x / distance
@@ -92,30 +91,10 @@ class Drone_Controller:
         self.velocity_x_setpoint = delta_x_unit * (Kp * self.distance_error + Kd * derivative_error)
         self.velocity_y_setpoint = delta_y_unit * (Kp * self.distance_error + Kd * derivative_error)
 
-        # Get the mouse input so we can move the drone perpendicular to the line between nearest point & drone
-        mouse_x, mouse_y = 0, 0#mouse_relative_position_from_center_normalized()
-
-        # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
-        projection_scale = dot_product((mouse_x, mouse_y), (delta_x_unit, delta_y_unit))
-        projection = scalar_multiply((delta_x_unit, delta_y_unit), projection_scale)
-
-        # Subtract the projection from the original vector to get the perpendicular component
-        perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
-
-        # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
-        self.velocity_x_setpoint += key_press_thread.key_roll
-        self.velocity_y_setpoint += key_press_thread.key_pitch
-
-        
-        #adding velocity's from keyboard onpress
-        #self.velocity_x_setpoin += on_press().target_pitch
-        #self.velocity_y_setpoint += on_press().target_pitch
-        #print(f"distance = {distance} distance_error = {self.distance_error} velocity_setpoint = {self.velocity_x_setpoint}, {self.velocity_y_setpoint}")
-
         K_YAW_CTRL = 50
 
-        current_yaw = self.Drone.get_current_yaw_angle()
-        target_yaw = current_yaw + closest_point.lidar_angle_degrees
+        current_yaw = drone.get_current_yaw_angle()
+        target_yaw = current_yaw + closest_point_relative.lidar_angle_degrees
         error_yaw = target_yaw - current_yaw
         while (abs(error_yaw) > 180):
             if error_yaw > 0:
@@ -127,9 +106,27 @@ class Drone_Controller:
 
         setpoint_yaw1 = (current_yaw + error_yaw + 360) % 360
 
-        setpoint_yaw2 = (self.Drone.get_current_yaw_angle() + closest_point.lidar_angle_degrees + 360) % 360
+        return [self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, 0.5]
+    
+    def get_target_drone_velocity(self, drone, closest_point_relative):
 
-        #print(f"Pt1: {setpoint_yaw1} Pt2: {setpoint_yaw2}")
+        """
+        # Get the mouse input so we can move the drone perpendicular to the line between nearest point & drone
+        mouse_x, mouse_y = 0, 0#mouse_relative_position_from_center_normalized()
+
+        # Calculate the projection of (mouse_x, mouse_y) onto (delta_x_unit, delta_y_unit)
+        projection_scale = dot_product((mouse_x, mouse_y), (delta_x_unit, delta_y_unit))
+        projection = scalar_multiply((delta_x_unit, delta_y_unit), projection_scale)
+
+        # Subtract the projection from the original vector to get the perpendicular component
+        perpendicular_component = vector_subtract((mouse_x, mouse_y), projection)
+
+        # Add the mouse component onto the setpoint (perpendicular to the dist between closest point & drone)
+        """
+
+        print("keyroll: " + str(key_roll), "keypitch: " + str(key_pitch))
+        self.velocity_x_setpoint += key_roll
+        self.velocity_y_setpoint += key_pitch
 
         # Hover thrust ranges from 0 to 1
         # Mouse_Y ranges from -1 to 1
@@ -138,9 +135,10 @@ class Drone_Controller:
         # TODO: add a feature to allow the user to fix the hover thrust at a particular level
 
         # Update the drone's velocity using defaults for yaw and throttle
-        self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, hover_thrust_setpoint)
+        
+        #self.Drone.set_attitude_setpoint(self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, hover_thrust_setpoint)
 
-        self.closest_point = closest_point
+        #self.closest_point = closest_point
         self.error_yaw = error_yaw
 
         # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
@@ -171,41 +169,6 @@ def run_simulation(drone_app):
     """
     timestep = 0.1
     drone_controller.Drone.update_lidar_readings()
-
-    def on_key_press(event):
-        K_YAW_INC = 30  # Define the increment value for the yaw change
-        if event.keysym == "Right":  # Right arrow key
-            drone_app.target_yaw = (drone_app.target_yaw + K_YAW_INC) % 360
-            print("pressed")
-        elif event.keysym == "Left":  # Left arrow key
-            drone_app.target_yaw = (drone_app.target_yaw - K_YAW_INC + 360) % 360
-            print("pressed")
-        #elif event.keysym == "L" or event.keysym == "l":
-        #    pass
-        elif event.keysym == "Escape":
-            pass
-        else:
-            if event.keysym == "Return":
-                # Process the command
-                command = drone_app.input_buffer.strip()
-                drone_app.input_buffer = ""
-                print(f"command received: {command}")
-
-                if command.startswith("goto"):
-                    print("command starts with goto")
-                    try:
-                        pass
-                        # x, y = map(float, command[4:].split(","))
-                        # drone_app.goto(x, y)
-                    except ValueError:
-                        print("Invalid goto command")
-            elif event.keysym == "BackSpace":
-                # Remove the last character from input_buffer unless it's empty
-                if len(drone_app.input_buffer) > 0:
-                    drone_app.input_buffer = drone_app.input_buffer[:-1]
-            else:
-                # Log the keys pressed
-                drone_app.input_buffer += event.char
 
     # TODO GET THE KEY PRESSES AGAIN HERE
     # Bind the on_key_press function to the key press event

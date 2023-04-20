@@ -9,6 +9,8 @@ from Lidar_and_Wall_Simulator import Wall, LidarReading, Lidar_and_Wall_Simulato
 from GUI import GUI
 from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
 
+hover_thrust_range_fraction = 0.5
+
 def run_simulation():
     """
     Run the simulation of the drone, updating its position and displaying LIDAR data.
@@ -18,19 +20,43 @@ def run_simulation():
     """
     timestep = 0.1
     mouse_position_normalized_to_meters_velocity = 1
-    while True:
-        roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
-        #roll_pitch_setpoint_tuple = tuple(0,0)
-        # using the defaults for yaw and throttle
-        #drone_app.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
-        drone_inst.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
-        # drone_app.set_attitude_setpoint(tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized()))
-        time.sleep(timestep)
 
+    drone_inst.update_location_meters(timestep)
+
+    while True:
+        # Pure mouse input
+        #roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
+        #drone_inst.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
+
+
+        # Wait and get the new lidar readings
+        time.sleep(timestep)
         drone_inst.update_location_meters(timestep)
         lidar_and_wall_sim_inst.read_new_lidar_readings_angle_deg_dist_m(drone_inst)
+
+
+        # Calculate the new setpoint based on the lidar readings
+        # Get the closest point to the drone
+        closest_point_relative = lidar_and_wall_sim_inst.get_closest_point()
+        # Calculate the target roll, pitch, yaw, and throttle from the PID only
+        rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
+
+        roll_ctrl = 0
+        pitch_ctrl = 0
+        throttle_ctrl = 0 # hover_thrust_setpoint = 0.5 + mouse_y * hover_thrust_range_fraction / 2
+
+        rpyt[0] += roll_ctrl
+        rpyt[1] += pitch_ctrl
+        rpyt[3] += throttle_ctrl
+
+        # TODO Clamp the values
         
-        # GUI Update
+        
+        # Set the new velocity setpoint
+        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
+
+        
+        # Update the GUI
         GUI_inst.create_figure()
         GUI_inst.draw_drone()
         GUI_inst.draw_walls(walls)
