@@ -72,14 +72,26 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
 
         global pitch_ctrl, roll_ctrl
+        
+        # Define the maximum and minimum values for each element in rpyt
+        MAX_ROLL = 2
+        MIN_ROLL = -2
+        MAX_PITCH = 2
+        MIN_PITCH = -2
+        MAX_THROTTLE = 0.7
+        MIN_THROTTLE = 0.3
 
+        # Add the control values to rpyt
         rpyt[0] += roll_ctrl
         rpyt[1] += pitch_ctrl
         rpyt[3] += throttle_ctrl
 
-        # TODO Clamp the values
-        
-        
+        # Clamp the values of rpyt
+        rpyt[0] = max(min(rpyt[0], MAX_ROLL), MIN_ROLL)
+        rpyt[1] = max(min(rpyt[1], MAX_PITCH), MIN_PITCH)
+        rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
+
+
         # Set the new velocity setpoint
         drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
 
