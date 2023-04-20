@@ -1,4 +1,4 @@
-from Drone_Class import Simulated_Drone_Realistic_Physics, Sam4_Drone, Simulated_Drone_Simple_Physics
+from Drone_Class import Simulated_Drone_Realistic_Physics, Sam4_Drone, Simulated_Drone_Simple_Physics, DroneMode
 from Drone_Controller import Drone_Controller
 import time
 import threading
@@ -16,10 +16,13 @@ throttle_ctrl = 0
 key_press_time = 0.5
 key_press_delta = 1
 
-land = False
+drone_inst = Sam4_Drone()
+#drone_inst = Simulated_Drone_Simple_Physics()
+
+run_program = True
 
 def key_press_thread():
-    global pitch_ctrl, roll_ctrl
+    global pitch_ctrl, roll_ctrl, drone_inst
     while True:
         event = keyboard.read_event()
         if event.name == "w":
@@ -44,7 +47,11 @@ def key_press_thread():
             roll_ctrl = 0
         elif event.name == "l":
             print("l pressed")
-            land = True
+            drone_inst.land()
+            run_program = False
+        elif event.name == "t":
+            print("t pressed")
+            drone_inst.takeoff(1)
 
 
 
@@ -60,7 +67,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
     drone_inst.update_location_meters(timestep)
 
-    while True:
+    while run_program:
         # Pure mouse input
         #roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
         #drone_inst.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
@@ -130,10 +137,6 @@ if __name__ == '__main__':
     lidar_noise_meters_standard_dev = 0.1
 
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
-
-    # Create a simulated drone object with simple physics
-    drone_inst = Sam4_Drone()
-    #drone_inst = Simulated_Drone_Simple_Physics()
 
     target_distance = input("Enter Target Distance: ")
     #target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
