@@ -139,3 +139,7 @@ if __name__ == '__main__':
     else:
         # Wait for the move_drone_thread to complete
         move_drone_thread.join()
+
+    # start the keyboard listener thread
+    key_press_t = threading.Thread(target=key_press_thread)
+    key_press_t.start()
