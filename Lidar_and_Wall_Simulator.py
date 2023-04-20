@@ -5,6 +5,7 @@ import numpy as np
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 import time
 import json
+import py_rplidar_sdk.s2lidar as s2lidar
 
 """
 def read_config(file_path):
@@ -163,7 +164,6 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         self.lidar_readings = []
 
         if (self.real_lidar == True):
-            import py_rplidar_sdk.s2lidar as s2lidar
 
             # while 1:
             #     distance_min = s2lidar.lidarprocess.s[0]
