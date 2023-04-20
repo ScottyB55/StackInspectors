@@ -55,8 +55,7 @@ def vector_subtract(v1, v2):
 mouse_position_normalized_to_meters_velocity = 1
 
 class Drone_Controller:
-    def __init__(self, Drone):
-        self.Drone = Drone
+    def __init__(self):
         self.target_distance = userdistancegui.distance_gui  # the target distance between the drone and the wall
         print(self.target_distance)
         self.target_angle = 90      # the target angle between the drone
