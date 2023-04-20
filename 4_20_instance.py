@@ -2,15 +2,45 @@ from Drone_Class import Simulated_Drone_Realistic_Physics, Sam4_Drone, Simulated
 from Drone_Controller import Drone_Controller
 import time
 import threading
-#from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-from mouse_and_keyboard_helper_functions import on_press, on_release, start_listening
-from pynput import keyboard
-from Lidar_and_Wall_Simulator import Wall, LidarReading, Lidar_and_Wall_Simulator
+from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
-from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-import userdistancegui
+import keyboard
+
 
 hover_thrust_range_fraction = 0.5
+
+roll_ctrl = 0
+pitch_ctrl = 0
+throttle_ctrl = 0
+
+key_press_time = 0.5
+key_press_delta = 1
+
+def key_press_thread():
+    global pitch_ctrl, roll_ctrl
+    while True:
+        event = keyboard.read_event()
+        if event.name == "w":
+            print("w pressed")
+            pitch_ctrl = key_press_delta
+            time.sleep(key_press_time)
+            pitch_ctrl = 0
+        if event.name == "a":
+            print("a pressed")
+            roll_ctrl = -key_press_delta
+            time.sleep(key_press_time)
+            roll_ctrl = 0
+        elif event.name == "s":
+            print("s pressed")
+            pitch_ctrl = -key_press_delta
+            time.sleep(key_press_time)
+            pitch_ctrl = 0
+        elif event.name == "d":
+            print("d pressed")
+            roll_ctrl = key_press_delta
+            time.sleep(key_press_time)
+            roll_ctrl = 0
+
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):
     """
@@ -41,9 +71,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Calculate the target roll, pitch, yaw, and throttle from the PID only
         rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
 
-        roll_ctrl = 0
-        pitch_ctrl = 0
-        throttle_ctrl = 0 # hover_thrust_setpoint = 0.5 + mouse_y * hover_thrust_range_fraction / 2
+        global pitch_ctrl, roll_ctrl
 
         rpyt[0] += roll_ctrl
         rpyt[1] += pitch_ctrl
