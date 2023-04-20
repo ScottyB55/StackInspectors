@@ -102,7 +102,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
 if __name__ == '__main__':
-    use_gui = False  # Set this to False if you don't want to use the GUI
+    use_gui = True  # Set this to False if you don't want to use the GUI
 
     # Define the starting and ending meters coordinates of the wall
     walls = [   Wall((-4, -4), (-4, 4)),
