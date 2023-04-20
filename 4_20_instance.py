@@ -69,7 +69,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
 if __name__ == '__main__':
-    use_gui = True  # Set this to False if you don't want to use the GUI
+    use_gui = False  # Set this to False if you don't want to use the GUI
 
     # Define the starting and ending meters coordinates of the wall
     walls = [   Wall((-4, -4), (-4, 4)),
@@ -82,11 +82,11 @@ if __name__ == '__main__':
     # Create a simulated drone object with simple physics
     #drone_inst = Sam4_Drone()
     drone_inst = Simulated_Drone_Simple_Physics()
-    target_distance=0
-    input(target_distance)
+
+    target_distance = input("Enter Target Distance: ")
     #target_distance = userdistancegui.distance_gui()  # the target distance between the drone and the wall
-    print(f"Target Distance: {target_distance}")
-    drone_controller_inst = Drone_Controller(target_distance)
+    #print(f"Target Distance: {target_distance}")
+    drone_controller_inst = Drone_Controller(float(target_distance))
 
     if use_gui:
         GUI_inst = GUI()
@@ -103,5 +103,3 @@ if __name__ == '__main__':
     if use_gui:
         # Run the main event loop of the drone application (Tkinter GUI)
         GUI_inst.mainloop()
-
-# That worked, thank you. Print out the additional code that needs to be adjusted or added so that the 
