@@ -82,7 +82,7 @@ class Drone_Controller:
             derivative_error = self.distance_error - distance_error_prev
         
         Kp = 1
-        Kd = 5
+        Kd = 8#5
 
         # put in the PID setpoint that is in line with the displacement to the closest point
         self.velocity_x_setpoint = delta_x_unit * (Kp * self.distance_error + Kd * derivative_error)

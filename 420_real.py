@@ -87,10 +87,10 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         global pitch_ctrl, roll_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
-        MAX_ROLL = 1
-        MIN_ROLL = -1
-        MAX_PITCH = 1
-        MIN_PITCH = -1
+        MAX_ROLL = 0.5
+        MIN_ROLL = -0.5
+        MAX_PITCH = 0.5
+        MIN_PITCH = -0.5
         MAX_THROTTLE = 0.7
         MIN_THROTTLE = 0.3
 
