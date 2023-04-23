@@ -61,7 +61,7 @@ def key_press_thread():
             run_program = False
         elif event.name == "t":
             print("t pressed")
-            drone_inst.takeoff(3)
+            drone_inst.takeoff(1.5)
 
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):

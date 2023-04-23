@@ -14,10 +14,10 @@ pitch_ctrl = 0
 throttle_ctrl = 0
 
 key_press_time = 0.5
-key_press_delta = 1
+key_press_delta = 0.8
 
 drone_inst = Sam4_Drone()
-#drone_inst = Simulated_Drone_Simple_Physics()
+# drone_inst = Simulated_Drone_Simple_Physics()
 
 run_program = True
 
@@ -30,11 +30,6 @@ def key_press_thread():
             pitch_ctrl = key_press_delta
             time.sleep(key_press_time)
             pitch_ctrl = 0
-        elif event.name == "a":
-            print("a pressed")
-            roll_ctrl = -key_press_delta
-            time.sleep(key_press_time)
-            roll_ctrl = 0
         elif event.name == "s":
             print("s pressed")
             pitch_ctrl = -key_press_delta
@@ -45,13 +40,28 @@ def key_press_thread():
             roll_ctrl = key_press_delta
             time.sleep(key_press_time)
             roll_ctrl = 0
+        elif event.name == "a":
+            print("a pressed")
+            roll_ctrl = -key_press_delta
+            time.sleep(key_press_time)
+            roll_ctrl = 0
+        elif event.name == "space":
+            print("Space pressed")
+            throttle_ctrl = key_press_delta
+            time.sleep(key_press_time)
+            throttle_ctrl = 0
+        elif event.name == "shift":
+            print("Shift pressed")
+            throttle_ctrl = -key_press_delta
+            time.sleep(key_press_time)
+            throttle_ctrl = 0
         elif event.name == "l":
             print("l pressed")
             drone_inst.land()
             run_program = False
         elif event.name == "t":
             print("t pressed")
-            drone_inst.takeoff(3)
+            drone_inst.takeoff(1.5)
 
 
 
