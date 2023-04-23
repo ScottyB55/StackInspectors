@@ -124,15 +124,15 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             GUI_inst.draw_walls(walls)
             GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
             GUI_inst.update_canvas()
-        else:
-            # Print the information to the console (or any other non-GUI logic)
-            print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
-            closest_point_relative.lidar_angle_degrees,
-            closest_point_relative.total_relative_distance_m,
-            rpyt[0],
-            rpyt[1],
-            rpyt[2]
-            ))
+        
+        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {4:10.3f}".format(
+        closest_point_relative.lidar_angle_degrees,
+        closest_point_relative.total_relative_distance_m,
+        rpyt[0],
+        rpyt[1],
+        rpyt[2],
+        rpyt[3]
+        ))
 
 
 if __name__ == '__main__':
