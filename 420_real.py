@@ -62,6 +62,14 @@ def key_press_thread():
         elif event.name == "t":
             print("t pressed")
             drone_inst.takeoff(1.5)
+"""
+def key_press_callback():
+    keyboard.on_press(key_press_callback)  # Add this line to set the callback function
+
+    # Keep the thread running to process key presses
+    while True:
+        time.sleep(0.1)
+"""
 
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):

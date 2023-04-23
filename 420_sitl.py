@@ -21,7 +21,7 @@ drone_inst = Sam4_Drone()
 
 run_program = True
 
-def key_press_callback():
+def key_press_thread():
     global pitch_ctrl, roll_ctrl, drone_inst
     while True:
         event = keyboard.read_event()
@@ -62,14 +62,14 @@ def key_press_callback():
         elif event.name == "t":
             print("t pressed")
             drone_inst.takeoff(1.5)
-
-def key_press_thread():
+"""
+def key_press_callback():
     keyboard.on_press(key_press_callback)  # Add this line to set the callback function
 
     # Keep the thread running to process key presses
     while True:
         time.sleep(0.1)
-
+"""
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):
     """
@@ -141,15 +141,14 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt[2],
         rpyt[3]
         ))
-
+"""
 def get_target_distance():
     global target_distance
     target_distance = float(input("Enter Target Distance: "))
-
+"""
 if __name__ == '__main__':
     use_real_lidar = False
     use_gui = True  # Set this to False if you don't want to use the GUI
-
     
     # Start the keyboard listener thread
     key_press_t = threading.Thread(target=key_press_thread)
@@ -163,11 +162,11 @@ if __name__ == '__main__':
 
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
 
-    global target_distance
-    #target_distance = input("Enter Target Distance: ")
-    #drone_controller_inst = Drone_Controller(float(target_distance))
-    user_input_thread = threading.Thread(target=get_target_distance)
-    user_input_thread.start()
+    #global target_distance
+    target_distance = input("Enter Target Distance: ")
+    drone_controller_inst = Drone_Controller(float(target_distance))
+    #user_input_thread = threading.Thread(target=get_target_distance)
+    #user_input_thread.start()
 
     if use_gui:
         GUI_inst = GUI()
