@@ -122,7 +122,8 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         closest_point_relative.total_relative_distance_m,
         rpyt[0],
         rpyt[1],
-        rpyt[2]
+        rpyt[2],
+        
         ))
 
 
