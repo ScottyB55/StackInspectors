@@ -142,6 +142,9 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt[3]
         ))
 
+def get_target_distance():
+    global target_distance
+    target_distance = float(input("Enter Target Distance: "))
 
 if __name__ == '__main__':
     use_real_lidar = False
@@ -160,8 +163,11 @@ if __name__ == '__main__':
 
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
 
-    target_distance = input("Enter Target Distance: ")
-    drone_controller_inst = Drone_Controller(float(target_distance))
+    global target_distance
+    #target_distance = input("Enter Target Distance: ")
+    #drone_controller_inst = Drone_Controller(float(target_distance))
+    user_input_thread = threading.Thread(target=get_target_distance)
+    user_input_thread.start()
 
     if use_gui:
         GUI_inst = GUI()
