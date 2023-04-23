@@ -5,7 +5,7 @@ import numpy as np
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 import time
 import json
-#import py_rplidar_sdk.s2lidar as s2lidar
+import py_rplidar_sdk.s2lidar as s2lidar
 
 """
 def read_config(file_path):
