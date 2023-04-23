@@ -141,6 +141,11 @@ if __name__ == '__main__':
     use_real_lidar = False
     use_gui = True  # Set this to False if you don't want to use the GUI
 
+    
+    # Start the keyboard listener thread
+    key_press_t = threading.Thread(target=key_press_thread)
+    key_press_t.start()
+
     # Define the starting and ending meters coordinates of the wall
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4))]
@@ -156,10 +161,6 @@ if __name__ == '__main__':
         GUI_inst = GUI()
     else:
         GUI_inst = None
-
-    # Start the keyboard listener thread
-    key_press_t = threading.Thread(target=key_press_thread)
-    key_press_t.start()
 
     # Start a new thread to run the simulation, updating the drone's position and LIDAR data
     move_drone_thread = threading.Thread(target=run_simulation, args=(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst,))
