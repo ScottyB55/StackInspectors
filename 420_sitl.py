@@ -87,12 +87,12 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         global pitch_ctrl, roll_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
-        MAX_ROLL = 1
-        MIN_ROLL = -1
-        MAX_PITCH = 1
-        MIN_PITCH = -1
-        MAX_THROTTLE = 0.7
-        MIN_THROTTLE = 0.3
+        MAX_ROLL = 0.4
+        MIN_ROLL = -0.4
+        MAX_PITCH = 0.4
+        MIN_PITCH = -0.4
+        MAX_THROTTLE = 0.6
+        MIN_THROTTLE = 0.4
 
         # Add the control values to rpyt
         rpyt[0] += roll_ctrl
@@ -115,15 +115,15 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             GUI_inst.draw_walls(walls)
             GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
             GUI_inst.update_canvas()
-        else:
-            # Print the information to the console (or any other non-GUI logic)
-            print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
-            closest_point_relative.lidar_angle_degrees,
-            closest_point_relative.total_relative_distance_m,
-            rpyt[0],
-            rpyt[1],
-            rpyt[2]
-            ))
+
+        # Print the information to the console (or any other non-GUI logic)
+        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}".format(
+        closest_point_relative.lidar_angle_degrees,
+        closest_point_relative.total_relative_distance_m,
+        rpyt[0],
+        rpyt[1],
+        rpyt[2]
+        ))
 
 
 if __name__ == '__main__':
@@ -134,7 +134,7 @@ if __name__ == '__main__':
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4))]
     # Define the standard deviation of the LIDAR noise in meters units
-    lidar_noise_meters_standard_dev = 0.1
+    lidar_noise_meters_standard_dev = 0.05
 
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
 

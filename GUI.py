@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib.figure import Figure
 
 class GUI(tk.Tk):
-    def __init__(self, scale_factor = 50):
+    def __init__(self, scale_factor = 25):
         tk.Tk.__init__(self)
         self.scale_factor = scale_factor  # Scale factor to convert meters units to pixels
         self.title('Drone Lidar')
