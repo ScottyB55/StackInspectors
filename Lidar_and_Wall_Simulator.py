@@ -248,7 +248,7 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         for lidar_reading in self.lidar_readings:
             if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
                 #if not any(is_angle_within_spread(lidar_reading.angle, center, spread) for center in center_angles):
-                if lidar_reading.total_relative_distance_m >= 0.4:   # Exclude readings of the drone legs
+                if lidar_reading.total_relative_distance_m >= 0.7:   # Exclude readings of the drone legs
                     min_distance = lidar_reading.total_relative_distance_m
                     closest_point = lidar_reading
         
