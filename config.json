@@ -1,3 +1,5 @@
 {
-    "lidar": "real"
+    "use_real_lidar": true,
+    "use_gui": false,
+    "use_mavproxy": false
 }

@@ -13,15 +13,11 @@ def read_config(file_path):
     return config
 
 config = read_config("config.json")
-lidar_type = config["lidar"]
+use_real_lidar = config["use_real_lidar"]
 
-if lidar_type == "real":
+if use_real_lidar == True:
     #import real_lidar_module as lidar_module
     import py_rplidar_sdk.s2lidar as s2lidar
-elif lidar_type == "simulated":
-    pass
-else:
-    raise ValueError("Invalid lidar type specified in config.json")
 
     
 class LidarReading:
@@ -126,9 +122,9 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         # Add a label for the Entry widget (optional)
         #command_label = tk.Label(self, text="Enter command:")
         #command_label.pack()
-        global lidar_type
+        global use_real_lidar
 
-        if lidar_type == "real":
+        if use_real_lidar:
             import serial.tools.list_ports
             # from pyserial import serial.tools.list_ports
 
@@ -162,9 +158,9 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         start = time.time()
         self.lidar_readings = []
 
-        global lidar_type
+        global use_real_lidar
 
-        if (lidar_type == "real"):
+        if (use_real_lidar):
 
             # while 1:
             #     distance_min = s2lidar.lidarprocess.s[0]

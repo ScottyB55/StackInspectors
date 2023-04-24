@@ -22,7 +22,7 @@ drone_inst = Sam4_Drone()
 run_program = True
 
 def key_press_thread():
-    global pitch_ctrl, roll_ctrl, drone_inst
+    global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     while True:
         event = keyboard.read_event()
         if event.name == "w":
@@ -101,7 +101,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Calculate the target roll, pitch, yaw, and throttle from the PID only
         rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
 
-        global pitch_ctrl, roll_ctrl
+        global pitch_ctrl, roll_ctrl, throttle_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
         MAX_ROLL = 0.4
@@ -123,7 +123,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
         # Set the new velocity setpoint
-        drone_inst.set_attitude_setpoint(rpyt[0], -rpyt[1], rpyt[2], rpyt[3])
+        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
 
         if (use_gui):
             # Update the GUI
@@ -144,7 +144,6 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
 if __name__ == '__main__':
-    #use_real_lidar = True
     use_gui = False  # Set this to False if you don't want to use the GUI
 
     # Start the keyboard listener thread

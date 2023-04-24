@@ -5,7 +5,15 @@ import threading
 from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
 import keyboard
+import json
 
+from enum import Enum
+
+class DroneMode(Enum):
+    KEYBOARD = 1
+    WALL_FOLLOW = 2
+
+current_mode = DroneMode.KEYBOARD
 
 hover_thrust_range_fraction = 0.5
 
@@ -16,52 +24,74 @@ throttle_ctrl = 0
 key_press_time = 0.5
 key_press_delta = 0.8
 
-drone_inst = Sam4_Drone()
-# drone_inst = Simulated_Drone_Simple_Physics()
+def read_config(file_path):
+    with open(file_path, "r") as file:
+        config = json.load(file)
+    return config
+
+config = read_config("config.json")
+use_gui = config["use_gui"]
+use_mavproxy = config["use_mavproxy"]
+
+if use_mavproxy:
+    drone_inst = Sam4_Drone()
+else:
+    drone_inst = Simulated_Drone_Simple_Physics()
 
 run_program = True
 
+
+
 def key_press_thread():
-    global pitch_ctrl, roll_ctrl, drone_inst
+    global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     while True:
         event = keyboard.read_event()
-        if event.name == "w":
-            print("w pressed")
-            pitch_ctrl = key_press_delta
-            time.sleep(key_press_time)
-            pitch_ctrl = 0
-        elif event.name == "s":
-            print("s pressed")
-            pitch_ctrl = -key_press_delta
-            time.sleep(key_press_time)
-            pitch_ctrl = 0
-        elif event.name == "d":
-            print("d pressed")
-            roll_ctrl = key_press_delta
-            time.sleep(key_press_time)
-            roll_ctrl = 0
-        elif event.name == "a":
-            print("a pressed")
-            roll_ctrl = -key_press_delta
-            time.sleep(key_press_time)
-            roll_ctrl = 0
-        elif event.name == "space":
-            print("Space pressed")
-            throttle_ctrl = key_press_delta
-            time.sleep(key_press_time)
-            throttle_ctrl = 0
-        elif event.name == "shift":
-            print("Shift pressed")
-            throttle_ctrl = -key_press_delta
-            time.sleep(key_press_time)
-            throttle_ctrl = 0
-        elif event.name == "l":
-            print("l pressed")
-            drone_inst.land()
-            run_program = False
-        elif event.name == "t":
-            print("t pressed")
-            drone_inst.takeoff(1.5)
+        if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
+            if event.name == "w":
+                print("w pressed")
+                pitch_ctrl = key_press_delta
+                time.sleep(key_press_time)
+                pitch_ctrl = 0
+            elif event.name == "s":
+                print("s pressed")
+                pitch_ctrl = -key_press_delta
+                time.sleep(key_press_time)
+                pitch_ctrl = 0
+            elif event.name == "d":
+                print("d pressed")
+                roll_ctrl = key_press_delta
+                time.sleep(key_press_time)
+                roll_ctrl = 0
+            elif event.name == "a":
+                print("a pressed")
+                roll_ctrl = -key_press_delta
+                time.sleep(key_press_time)
+                roll_ctrl = 0
+            elif event.name == "space":
+                print("Space pressed")
+                throttle_ctrl = key_press_delta
+                time.sleep(key_press_time)
+                throttle_ctrl = 0
+            elif event.name == "shift":
+                print("Shift pressed")
+                throttle_ctrl = -key_press_delta
+                time.sleep(key_press_time)
+                throttle_ctrl = 0
+            elif event.name == "l":
+                print("l pressed")
+                drone_inst.land()
+                run_program = False
+            elif event.name == "t":
+                print("t pressed")
+                drone_inst.takeoff(1.5)
+            elif event.name == "f":
+                global current_mode
+                if current_mode == DroneMode.KEYBOARD:
+                    current_mode = DroneMode.WALL_FOLLOW
+                else:
+                    current_mode = DroneMode.KEYBOARD
+                print("f pressed")
+            
 """
 def key_press_callback():
     keyboard.on_press(key_press_callback)  # Add this line to set the callback function
@@ -97,10 +127,13 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Calculate the new setpoint based on the lidar readings
         # Get the closest point to the drone
         closest_point_relative = lidar_and_wall_sim_inst.get_closest_point()
-        # Calculate the target roll, pitch, yaw, and throttle from the PID only
-        rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
 
-        global pitch_ctrl, roll_ctrl
+        rpyt = [0.0, 0.0, 0.0, 0.5]
+        if current_mode == DroneMode.WALL_FOLLOW:
+            # Calculate the target roll, pitch, yaw, and throttle from the PID only
+            rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
+
+        global pitch_ctrl, roll_ctrl, throttle_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
         MAX_ROLL = 0.4
@@ -132,14 +165,18 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
             GUI_inst.update_canvas()
 
+        # Add the mode string based on the current_mode
+        mode_string = "Follow" if current_mode == DroneMode.WALL_FOLLOW else "Keys Only"
+
         # Print the information to the console (or any other non-GUI logic)
-        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {4:10.3f}".format(
-        closest_point_relative.lidar_angle_degrees,
-        closest_point_relative.total_relative_distance_m,
-        rpyt[0],
-        rpyt[1],
-        rpyt[2],
-        rpyt[3]
+        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {5:10.3f}, Mode: {6}".format(
+            closest_point_relative.lidar_angle_degrees,
+            closest_point_relative.total_relative_distance_m,
+            rpyt[0],
+            rpyt[1],
+            rpyt[2],
+            rpyt[3],
+            mode_string
         ))
 """
 def get_target_distance():
@@ -147,8 +184,7 @@ def get_target_distance():
     target_distance = float(input("Enter Target Distance: "))
 """
 if __name__ == '__main__':
-    #use_real_lidar = False
-    use_gui = True  # Set this to False if you don't want to use the GUI
+    #global use_gui # Set this to False if you don't want to use the GUI
     
     # Start the keyboard listener thread
     key_press_t = threading.Thread(target=key_press_thread)
