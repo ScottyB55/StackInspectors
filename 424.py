@@ -86,8 +86,10 @@ def key_on_press(event):
             current_mode = DroneMode.KEYBOARD
         print("f pressed")
 
-listen_keyboard(on_press=key_on_press)
 
+def key_press_thread():
+    listen_keyboard(on_press=key_on_press)
+    """
 def key_press_thread():
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     
@@ -138,7 +140,7 @@ def key_press_thread():
                 else:
                     current_mode = DroneMode.KEYBOARD
                 print("f pressed")
-            
+            """
 """
 def key_press_callback():
     keyboard.on_press(key_press_callback)  # Add this line to set the callback function
