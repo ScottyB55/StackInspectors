@@ -147,7 +147,7 @@ def get_target_distance():
     target_distance = float(input("Enter Target Distance: "))
 """
 if __name__ == '__main__':
-    use_real_lidar = False
+    #use_real_lidar = False
     use_gui = True  # Set this to False if you don't want to use the GUI
     
     # Start the keyboard listener thread
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     # Define the standard deviation of the LIDAR noise in meters units
     lidar_noise_meters_standard_dev = 0.05
 
-    lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(use_real_lidar, walls, lidar_noise_meters_standard_dev)
+    lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(walls, lidar_noise_meters_standard_dev)
 
     #global target_distance
     target_distance = input("Enter Target Distance: ")

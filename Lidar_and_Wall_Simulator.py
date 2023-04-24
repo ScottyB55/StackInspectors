@@ -5,9 +5,8 @@ import numpy as np
 #from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 import time
 import json
-import py_rplidar_sdk.s2lidar as s2lidar
+#import py_rplidar_sdk.s2lidar as s2lidar
 
-"""
 def read_config(file_path):
     with open(file_path, "r") as file:
         config = json.load(file)
@@ -20,11 +19,10 @@ if lidar_type == "real":
     #import real_lidar_module as lidar_module
     import py_rplidar_sdk.s2lidar as s2lidar
 elif lidar_type == "simulated":
-    #import simulated_lidar_module as lidar_module
     pass
 else:
     raise ValueError("Invalid lidar type specified in config.json")
-"""
+
     
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
@@ -103,8 +101,8 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
     """
 
-    def __init__(self, real_lidar, walls, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
-        self.real_lidar = real_lidar
+    def __init__(self, walls, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
+        #self.real_lidar = real_lidar
         #tk.Tk.__init__(self)
         # walls is an array of tuples of tuples
         self.walls = walls#[(wall_start_meters, wall_end_meters)]
@@ -128,8 +126,9 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         # Add a label for the Entry widget (optional)
         #command_label = tk.Label(self, text="Enter command:")
         #command_label.pack()
+        global lidar_type
 
-        if self.real_lidar == True:
+        if lidar_type == "real":
             import serial.tools.list_ports
             # from pyserial import serial.tools.list_ports
 
@@ -163,7 +162,9 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         start = time.time()
         self.lidar_readings = []
 
-        if (self.real_lidar == True):
+        global lidar_type
+
+        if (lidar_type == "real"):
 
             # while 1:
             #     distance_min = s2lidar.lidarprocess.s[0]
