@@ -3,6 +3,8 @@ mav.tlog
 mav.tlog.raw
 .vscode
 
+config.json
+
 dronekit-python/
 py_rplidar_sdk/
 
