@@ -123,7 +123,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
 
         # Set the new velocity setpoint
-        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
+        drone_inst.set_attitude_setpoint(rpyt[0], -rpyt[1], rpyt[2], rpyt[3])
 
         if (use_gui):
             # Update the GUI
