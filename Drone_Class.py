@@ -4,6 +4,15 @@ import threading
 #from Lidar_and_Wall_Simulator import Lidar_and_Wall_Simulator
 from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
 import math
+import json
+
+def read_config(file_path):
+    with open(file_path, "r", encoding='utf-8') as file:
+        config = json.load(file)
+    return config
+
+config = read_config("config.json")
+use_set_attitude = config["use_set_attitude"]
 
 # Good idea: from collections import namedtuple
 
@@ -114,9 +123,13 @@ class Sam4_Drone(Drone):
         Returns:
             None
         """
-        gain = 2
-        self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
-    
+        if (use_set_attitude):
+            gain = 2
+            self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
+        else:
+            gain = 1
+            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, hover_thrust - 0.5)
+
     def update_location_meters(self, timestep):
         """
         Update the meters location of the drone based on the given timestep.

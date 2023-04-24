@@ -255,6 +255,20 @@ class Drone_Realistic_Physics_Class:
             if (count == 30):
                 print(f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}")
 
+    #Sets the drone body velocity depending on vx, vy, vz
+    def set_velocity_body(self, vx, vy, vz):
+        msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
+                0,
+                0, 0,
+                mavutil.mavlink.MAV_FRAME_BODY_NED, #Mavlink command being constructed
+                0b0000111111000111, #Bitmask from sample code
+                0, 0, 0,        #Positional arguements, setting to 0 maintains current position when not commanded otherwise
+                vx, vy, vz,     #velocity parameters
+                0, 0, 0,        
+                0, 0)
+        self.vehicle.send_mavlink(msg)
+        self.vehicle.flush()
+
     def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):
         """
         Sets an attitude setpoint to the drone.
