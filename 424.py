@@ -6,6 +6,7 @@ from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
 import keyboard
 import json
+import curses
 
 from enum import Enum
 
@@ -40,12 +41,21 @@ else:
 
 run_program = True
 
+# get the curses screen window
+screen = curses.initscr()
+
+# turn off input echoing
+curses.noecho()
+
+# respond to keys immediately (don't wait for enter)
+curses.cbreak()
 
 
 def key_press_thread():
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     while True:
-        event = keyboard.read_event()
+        #event = keyboard.read_event()
+        event = screen.getch()
         if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
             if event.name == "w":
                 print("w pressed")
