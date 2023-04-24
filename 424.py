@@ -57,10 +57,10 @@ def key_on_press(event):
         roll_ctrl += -key_press_delta
     elif event == "[":
         print("[ pressed")
-        throttle_ctrl += key_press_delta
+        throttle_ctrl -= key_press_delta
     elif event == "]":
         print("] pressed")
-        throttle_ctrl += -key_press_delta
+        throttle_ctrl += key_press_delta
     elif event == "z":
         print("z pressed")
         throttle_ctrl = 0
