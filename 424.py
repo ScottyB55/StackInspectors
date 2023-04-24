@@ -6,7 +6,7 @@ from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
 import keyboard
 import json
-import curses
+from sshkeyboard import listen_keyboard
 
 from enum import Enum
 
@@ -44,6 +44,7 @@ run_program = True
 
 def key_press_thread():
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
+    listen_keyboard()
     while True:
         event = keyboard.read_event()
         if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
