@@ -86,11 +86,11 @@ def key_on_press(event):
             current_mode = DroneMode.KEYBOARD
         print("f pressed")
 
-
+listen_keyboard(on_press=key_on_press)
 
 def key_press_thread():
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
-    listen_keyboard(on_press=key_on_press)
+    
     while True:
         event = keyboard.read_event()
         if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
