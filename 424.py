@@ -253,6 +253,7 @@ if __name__ == '__main__':
     #user_input_thread.start()
     key_press_t = threading.Thread(target=key_press_thread)
     key_press_t.start()
+    key_press_t.join()
 
     if use_gui:
         GUI_inst = GUI()
