@@ -40,11 +40,57 @@ else:
     drone_inst = Simulated_Drone_Simple_Physics()
 
 run_program = True
+def key_on_press(event):
+    if event == "w":
+        print("w pressed")
+        pitch_ctrl = key_press_delta
+        time.sleep(key_press_time)
+        pitch_ctrl = 0
+    elif event == "s":
+        print("s pressed")
+        pitch_ctrl = -key_press_delta
+        time.sleep(key_press_time)
+        pitch_ctrl = 0
+    elif event == "d":
+        print("d pressed")
+        roll_ctrl = key_press_delta
+        time.sleep(key_press_time)
+        roll_ctrl = 0
+    elif event == "a":
+        print("a pressed")
+        roll_ctrl = -key_press_delta
+        time.sleep(key_press_time)
+        roll_ctrl = 0
+    elif event == "space":
+        print("Space pressed")
+        throttle_ctrl = key_press_delta
+        time.sleep(key_press_time)
+        throttle_ctrl = 0
+    elif event == "shift":
+        print("Shift pressed")
+        throttle_ctrl = -key_press_delta
+        time.sleep(key_press_time)
+        throttle_ctrl = 0
+    elif event == "l":
+        print("l pressed")
+        drone_inst.land()
+        run_program = False
+    elif event == "t":
+        print("t pressed")
+        drone_inst.takeoff(1.5)
+    elif event == "f":
+        global current_mode
+        if current_mode == DroneMode.KEYBOARD:
+            current_mode = DroneMode.WALL_FOLLOW
+        else:
+            current_mode = DroneMode.KEYBOARD
+        print("f pressed")
+
 
 
 def key_press_thread():
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
-    listen_keyboard()
+    listen_keyboard(on_press=key_on_press)
     while True:
         event = keyboard.read_event()
         if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
