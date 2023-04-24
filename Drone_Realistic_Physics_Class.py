@@ -289,7 +289,7 @@ class Drone_Realistic_Physics_Class:
             0, # time_boot_ms
             1, # target system
             1, # target component
-            0b00000100,
+            0b00000111,
             new_quat, # attitude (quaternion)
             0, # roll rate
             0, # pitch rate
