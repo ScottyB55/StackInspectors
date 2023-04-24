@@ -128,6 +128,7 @@ class Sam4_Drone(Drone):
             self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
         else:
             gain = 1
+            self.drone.set_yaw(target_yaw)
             self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5-hover_thrust)#hover_thrust - 0.5)
 
     def update_location_meters(self, timestep):
