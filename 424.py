@@ -23,7 +23,7 @@ pitch_ctrl = 0
 throttle_ctrl = 0
 
 key_press_time = 0.5
-key_press_delta = 0.8
+key_press_delta = 0.2
 
 def read_config(file_path):
     with open(file_path, "r") as file:
@@ -45,34 +45,27 @@ def key_on_press(event):
     global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     if event == "w":
         print("w pressed")
-        pitch_ctrl = key_press_delta
-        time.sleep(key_press_time)
-        pitch_ctrl = 0
+        pitch_ctrl += key_press_delta
     elif event == "s":
         print("s pressed")
-        pitch_ctrl = -key_press_delta
-        time.sleep(key_press_time)
-        pitch_ctrl = 0
+        pitch_ctrl += -key_press_delta
     elif event == "d":
         print("d pressed")
-        roll_ctrl = key_press_delta
-        time.sleep(key_press_time)
-        roll_ctrl = 0
+        roll_ctrl += key_press_delta
     elif event == "a":
         print("a pressed")
-        roll_ctrl = -key_press_delta
-        time.sleep(key_press_time)
-        roll_ctrl = 0
+        roll_ctrl += -key_press_delta
     elif event == "space":
         print("Space pressed")
-        throttle_ctrl = key_press_delta
-        time.sleep(key_press_time)
-        throttle_ctrl = 0
+        throttle_ctrl += key_press_delta
     elif event == "shift":
         print("Shift pressed")
-        throttle_ctrl = -key_press_delta
-        time.sleep(key_press_time)
+        throttle_ctrl += -key_press_delta
+    elif event == "z":
+        print("z pressed")
         throttle_ctrl = 0
+        roll_ctrl = 0
+        pitch_ctrl = 0
     elif event == "l":
         print("l pressed")
         drone_inst.land()
