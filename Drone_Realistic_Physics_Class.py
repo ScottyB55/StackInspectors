@@ -255,6 +255,20 @@ class Drone_Realistic_Physics_Class:
             if (count == 30):
                 print(f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}")
 
+
+    def set_yaw(self, target_yaw):
+        msg = self.vehicle.mav.command_long_encode(
+        0, 0,  # target system, target component
+        mavutil.mavlink.MAV_CMD_CONDITION_YAW,  # command
+        0,  # confirmation
+        target_yaw,  # param 1: target yaw angle
+        0,  # param 2: yaw speed
+        1,  # param 3: direction - 1 = clockwise, -1 = counter-clockwise
+        0,  # relative offset
+        0, 0, 0)  # unused parameters
+
+        self.vehicle.send_mavlink(msg)
+
     #Sets the drone body velocity depending on vx, vy, vz
     def set_velocity_body(self, vx, vy, vz):
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
@@ -268,6 +282,7 @@ class Drone_Realistic_Physics_Class:
                 0, 0)
         self.vehicle.send_mavlink(msg)
         self.vehicle.flush()
+
 
     def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):
         """
@@ -289,7 +304,7 @@ class Drone_Realistic_Physics_Class:
             0, # time_boot_ms
             1, # target system
             1, # target component
-            0b00000111,
+            0b00000100,
             new_quat, # attitude (quaternion)
             0, # roll rate
             0, # pitch rate
