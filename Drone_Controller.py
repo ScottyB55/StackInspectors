@@ -103,8 +103,8 @@ class Drone_Controller:
 
         setpoint_yaw1 = (current_yaw + error_yaw + 360) % 360
 
-        return [self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, 0.5]
-    
+        #return [self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, 0.5]
+        return [0,0,0,0.5]
     def get_target_drone_velocity(self, drone, closest_point_relative):
 
         """
