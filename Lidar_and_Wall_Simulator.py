@@ -8,7 +8,7 @@ import json
 #import py_rplidar_sdk.s2lidar as s2lidar
 
 def read_config(file_path):
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding='utf-8') as file:
         config = json.load(file)
     return config
 
