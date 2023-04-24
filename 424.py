@@ -55,11 +55,11 @@ def key_on_press(event):
     elif event == "a":
         print("a pressed")
         roll_ctrl += -key_press_delta
-    elif event == "space":
-        print("Space pressed")
+    elif event == "[":
+        print("[ pressed")
         throttle_ctrl += key_press_delta
-    elif event == "shift":
-        print("Shift pressed")
+    elif event == "]":
+        print("] pressed")
         throttle_ctrl += -key_press_delta
     elif event == "z":
         print("z pressed")
