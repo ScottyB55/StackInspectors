@@ -5,6 +5,7 @@ mav.parm
 .vscode
 
 config.json
+.config.json.swp
 
 dronekit-python/
 py_rplidar_sdk/
