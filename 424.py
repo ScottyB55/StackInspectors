@@ -33,6 +33,7 @@ def read_config(file_path):
 config = read_config("config.json")
 use_gui = config["use_gui"]
 use_mavproxy = config["use_mavproxy"]
+target_distance = config["target_distance"]
 
 if use_mavproxy:
     drone_inst = Sam4_Drone()
@@ -247,13 +248,13 @@ if __name__ == '__main__':
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(walls, lidar_noise_meters_standard_dev)
 
     #global target_distance
-    target_distance = input("Enter Target Distance: ")
+    #target_distance = input("Enter Target Distance: ")
     drone_controller_inst = Drone_Controller(float(target_distance))
     #user_input_thread = threading.Thread(target=get_target_distance)
     #user_input_thread.start()
     key_press_t = threading.Thread(target=key_press_thread)
     key_press_t.start()
-    key_press_t.join()
+    #key_press_t.join()
 
     if use_gui:
         GUI_inst = GUI()
