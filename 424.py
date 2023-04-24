@@ -42,6 +42,7 @@ else:
 
 run_program = True
 def key_on_press(event):
+    global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
     if event == "w":
         print("w pressed")
         pitch_ctrl = key_press_delta
