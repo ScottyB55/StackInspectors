@@ -256,34 +256,53 @@ class Drone_Realistic_Physics_Class:
                 print(f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}")
 
 
-    def set_yaw(self, target_yaw):
-    # create the CONDITION_YAW command using command_long_encode()
+    #Sets yaw to specific heading, dir specifies the direction of yaw
+    def set_yaw(self, heading, relative=False, dir=1):
+        if relative:
+            is_relative = 1
+        else:
+            is_relative = 0
         msg = self.vehicle.message_factory.command_long_encode(
-        0, 0,    # target system, target component
-        mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
-        0, #confirmation
-        target_yaw,    # param 1, yaw in degrees
-        0,          # param 2, yaw speed deg/s
-        1,          # param 3, direction -1 ccw, 1 cw
-        0, # param 4, relative offset 1, absolute angle 0
-        0, 0, 0)    # param 5 ~ 7 not used
-        # send command to vehicle
+            0, 0,    
+            mavutil.mavlink.MAV_CMD_CONDITION_YAW, #Mavlink command being constructed
+            0, #confirmation
+            heading,    #yaw in degrees
+            0,          #yaw speed
+            dir,          #direction, 1 for yaw right, -1 for yaw left
+            is_relative, #Determines relative or absolute angle
+            0, 0, 0)    
+        
         self.vehicle.send_mavlink(msg)
 
     #Sets the drone body velocity depending on vx, vy, vz
-    def set_velocity_body(self, vx, vy, vz, yaw):
+    def set_velocity_body(self, vx, vy, vz, yaw=None, relative=False):
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
                 0,
                 0, 0,
-                mavutil.mavlink.MAV_FRAME_BODY_NED, #Mavlink command being constructed
-                0b0000111111000111, #Bitmask from sample code
-                0, 0, 0,        #Positional arguements, setting to 0 maintains current position when not commanded otherwise
-                vx, vy, vz,     #velocity parameters
-                0, 0, 0,        
+                mavutil.mavlink.MAV_FRAME_BODY_NED,
+                0b0000111111000111,
+                0, 0, 0,
+                vx, vy, vz,
+                0, 0, 0,
                 0, 0)
-        # Add the yaw command to the msg
-        #msg.yaw = yaw
+        if (yaw != None):
+            if relative:
+                is_relative = 1
+            else:
+                is_relative = 0
+            msg.yaw = yaw
+            msg.yaw_rate = 0  # Set yaw rate to 0 if you want a fixed yaw angle
+            msg.type_mask |= (is_relative << 12)
+
         self.vehicle.send_mavlink(msg)
+    
+    def ensure_transmitted(self):
+        """
+        Ensures that all MAVLink messages sent to the vehicle are transmitted
+        by calling the `flush()` method on the vehicle object.
+
+        :param vehicle: The vehicle object to flush the messages for.
+        """
         self.vehicle.flush()
 
     def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):

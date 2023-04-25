@@ -126,10 +126,13 @@ class Sam4_Drone(Drone):
         if (use_set_attitude):
             gain = 2
             self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
+            self.drone.ensure_transmitted()
         else:
             gain = 1
             self.drone.set_yaw(target_yaw)
-            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5-hover_thrust,target_yaw)#hover_thrust - 0.5)
+            self.drone.ensure_transmitted()
+            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)#, target_yaw)
+            self.drone.ensure_transmitted()
 
     def update_location_meters(self, timestep):
         """
