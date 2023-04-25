@@ -274,8 +274,18 @@ class Drone_Realistic_Physics_Class:
         
         self.vehicle.send_mavlink(msg)
 
-    #Sets the drone body velocity depending on vx, vy, vz
-    def set_velocity_body(self, vx, vy, vz, yaw=None, relative=False):
+    def set_velocity_body(self, vx, vy, vz, yaw=None, yaw_rate=None, yaw_relative=False):
+        """
+        Sets the drone body velocity depending on vx, vy, vz, and optionally yaw and yaw_rate.
+        
+        :param vx: X-axis velocity (forward is positive)
+        :param vy: Y-axis velocity (right is positive)
+        :param vz: Z-axis velocity (down is positive)
+        :param yaw: Yaw angle in degrees (optional)
+        :param yaw_rate: Yaw rate in degrees per second (optional)
+        :param relative: If True, the yaw angle is relative to the current heading; otherwise, it's an absolute value.
+        """
+        # Create a MAVLink message for setting position target in local NED frame
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
                 0,
                 0, 0,
@@ -285,15 +295,27 @@ class Drone_Realistic_Physics_Class:
                 vx, vy, vz,
                 0, 0, 0,
                 0, 0)
-        if (yaw != None):
-            if relative:
-                is_relative = 1
-            else:
-                is_relative = 0
-            msg.yaw = yaw
-            msg.yaw_rate = 0  # Set yaw rate to 0 if you want a fixed yaw angle
-            msg.type_mask |= (is_relative << 12)
 
+        # If yaw is provided, update the yaw value and type mask
+        if yaw is not None:
+            msg.yaw = yaw
+            msg.type_mask |= (1 << 9)  # Set bit 9 to use yaw angle
+        else:
+            msg.type_mask &= ~(1 << 9)  # Clear bit 9 to not use yaw angle
+
+        if yaw_relative:
+            msg.type_mask |= (1 << 12)
+        else:
+            msg.type_mask &= ~(1 << 12)
+
+        # If yaw_rate is provided, update the yaw_rate value and type mask
+        if yaw_rate is not None:
+            msg.yaw_rate = yaw_rate
+            msg.type_mask &= ~(1 << 10)  # Clear bit 10 to not ignore the yaw rate
+        else:
+            msg.type_mask |= (1 << 10)  # Set bit 10 to ignore the yaw rate
+
+        # Send the MAVLink message
         self.vehicle.send_mavlink(msg)
     
     def ensure_transmitted(self):

@@ -129,9 +129,22 @@ class Sam4_Drone(Drone):
             self.drone.ensure_transmitted()
         else:
             gain = 1
+            
+            # This works to set the absolute yaw
             self.drone.set_yaw(target_yaw)
             self.drone.ensure_transmitted()
-            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)#, target_yaw)
+            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)
+
+
+            # This works to set the yaw velocity!
+            #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=15, yaw_relative=False)
+            
+            # This doesn't work at all
+            #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=None, yaw_relative=True)
+
+            # This doesn't work at all
+            #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=None, yaw_relative=False)
+            
             self.drone.ensure_transmitted()
 
     def update_location_meters(self, timestep):
