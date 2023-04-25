@@ -263,7 +263,7 @@ class Drone_Realistic_Physics_Class:
         mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
         0, #confirmation
         target_yaw,    # param 1, yaw in degrees
-        0,          # param 2, yaw speed deg/s
+        15,          # param 2, yaw speed deg/s
         1,          # param 3, direction -1 ccw, 1 cw
         0, # param 4, relative offset 1, absolute angle 0
         0, 0, 0)    # param 5 ~ 7 not used
