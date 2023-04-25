@@ -257,7 +257,7 @@ class Drone_Realistic_Physics_Class:
 
 
     #Sets yaw to specific heading, dir specifies the direction of yaw
-    def set_yaw(self, heading, relative=False, dir=1):
+    def set_yaw(self, heading, relative=False, max_yaw_speed=0, dir=1):
         if relative:
             is_relative = 1
         else:
@@ -266,10 +266,10 @@ class Drone_Realistic_Physics_Class:
             0, 0,    
             mavutil.mavlink.MAV_CMD_CONDITION_YAW, #Mavlink command being constructed
             0, #confirmation
-            heading,    #yaw in degrees
-            0,          #yaw speed
-            dir,          #direction, 1 for yaw right, -1 for yaw left
-            is_relative, #Determines relative or absolute angle
+            heading,       #yaw in degrees
+            max_yaw_speed, #yaw speed
+            dir,           #direction, 1 for yaw right, -1 for yaw left
+            is_relative,   #Determines relative or absolute angle
             0, 0, 0)    
         
         self.vehicle.send_mavlink(msg)
