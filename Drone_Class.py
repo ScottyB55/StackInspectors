@@ -350,7 +350,7 @@ class Simulated_Drone_Simple_Physics(Drone):
     def get_current_yaw_angle(self):
         return self.drone_yaw_degrees
 
-    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
+    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_mode = 1):
         """
         Set the velocity of the drone.
 
