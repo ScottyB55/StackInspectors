@@ -81,7 +81,7 @@ class Drone_Controller:
         if (distance_error_prev != None):
             derivative_error = self.distance_error - distance_error_prev
         
-        Kp = 2#1
+        Kp = 1#1
         Kd = 0#12#5
 
         # put in the PID setpoint that is in line with the displacement to the closest point
