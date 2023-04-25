@@ -282,7 +282,7 @@ class Drone_Realistic_Physics_Class:
                 0, 0, 0,        
                 0, 0)
         # Add the yaw command to the msg
-        msg.yaw = yaw
+        #msg.yaw = yaw
         self.vehicle.send_mavlink(msg)
         self.vehicle.flush()
 
