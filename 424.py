@@ -25,7 +25,7 @@ yaw_ctrl = 0
 
 key_press_time = 0.5
 key_press_delta = 0.2
-key_press_yaw_delta = 5
+key_press_yaw_delta = 30
 
 def read_config(file_path):
     with open(file_path, "r") as file:
@@ -83,12 +83,12 @@ def key_on_press(event):
         else:
             current_mode = DroneMode.KEYBOARD
         print("f pressed")
-    elif event == "q":
+    elif event == "e":
         yaw_ctrl += key_press_yaw_delta
         if yaw_ctrl >= 360:
             yaw_ctrl -= 360
         print("q pressed")
-    elif event == "e":
+    elif event == "q":
         yaw_ctrl -= key_press_yaw_delta
         if yaw_ctrl < 0:
             yaw_ctrl += 360
