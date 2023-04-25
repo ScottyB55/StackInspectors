@@ -18,7 +18,7 @@ class YawControlMode(Enum):
     POSITION = 1
     VELOCITY = 2
 
-yaw_control_mode = YawControlMode.POSITION
+yaw_control_mode = YawControlMode.VELOCITY
 
 current_mode = DroneMode.KEYBOARD
 

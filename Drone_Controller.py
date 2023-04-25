@@ -88,6 +88,7 @@ class Drone_Controller:
         self.velocity_x_setpoint = delta_x_unit * (Kp * self.distance_error + Kd * derivative_error)
         self.velocity_y_setpoint = delta_y_unit * (Kp * self.distance_error + Kd * derivative_error)
 
+        """
         K_YAW_CTRL = 50
 
         current_yaw = drone.get_current_yaw_angle()
@@ -102,6 +103,21 @@ class Drone_Controller:
         error_yaw = error_yaw * K_YAW_CTRL / 100
 
         setpoint_yaw1 = (current_yaw + error_yaw + 360) % 360
+        """
+
+        # Get the setpoint yaw relative signed
+        setpoint_yaw1 = closest_point_relative.lidar_angle_degrees
+        if (setpoint_yaw1 > 180):
+            setpoint_yaw1 -= 360
+        
+        # Clamp it at 30 degrees worth of error
+        if setpoint_yaw1 > 30:
+            setpoint_yaw1 = 30
+        elif setpoint_yaw1 < -30:
+            setpoint_yaw1 = -30
+        
+        # PID :)
+        setpoint_yaw1 = setpoint_yaw1 * 1
 
         return [self.velocity_x_setpoint, self.velocity_y_setpoint, setpoint_yaw1, 0.5]
         # return [0,0,0,0.5]
