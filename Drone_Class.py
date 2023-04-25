@@ -113,7 +113,8 @@ class Sam4_Drone(Drone):
     def get_current_yaw_angle(self):
         return self.drone.current_yaw_angle()
 
-    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_control_mode=YawControlMode.POSITION):
+    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_control_mode=1):
+        #print(f"yaw control mode: {yaw_control_mode}")
         """
         Sets an attitude setpoint to the drone.
 
@@ -126,20 +127,44 @@ class Sam4_Drone(Drone):
         Returns:
             None
         """
+        #print(f"yaw_control_mode: {yaw_control_mode}")
         if (use_set_attitude):
             gain = 2
+            #print(f"set raw attitude yaw {target_yaw}")
             self.drone.set_attitude(target_roll*gain, -target_pitch*gain, target_yaw, hover_thrust)
             self.drone.ensure_transmitted()
         else:
             gain = 1
             
-            if (yaw_control_mode==YawControlMode.POSITION):
+            if (yaw_control_mode==1):
                 # This works to set the absolute yaw
+                #print(f"set yaw position {target_yaw}")
                 self.drone.set_yaw(target_yaw)
                 self.drone.ensure_transmitted()
                 self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)
             else:
-                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=None, yaw_rate=target_yaw/10, yaw_relative=True)
+                #print(f"set yaw velocity {target_yaw}")
+                # Doesn't work if we set yaw=None, regardless of yaw_relative!
+                if target_yaw > 180:
+                    target_yaw = target_yaw - 360
+
+                #target_yaw = -target_yaw #if it goes in the opposite direction as we'd expect
+
+                # This works, but there is only 1 speed: all on or 0
+                #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=target_yaw/30, yaw_relative=False)
+
+                # This works, but there is only 1 speed: all on or 0
+                #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/30, yaw_rate=target_yaw/30, yaw_relative=False)
+
+                # This works and there are multiple speeds, and the yaw rotation is in the opposite direction as expected
+                #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/300, yaw_rate=target_yaw/300, yaw_relative=False)
+
+                # This works and there are multiple speeds, and the yaw rotation is in the same direction as expected
+                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/300, yaw_rate=target_yaw/300, yaw_relative=True)
+
+                # This doesn't work, stays put regardless of orientation
+                #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=0, yaw_rate=target_yaw/30, yaw_relative=False)
+
 
                 
             # This works to set the yaw velocity, but not the exact yaw!

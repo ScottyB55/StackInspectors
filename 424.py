@@ -166,7 +166,12 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
 
         # Set the new velocity setpoint
-        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], yaw_control_mode)
+        global yaw_control_mode
+        yaw_mode = 1
+        if yaw_control_mode == YawControlMode.VELOCITY:
+            yaw_mode = 2
+        
+        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], yaw_mode)
 
         if (use_gui):
             # Update the GUI
