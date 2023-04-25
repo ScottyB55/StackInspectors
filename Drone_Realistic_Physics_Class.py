@@ -270,7 +270,7 @@ class Drone_Realistic_Physics_Class:
         self.vehicle.send_mavlink(msg)
 
     #Sets the drone body velocity depending on vx, vy, vz
-    def set_velocity_body(self, vx, vy, vz):
+    def set_velocity_body(self, vx, vy, vz, yaw):
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
                 0,
                 0, 0,
@@ -280,9 +280,10 @@ class Drone_Realistic_Physics_Class:
                 vx, vy, vz,     #velocity parameters
                 0, 0, 0,        
                 0, 0)
+        # Add the yaw command to the msg
+        msg.yaw = yaw
         self.vehicle.send_mavlink(msg)
         self.vehicle.flush()
-
 
     def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):
         """
