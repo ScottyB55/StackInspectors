@@ -21,7 +21,7 @@ SQUARE_SIZE = 10
 # Desired altitude (in meters) to takeoff to
 TARGET_ALTITUDE = 3
 # Portion of TARGET_ALTITUDE at which we will break from takeoff loop
-ALTITUDE_REACH_THRESHOLD = 0.95
+ALTITUDE_REACH_THRESHOLD = 0.5
 # Maximum distance (in meters) from waypoint at which drone has "reached" waypoint
 # This is used instead of 0 since distanceToWaypoint funciton is not 100% accurate
 WAYPOINT_LIMIT = 1
@@ -158,17 +158,15 @@ if vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_QUADROTOR:
         time.sleep(1)
     
     # Takeoff to short altitude
-    print("Taking off!")
+    print(f"Taking off to {TARGET_ALTITUDE}")
     vehicle.simple_takeoff(TARGET_ALTITUDE)  # Take off to target altitude
 
     while True:
          # Break just below target altitude.
-        if vehicle.location.global_relative_frame.alt >= TARGET_ALTITUDE * ALTITUDE_REACH_THRESHOLD:
+        if vehicle.location.global_relative_frame.alt >= TARGET_ALTITUDE - ALTITUDE_REACH_THRESHOLD:
             break
-        time.sleep(0.5)
-    # yaw north
-    condition_yaw(0)
-
+        print(f"Current Altitude {vehicle.location.global_relative_frame.alt} < Threshold {TARGET_ALTITUDE - ALTITUDE_REACH_THRESHOLD}")
+        time.sleep(1)
 
 # Go 20 meters in the direction of the student ID angle
 Student_ID_Last_2_Digits = 43;
@@ -179,6 +177,8 @@ Student_ID_Dist_E_W = Student_ID_DISTANCE * math.sin(Student_ID_Angle*math.pi/18
 print("Going 20 meters with a heading of " + str(Student_ID_Angle) + " degrees from north clockwise:");
 print("Dist_N_S: " + str(Student_ID_Dist_N_S) + "Dist_E_W: " + str(Student_ID_Dist_E_W));
 
+condition_yaw(Student_ID_Angle)
+
 currentLocation=vehicle.location.global_relative_frame;
 #						+North/-South	+East/-West
 targetLocation=get_location_metres(currentLocation, Student_ID_Dist_N_S, Student_ID_Dist_E_W, TARGET_ALTITUDE);
@@ -188,6 +188,9 @@ while (distanceToWaypoint(targetLocation) > WAYPOINT_LIMIT):
 time.sleep(5);
 
 print('Going north')
+
+condition_yaw(0)
+
 # Go 10 meters north
 currentLocation=vehicle.location.global_relative_frame
 #						+North/-South	+East/-West
