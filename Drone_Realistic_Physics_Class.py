@@ -257,16 +257,17 @@ class Drone_Realistic_Physics_Class:
 
 
     def set_yaw(self, target_yaw):
-        msg = self.vehicle.mav.command_long_encode(
-        0, 0,  # target system, target component
-        mavutil.mavlink.MAV_CMD_CONDITION_YAW,  # command
-        0,  # confirmation
-        target_yaw,  # param 1: target yaw angle
-        0,  # param 2: yaw speed
-        1,  # param 3: direction - 1 = clockwise, -1 = counter-clockwise
-        0,  # relative offset
-        0, 0, 0)  # unused parameters
-
+    # create the CONDITION_YAW command using command_long_encode()
+        msg = self.vehicle.message_factory.command_long_encode(
+        0, 0,    # target system, target component
+        mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
+        0, #confirmation
+        target_yaw,    # param 1, yaw in degrees
+        0,          # param 2, yaw speed deg/s
+        1,          # param 3, direction -1 ccw, 1 cw
+        0, # param 4, relative offset 1, absolute angle 0
+        0, 0, 0)    # param 5 ~ 7 not used
+        # send command to vehicle
         self.vehicle.send_mavlink(msg)
 
     #Sets the drone body velocity depending on vx, vy, vz
