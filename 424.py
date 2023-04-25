@@ -31,7 +31,7 @@ yaw_ctrl = 0
 
 key_press_time = 0.5
 key_press_delta = 0.2
-key_press_yaw_delta = 30
+key_press_yaw_delta = 10
 
 def read_config(file_path):
     with open(file_path, "r") as file:
@@ -92,13 +92,13 @@ def key_on_press(event):
         print("f pressed")
     elif event == "e":
         yaw_ctrl += key_press_yaw_delta
-        if yaw_ctrl >= 360:
-            yaw_ctrl -= 360
+        if yaw_ctrl > 30:   # clamp
+            yaw_ctrl = 30
         print("q pressed")
     elif event == "q":
         yaw_ctrl -= key_press_yaw_delta
-        if yaw_ctrl < 0:
-            yaw_ctrl += 360
+        if yaw_ctrl < -30:
+            yaw_ctrl -= 30
         print("e pressed")
     elif event == "m":
         global yaw_control_mode
@@ -162,8 +162,8 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Clamp the values of rpyt
         rpyt[0] = max(min(rpyt[0], MAX_ROLL), MIN_ROLL)
         rpyt[1] = max(min(rpyt[1], MAX_PITCH), MIN_PITCH)
-        if (rpyt[2] >= 360):
-            rpyt[2] -= 360
+        #if (rpyt[2] >= 360):
+        #    rpyt[2] -= 360
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
 
         # Set the new velocity setpoint

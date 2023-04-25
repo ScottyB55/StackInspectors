@@ -160,7 +160,12 @@ class Sam4_Drone(Drone):
                 #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/300, yaw_rate=target_yaw/300, yaw_relative=False)
 
                 # This works and there are multiple speeds, and the yaw rotation is in the same direction as expected
-                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/300, yaw_rate=target_yaw/300, yaw_relative=True)
+                #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw/300, yaw_rate=target_yaw/300, yaw_relative=True)
+
+                # This works and there are multiple speeds, and the yaw rotation is in the same direction as expected
+                # Try to get it in degrees per second. By setting to 10deg/sec and seeing it does a circle in 36 seconds
+                target_yaw = target_yaw / 222
+                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=target_yaw, yaw_relative=True)
 
                 # This doesn't work, stays put regardless of orientation
                 #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=0, yaw_rate=target_yaw/30, yaw_relative=False)
