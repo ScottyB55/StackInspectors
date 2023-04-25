@@ -237,7 +237,7 @@ if __name__ == '__main__':
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4))]
     # Define the standard deviation of the LIDAR noise in meters units
-    lidar_noise_meters_standard_dev = 0.05
+    lidar_noise_meters_standard_dev = 0.03
 
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(walls, lidar_noise_meters_standard_dev)
 
