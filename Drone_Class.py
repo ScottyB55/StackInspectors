@@ -135,10 +135,14 @@ class Sam4_Drone(Drone):
             self.drone.ensure_transmitted()
             self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)
 
-
-            # This works to set the yaw velocity!
+            # This works to set the yaw velocity, but not the exact yaw!
             #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=15, yaw_relative=False)
-            
+
+            # Doesn't work for both simultaneous, but works for set attitude or velocity alone
+            """self.drone.set_attitude(target_roll=None, target_pitch=None, target_yaw=target_yaw, hover_thrust=None)
+            self.drone.ensure_transmitted()
+            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)"""
+
             # This doesn't work at all
             #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=None, yaw_relative=True)
 

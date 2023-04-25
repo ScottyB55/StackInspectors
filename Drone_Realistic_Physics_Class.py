@@ -327,21 +327,51 @@ class Drone_Realistic_Physics_Class:
         """
         self.vehicle.flush()
 
-    def set_attitude(self, target_roll, target_pitch, target_yaw, hover_thrust):
+    def set_attitude(self, target_roll=None, target_pitch=None, target_yaw=None, hover_thrust=None):
         """
         Sets an attitude setpoint to the drone.
 
         Parameters:
-            target_roll (float): Desired roll angle in degrees.
-            target_pitch (float): Desired pitch angle in degrees.
-            target_yaw (float): Desired yaw angle in degrees.
-            hover_thrust (float): Desired thrust value for hovering. Should be between 0 and 1, 0.5 is no vertical velocity.
+            target_roll (float, optional): Desired roll angle in degrees.
+            target_pitch (float, optional): Desired pitch angle in degrees.
+            target_yaw (float, optional): Desired yaw angle in degrees.
+            hover_thrust (float, optional): Desired thrust value for hovering. Should be between 0 and 1, 0.5 is no vertical velocity.
 
         Returns:
             None
         """
+        """
+        # Generate mavlink message to send attitude setpoint
+        new_quat = to_quaternion(target_roll if target_roll else 0, target_pitch if target_pitch else 0, target_yaw if target_yaw else 0)
+        
+        # Determine the bitmask based on the provided parameters
+        type_mask = 0b00000000
+        if target_roll != None:
+            type_mask |= (1 << 0)
+        if target_pitch != None:
+            type_mask |= (1 << 1)
+        if target_yaw != None:
+            type_mask |= (1 << 2)
+        if hover_thrust != None:
+            type_mask |= (1 << 6)
+        
+        # http://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#copter-commands-in-guided-mode-set-attitude-target
+        msg = self.vehicle.message_factory.set_attitude_target_encode(
+            0, # time_boot_ms
+            1, # target system
+            1, # target component
+            type_mask,
+            new_quat, # attitude (quaternion)
+            0, # roll rate
+            0, # pitch rate
+            0, # yaw rate
+            hover_thrust if hover_thrust else 0.5 # thrust (0-1 where 0.5 is no vertical velocity)
+        )
+        self.vehicle.send_mavlink(msg)
+        """
+
         # generate mavlink message to send attitude setpoint
-        new_quat = to_quaternion(target_roll, target_pitch, target_yaw)
+        new_quat = to_quaternion(0, 0, target_yaw)
         # http://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#copter-commands-in-guided-mode-set-attitude-target
         msg = self.vehicle.message_factory.set_attitude_target_encode(
             0, # time_boot_ms
@@ -352,7 +382,7 @@ class Drone_Realistic_Physics_Class:
             0, # roll rate
             0, # pitch rate
             0, # yaw rate
-            hover_thrust  # thrust (0-1 where 0.5 is no vertical velocity)
+            0.5  # thrust (0-1 where 0.5 is no vertical velocity)
         )
         self.vehicle.send_mavlink(msg)
 
