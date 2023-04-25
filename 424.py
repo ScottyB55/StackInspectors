@@ -14,6 +14,12 @@ class DroneMode(Enum):
     KEYBOARD = 1
     WALL_FOLLOW = 2
 
+class YawControlMode(Enum):
+    POSITION = 1
+    VELOCITY = 2
+
+yaw_control_mode = YawControlMode.POSITION
+
 current_mode = DroneMode.KEYBOARD
 
 hover_thrust_range_fraction = 0.5
@@ -93,7 +99,13 @@ def key_on_press(event):
         if yaw_ctrl < 0:
             yaw_ctrl += 360
         print("e pressed")
-
+    elif event == "m":
+        global yaw_control_mode
+        if yaw_control_mode == YawControlMode.POSITION:
+            yaw_control_mode = YawControlMode.VELOCITY
+        else:
+            yaw_control_mode = YawControlMode.POSITION
+        print("m pressed")
 
 def key_press_thread():
     listen_keyboard(on_press=key_on_press)
@@ -154,7 +166,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
 
         # Set the new velocity setpoint
-        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
+        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], yaw_control_mode)
 
         if (use_gui):
             # Update the GUI
@@ -166,15 +178,17 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
 
         # Add the mode string based on the current_mode
         mode_string = "Follow" if current_mode == DroneMode.WALL_FOLLOW else "Keys Only"
+        yaw_mode = "Yaw Pos" if yaw_control_mode == YawControlMode.POSITION else "Yaw Vel"
 
         # Print the information to the console (or any other non-GUI logic)
-        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {5:10.3f}, Mode: {6}".format(
+        print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {5:10.3f}, Mode: {6}, {7}".format(
             closest_point_relative.lidar_angle_degrees,
             closest_point_relative.total_relative_distance_m,
             rpyt[0],
             rpyt[1],
             rpyt[2],
             rpyt[3],
+            yaw_mode,
             mode_string
         ))
 """

@@ -31,6 +31,9 @@ class DroneMode(Enum):
     FOLLOWING = 4
     LANDING = 5
 
+class YawControlMode(Enum):
+    POSITION = 1
+    VELOCITY = 2
 
 class Drone:
     """
@@ -110,7 +113,7 @@ class Sam4_Drone(Drone):
     def get_current_yaw_angle(self):
         return self.drone.current_yaw_angle()
 
-    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
+    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_control_mode=YawControlMode.POSITION):
         """
         Sets an attitude setpoint to the drone.
 
@@ -130,11 +133,15 @@ class Sam4_Drone(Drone):
         else:
             gain = 1
             
-            # This works to set the absolute yaw
-            self.drone.set_yaw(target_yaw)
-            self.drone.ensure_transmitted()
-            self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)
+            if (yaw_control_mode==YawControlMode.POSITION):
+                # This works to set the absolute yaw
+                self.drone.set_yaw(target_yaw)
+                self.drone.ensure_transmitted()
+                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust)
+            else:
+                self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=None, yaw_rate=target_yaw/10, yaw_relative=True)
 
+                
             # This works to set the yaw velocity, but not the exact yaw!
             #self.drone.set_velocity_body(target_pitch*gain, target_roll*gain, 0.5 - hover_thrust, yaw=target_yaw, yaw_rate=15, yaw_relative=False)
 
