@@ -21,9 +21,11 @@ hover_thrust_range_fraction = 0.5
 roll_ctrl = 0
 pitch_ctrl = 0
 throttle_ctrl = 0
+yaw_ctrl = 0
 
 key_press_time = 0.5
 key_press_delta = 0.2
+key_press_yaw_delta = 5
 
 def read_config(file_path):
     with open(file_path, "r") as file:
@@ -42,7 +44,7 @@ else:
 
 run_program = True
 def key_on_press(event):
-    global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
+    global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl, drone_inst
     if event == "w":
         print("w pressed")
         pitch_ctrl += key_press_delta
@@ -77,73 +79,24 @@ def key_on_press(event):
         global current_mode
         if current_mode == DroneMode.KEYBOARD:
             current_mode = DroneMode.WALL_FOLLOW
+            yaw_ctrl = 0
         else:
             current_mode = DroneMode.KEYBOARD
         print("f pressed")
+    elif event == "q":
+        yaw_ctrl += key_press_yaw_delta
+        if yaw_ctrl >= 360:
+            yaw_ctrl -= 360
+        print("q pressed")
+    elif event == "e":
+        yaw_ctrl -= key_press_yaw_delta
+        if yaw_ctrl < 0:
+            yaw_ctrl += 360
+        print("e pressed")
 
 
 def key_press_thread():
     listen_keyboard(on_press=key_on_press)
-    """
-def key_press_thread():
-    global pitch_ctrl, roll_ctrl, throttle_ctrl, drone_inst
-    
-    while True:
-        event = keyboard.read_event()
-        if event.event_type == keyboard.KEY_DOWN:  # Only process key press events
-            if event.name == "w":
-                print("w pressed")
-                pitch_ctrl = key_press_delta
-                time.sleep(key_press_time)
-                pitch_ctrl = 0
-            elif event.name == "s":
-                print("s pressed")
-                pitch_ctrl = -key_press_delta
-                time.sleep(key_press_time)
-                pitch_ctrl = 0
-            elif event.name == "d":
-                print("d pressed")
-                roll_ctrl = key_press_delta
-                time.sleep(key_press_time)
-                roll_ctrl = 0
-            elif event.name == "a":
-                print("a pressed")
-                roll_ctrl = -key_press_delta
-                time.sleep(key_press_time)
-                roll_ctrl = 0
-            elif event.name == "space":
-                print("Space pressed")
-                throttle_ctrl = key_press_delta
-                time.sleep(key_press_time)
-                throttle_ctrl = 0
-            elif event.name == "shift":
-                print("Shift pressed")
-                throttle_ctrl = -key_press_delta
-                time.sleep(key_press_time)
-                throttle_ctrl = 0
-            elif event.name == "l":
-                print("l pressed")
-                drone_inst.land()
-                run_program = False
-            elif event.name == "t":
-                print("t pressed")
-                drone_inst.takeoff(1.5)
-            elif event.name == "f":
-                global current_mode
-                if current_mode == DroneMode.KEYBOARD:
-                    current_mode = DroneMode.WALL_FOLLOW
-                else:
-                    current_mode = DroneMode.KEYBOARD
-                print("f pressed")
-            """
-"""
-def key_press_callback():
-    keyboard.on_press(key_press_callback)  # Add this line to set the callback function
-
-    # Keep the thread running to process key presses
-    while True:
-        time.sleep(0.1)
-"""
 
 def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst=None):
     """
@@ -177,7 +130,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             # Calculate the target roll, pitch, yaw, and throttle from the PID only
             rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
 
-        global pitch_ctrl, roll_ctrl, throttle_ctrl
+        global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
         MAX_ROLL = 0.4
@@ -190,13 +143,15 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Add the control values to rpyt
         rpyt[0] += roll_ctrl
         rpyt[1] += pitch_ctrl
+        rpyt[2] += yaw_ctrl
         rpyt[3] += throttle_ctrl
 
         # Clamp the values of rpyt
         rpyt[0] = max(min(rpyt[0], MAX_ROLL), MIN_ROLL)
         rpyt[1] = max(min(rpyt[1], MAX_PITCH), MIN_PITCH)
+        if (rpyt[2] >= 360):
+            rpyt[2] -= 360
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
-
 
         # Set the new velocity setpoint
         drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3])
