@@ -1,4 +1,4 @@
-from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized, on_press
+from Reference_Files.mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized, on_press
 
 import sys
 sys.path.append('/home/srburnett/Stack-Inspectors')

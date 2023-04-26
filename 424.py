@@ -141,7 +141,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt = [0.0, 0.0, 0.0, 0.5]
         if current_mode == DroneMode.WALL_FOLLOW:
             # Calculate the target roll, pitch, yaw, and throttle from the PID only
-            rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(drone_inst, closest_point_relative)
+            rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(closest_point_relative)
 
         global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl
         

@@ -1,11 +1,7 @@
 import math
 import numpy as np
-#from py_rplidar_sdk import s2lidar
-#import rplidar_sdk
-#from Drone_Class import Drone, Simulated_Drone_Realistic_Physics, Simulated_Drone_Simple_Physics
 import time
 import json
-#import py_rplidar_sdk.s2lidar as s2lidar
 
 def read_config(file_path):
     with open(file_path, "r", encoding='utf-8') as file:
@@ -16,10 +12,10 @@ config = read_config("config.json")
 use_real_lidar = config["use_real_lidar"]
 
 if use_real_lidar == True:
-    #import real_lidar_module as lidar_module
+    # import real lidar module
     import py_rplidar_sdk.s2lidar as s2lidar
 
-    
+
 class LidarReading:
     def __init__(self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0):
         self.lidar_angle_degrees = angle_degrees
@@ -98,30 +94,12 @@ class Lidar_and_Wall_Simulator():#tk.Tk
     """
 
     def __init__(self, walls, lidar_noise_meters_standard_dev): #, drone_yaw_degrees
-        #self.real_lidar = real_lidar
-        #tk.Tk.__init__(self)
-        # walls is an array of tuples of tuples
-        self.walls = walls#[(wall_start_meters, wall_end_meters)]
-        #self.wall_start_meters = wall_start_meters
-        #self.wall_end_meters = wall_end_meters
-        #print("Lidar sim Constructor: type: ", type(drone))
+        self.walls = walls
         self.scale_factor = 50  # Scale factor to convert meters units to pixels
         self.lidar_noise_meters_standard_dev = lidar_noise_meters_standard_dev
 
         self.lidar_angle_step_degrees = 2
 
-        #self.title('Drone Lidar')
-        #self.geometry('800x600')
-        #self.create_figure()
-        #self.update_canvas()
-
-        # Create the Entry widget
-        #self.command_entry = tk.Entry(self)
-        #self.command_entry.pack()
-
-        # Add a label for the Entry widget (optional)
-        #command_label = tk.Label(self, text="Enter command:")
-        #command_label.pack()
         global use_real_lidar
 
         if use_real_lidar:
@@ -150,10 +128,6 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         Returns:
             The time that it takes for this function to execute
         """
-        # Pass in the reference to the drone object here! Otherwise we get an error!
-
-        #print(f"Within update_lidar_readings about to call calc_relative_walls: ", type(drone))
-        # Calculate the wall positions relative to the drone
 
         start = time.time()
         self.lidar_readings = []
@@ -228,24 +202,16 @@ class Lidar_and_Wall_Simulator():#tk.Tk
         return self.lidar_readings
     
     def get_closest_point(self):
-        # we are actually all looking at relative readings
-        # drone_location_meters = self.Drone.drone_location_meters
-
         min_distance = None
         closest_point = None
-        """
-        def is_angle_within_spread(angle, center, spread):
-            lower_bound = center - spread
-            upper_bound = center + spread
-            return lower_bound < angle <= upper_bound
-        
-        center_angles = [40, 125, 235, 325]
-        spread = 6
-        """
+        exclude_drone_legs_distance = 0.7
+
+        # Cycle through the lidar readings
         for lidar_reading in self.lidar_readings:
+            # Check if the distance is less than the min distance, or if it is the first point
             if min_distance is None or lidar_reading.total_relative_distance_m < min_distance:
-                #if not any(is_angle_within_spread(lidar_reading.angle, center, spread) for center in center_angles):
-                if lidar_reading.total_relative_distance_m >= 0.7:   # Exclude readings of the drone legs
+                # Exclude nearby readings of the drone legs
+                if lidar_reading.total_relative_distance_m >= exclude_drone_legs_distance:   
                     min_distance = lidar_reading.total_relative_distance_m
                     closest_point = lidar_reading
         
