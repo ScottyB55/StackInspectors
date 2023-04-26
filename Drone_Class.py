@@ -1,28 +1,23 @@
-#from mouse_and_keyboard_helper_functions import mouse_relative_position_from_center_normalized
-import time
-import threading
-#from Lidar_and_Wall_Simulator import Lidar_and_Wall_Simulator
 from Drone_Realistic_Physics_Class import Drone_Realistic_Physics_Class
 import math
 import json
+from enum import Enum
+# Good idea: from collections import namedtuple
+
+# Read config.json
 
 def read_config(file_path):
     with open(file_path, "r", encoding='utf-8') as file:
         config = json.load(file)
     return config
-
 config = read_config("config.json")
 use_set_attitude = config["use_set_attitude"]
-
-# Good idea: from collections import namedtuple
 
 def rotate_point(x, y, angle_degrees):
     angle_radians = math.radians(angle_degrees)
     new_x = x * math.cos(angle_radians) - y * math.sin(angle_radians)
     new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
     return new_x, new_y
-
-from enum import Enum
 
 class DroneMode(Enum):
     GROUND = 1

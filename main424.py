@@ -4,51 +4,56 @@ import time
 import threading
 from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
-import keyboard
 import json
 from sshkeyboard import listen_keyboard
 
 from enum import Enum
 
+# The drone has 2 key modes while in the error: Keyboard input only and wall follow
 class DroneMode(Enum):
     KEYBOARD = 1
     WALL_FOLLOW = 2
 
+# We can switch the drone yaw control function in the air
+# 1 is for yaw position control
+# 2 is for yaw velocity control
 class YawControlMode(Enum):
     POSITION = 1
     VELOCITY = 2
 
 yaw_control_mode = YawControlMode.VELOCITY
-
 current_mode = DroneMode.KEYBOARD
 
-hover_thrust_range_fraction = 0.5
-
+# A global variale to increment or decrement velocities depending on key presses
 roll_ctrl = 0
 pitch_ctrl = 0
 throttle_ctrl = 0
 yaw_ctrl = 0
 
-key_press_time = 0.5
+# How much we increment the velocity in meters per second, if the user presses awsd
 key_press_delta = 0.2
+# How much we increment the yaw velocity in degrees per second, if the user presses q or e
 key_press_yaw_delta = 10
 
+# Read the contents of config.json
 def read_config(file_path):
     with open(file_path, "r") as file:
         config = json.load(file)
     return config
-
 config = read_config("config.json")
 use_gui = config["use_gui"]
 use_mavproxy = config["use_mavproxy"]
 target_distance = config["target_distance"]
 
+# Instantiate a global drone object depending on use_mavproxy in the config.json file
 if use_mavproxy:
     drone_inst = Sam4_Drone()
 else:
     drone_inst = Simulated_Drone_Simple_Physics()
 
 run_program = True
+
+# Handle all of the keypress events. This works on SSH as well as
 def key_on_press(event):
     global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl, drone_inst
     if event == "w":
@@ -119,30 +124,23 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         drone_app (Simulated_Drone_Simple_Physics): The drone application instance.
     """
     timestep = 0.1
-    mouse_position_normalized_to_meters_velocity = 1
-
-    drone_inst.update_location_meters(timestep)
 
     while run_program:
-        # Pure mouse input
-        #roll_pitch_setpoint_tuple = tuple(x * mouse_position_normalized_to_meters_velocity for x in mouse_relative_position_from_center_normalized())
-        #drone_inst.set_attitude_setpoint(roll_pitch_setpoint_tuple[0], roll_pitch_setpoint_tuple[1])
 
         # Wait and get the new lidar readings
         time.sleep(timestep)
         drone_inst.update_location_meters(timestep)
         lidar_and_wall_sim_inst.read_new_lidar_readings_angle_deg_dist_m(drone_inst)
 
-
-        # Calculate the new setpoint based on the lidar readings
         # Get the closest point to the drone
         closest_point_relative = lidar_and_wall_sim_inst.get_closest_point()
 
+        # By default, the roll, pitch, yaw, and throttle is hover in place
         rpyt = [0.0, 0.0, 0.0, 0.5]
+        # If we are in wall follow mode, calculate the target roll, pitch, yaw, and throttle using the PID from the lidar input
         if current_mode == DroneMode.WALL_FOLLOW:
-            # Calculate the target roll, pitch, yaw, and throttle from the PID only
             rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(closest_point_relative)
-
+        
         global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl
         
         # Define the maximum and minimum values for each element in rpyt
@@ -153,7 +151,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         MAX_THROTTLE = 0.6
         MIN_THROTTLE = 0.4
 
-        # Add the control values to rpyt
+        # Add the control values to roll, pitch, yaw, and throttle (rpyt)
         rpyt[0] += roll_ctrl
         rpyt[1] += pitch_ctrl
         rpyt[2] += yaw_ctrl
@@ -162,26 +160,24 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # Clamp the values of rpyt
         rpyt[0] = max(min(rpyt[0], MAX_ROLL), MIN_ROLL)
         rpyt[1] = max(min(rpyt[1], MAX_PITCH), MIN_PITCH)
-        #if (rpyt[2] >= 360):
-        #    rpyt[2] -= 360
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
 
         # Set the new velocity setpoint
         drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], yaw_control_mode)
 
+        # Update the GUI
         if (use_gui):
-            # Update the GUI
             GUI_inst.create_figure()
             GUI_inst.draw_drone()
             GUI_inst.draw_walls(walls)
             GUI_inst.draw_lidar_points(lidar_and_wall_sim_inst.get_lidar_readings_angle_deg_dist_m())
             GUI_inst.update_canvas()
 
-        # Add the mode string based on the current_mode
+        # Display the mode as a string on the terminal
         mode_string = "Follow" if current_mode == DroneMode.WALL_FOLLOW else "Keys Only"
         yaw_mode = "Yaw Pos" if yaw_control_mode == YawControlMode.POSITION else "Yaw Vel"
 
-        # Print the information to the console (or any other non-GUI logic)
+        # Print the closest lidar point as well as the target roll, pitch, yaw, throttle, & other info on the terminal
         print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {5:10.3f}, Mode: {6}, {7}".format(
             closest_point_relative.lidar_angle_degrees,
             closest_point_relative.total_relative_distance_m,
@@ -192,39 +188,33 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             yaw_mode,
             mode_string
         ))
-"""
-def get_target_distance():
-    global target_distance
-    target_distance = float(input("Enter Target Distance: "))
-"""
-if __name__ == '__main__':
-    #global use_gui # Set this to False if you don't want to use the GUI
-    
-    # Start the keyboard listener thread
-    
 
-    # Define the starting and ending meters coordinates of the wall
+if __name__ == '__main__':
+    # The following wall & noise code is isnored if in the config file use_real_lidar is set to true
+
+    # Define the starting and ending points of the simulated wall
     walls = [   Wall((-4, -4), (-4, 4)),
                 Wall((-4, 4), (0, 4))]
-    # Define the standard deviation of the LIDAR noise in meters units
+    # Define the standard deviation of the LIDAR noise in units of meters
     lidar_noise_meters_standard_dev = 0.03
 
+    # Create a lidar object (which also can create a simulated wall)
     lidar_and_wall_sim_inst = Lidar_and_Wall_Simulator(walls, lidar_noise_meters_standard_dev)
 
-    #global target_distance
-    #target_distance = input("Enter Target Distance: ")
+    # Create a drone controller object
     drone_controller_inst = Drone_Controller(float(target_distance))
-    #user_input_thread = threading.Thread(target=get_target_distance)
-    #user_input_thread.start()
+
+    # Start a thread to handle keyboard presses
     key_press_t = threading.Thread(target=key_press_thread)
     key_press_t.start()
-    #key_press_t.join()
 
+    # If use_gui is set to true in the config file, we create a GUI
     if use_gui:
         GUI_inst = GUI()
     else:
         GUI_inst = None
 
+    # Create a thread that runs the main loop. I'm not sure why we don't just have a while true loop here. It works, whatever.
     # Start a new thread to run the simulation, updating the drone's position and LIDAR data
     move_drone_thread = threading.Thread(target=run_simulation, args=(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_sim_inst, walls, GUI_inst,))
     # Set the thread as a daemon thread so it will automatically exit when the main program exits
@@ -232,6 +222,7 @@ if __name__ == '__main__':
     # Start the simulation thread
     move_drone_thread.start()
 
+    # Run the threads differently depending on whether we are using the GUI or not
     if use_gui:
         # Run the main event loop of the drone application (Tkinter GUI)
         GUI_inst.mainloop()
