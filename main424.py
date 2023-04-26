@@ -1,4 +1,4 @@
-from Drone_Class import Simulated_Drone_Realistic_Physics, Sam4_Drone, Simulated_Drone_Simple_Physics, DroneMode
+from Drone_Class import Sam4_Drone, Simulated_Drone_Simple_Physics, DroneMode, YawControlMode
 from Drone_Controller import Drone_Controller
 import time
 import threading
@@ -6,23 +6,6 @@ from Lidar_and_Wall_Simulator import Wall, Lidar_and_Wall_Simulator
 from GUI import GUI
 import json
 from sshkeyboard import listen_keyboard
-
-from enum import Enum
-
-# The drone has 2 key modes while in the error: Keyboard input only and wall follow
-class DroneMode(Enum):
-    KEYBOARD = 1
-    WALL_FOLLOW = 2
-
-# We can switch the drone yaw control function in the air
-# 1 is for yaw position control
-# 2 is for yaw velocity control
-class YawControlMode(Enum):
-    POSITION = 1
-    VELOCITY = 2
-
-yaw_control_mode = YawControlMode.VELOCITY
-current_mode = DroneMode.KEYBOARD
 
 # A global variale to increment or decrement velocities depending on key presses
 roll_ctrl = 0
@@ -88,12 +71,11 @@ def key_on_press(event):
         print("t pressed")
         drone_inst.takeoff(1.5)
     elif event == "f":
-        global current_mode
-        if current_mode == DroneMode.KEYBOARD:
-            current_mode = DroneMode.WALL_FOLLOW
+        if drone_inst.drone_mode == DroneMode.KEYBOARD:
+            drone_inst.drone_mode = DroneMode.WALL_FOLLOW
             yaw_ctrl = 0
         else:
-            current_mode = DroneMode.KEYBOARD
+            drone_inst.drone_mode = DroneMode.KEYBOARD
         print("f pressed")
     elif event == "e":
         yaw_ctrl += key_press_yaw_delta
@@ -106,11 +88,10 @@ def key_on_press(event):
             yaw_ctrl -= 30
         print("e pressed")
     elif event == "m":
-        global yaw_control_mode
-        if yaw_control_mode == YawControlMode.POSITION:
-            yaw_control_mode = YawControlMode.VELOCITY
+        if drone_inst.yaw_control_mode == YawControlMode.POSITION:
+            drone_inst.yaw_control_mode = YawControlMode.VELOCITY
         else:
-            yaw_control_mode = YawControlMode.POSITION
+            drone_inst.yaw_control_mode = YawControlMode.POSITION
         print("m pressed")
 
 def key_press_thread():
@@ -138,7 +119,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         # By default, the roll, pitch, yaw, and throttle is hover in place
         rpyt = [0.0, 0.0, 0.0, 0.5]
         # If we are in wall follow mode, calculate the target roll, pitch, yaw, and throttle using the PID from the lidar input
-        if current_mode == DroneMode.WALL_FOLLOW:
+        if drone_inst.drone_mode == DroneMode.WALL_FOLLOW:
             rpyt = drone_controller_inst.get_target_drone_roll_pitch_yaw_thrust_pid(closest_point_relative)
         
         global pitch_ctrl, roll_ctrl, yaw_ctrl, throttle_ctrl
@@ -163,7 +144,7 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
         rpyt[3] = max(min(rpyt[3], MAX_THROTTLE), MIN_THROTTLE)
 
         # Set the new velocity setpoint
-        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], yaw_control_mode)
+        drone_inst.set_attitude_setpoint(rpyt[0], rpyt[1], rpyt[2], rpyt[3], drone_inst.yaw_control_mode)
 
         # Update the GUI
         if (use_gui):
@@ -174,8 +155,8 @@ def run_simulation(use_gui, drone_inst, drone_controller_inst, lidar_and_wall_si
             GUI_inst.update_canvas()
 
         # Display the mode as a string on the terminal
-        mode_string = "Follow" if current_mode == DroneMode.WALL_FOLLOW else "Keys Only"
-        yaw_mode = "Yaw Pos" if yaw_control_mode == YawControlMode.POSITION else "Yaw Vel"
+        mode_string = "Follow" if drone_inst.drone_mode == DroneMode.WALL_FOLLOW else "Keys Only"
+        yaw_mode = "Yaw Pos" if drone_inst.yaw_control_mode == YawControlMode.POSITION else "Yaw Vel"
 
         # Print the closest lidar point as well as the target roll, pitch, yaw, throttle, & other info on the terminal
         print("A: {0:10.3f} D: {1:10.3f}, R: {2:10.3f}, P: {3:10.3f}, Y: {4:10.3f}, T: {5:10.3f}, Mode: {6}, {7}".format(

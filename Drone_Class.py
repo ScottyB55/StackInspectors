@@ -19,13 +19,17 @@ def rotate_point(x, y, angle_degrees):
     new_y = x * math.sin(angle_radians) + y * math.cos(angle_radians)
     return new_x, new_y
 
+# The drone has 2 key modes while in the air: Keyboard input only and wall follow   
 class DroneMode(Enum):
-    GROUND = 1
-    TAKING_OFF = 2
-    IN_AIR = 3
-    FOLLOWING = 4
+    KEYBOARD = 1
+    WALL_FOLLOW = 2
+    GROUND = 3
+    TAKING_OFF = 4
     LANDING = 5
 
+# We can switch the drone yaw control function in the air
+# 1 is for yaw position control
+# 2 is for yaw velocity control
 class YawControlMode(Enum):
     POSITION = 1
     VELOCITY = 2
@@ -45,11 +49,13 @@ class Drone:
 
         self.drone_location_meters = (0, 0, 0)
 
-        self.current_mode = DroneMode.GROUND
+        self.drone_mode = DroneMode.GROUND
+        self.yaw_control_mode = YawControlMode.VELOCITY
+
     def set_mode(self, mode):
-        self.current_mode = mode
+        self.drone_mode = mode
     def get_mode(self):
-        return self.current_mode
+        return self.drone_mode
     def get_lidar_readings_meters(self):
         pass
     def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5):
@@ -75,15 +81,14 @@ class Sam4_Drone(Drone):
         # self.drone_location_meters = drone_location_meters
 
     def takeoff(self, target_altitude):
-        self.current_mode = DroneMode.TAKING_OFF
+        self.drone_mode = DroneMode.TAKING_OFF
         self.drone.takeoff(target_altitude)
-        self.current_mode = DroneMode.IN_AIR
+        self.drone_mode = DroneMode.KEYBOARD
     
     def get_current_yaw_angle(self):
         return self.drone.current_yaw_angle()
 
-    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_control_mode=1):
-        #print(f"yaw control mode: {yaw_control_mode}")
+    def set_attitude_setpoint(self, target_roll, target_pitch, target_yaw=0, hover_thrust=0.5, yaw_control_mode=YawControlMode.VELOCITY):
         """
         Sets an attitude setpoint to the drone.
 
@@ -96,7 +101,6 @@ class Sam4_Drone(Drone):
         Returns:
             None
         """
-        #print(f"yaw_control_mode: {yaw_control_mode}")
         if (use_set_attitude):
             gain = 2
             #print(f"set raw attitude yaw {target_yaw}")
@@ -105,7 +109,7 @@ class Sam4_Drone(Drone):
         else:
             gain = 1
             
-            if (yaw_control_mode==1):
+            if (yaw_control_mode==YawControlMode.POSITION):
                 # This works to set the absolute yaw
                 #print(f"set yaw position {target_yaw}")
                 self.drone.set_yaw(target_yaw)
@@ -169,9 +173,9 @@ class Sam4_Drone(Drone):
         return self.drone_location_meters
     
     def land(self):
-        self.current_mode = DroneMode.LANDING
+        self.drone_mode = DroneMode.LANDING
         self.drone.land()
-        self.current_mode = DroneMode.GROUND
+        self.drone_mode = DroneMode.GROUND
 
 class Simulated_Drone_Simple_Physics(Drone):
     """
