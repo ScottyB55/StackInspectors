@@ -104,7 +104,6 @@ class Lidar_and_Wall_Simulator():#tk.Tk
 
         if use_real_lidar:
             import serial.tools.list_ports
-            # from pyserial import serial.tools.list_ports
 
             serialPortName = ""
             serialports = serial.tools.list_ports.comports()
