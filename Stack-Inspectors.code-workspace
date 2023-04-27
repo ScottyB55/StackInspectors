@@ -1,12 +1,10 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"python.analysis.extraPaths": [
-			"./dronekit-python"
-		]
-	}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "python.analysis.extraPaths": ["./dronekit-python"]
+  }
 }
