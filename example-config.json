@@ -2,5 +2,6 @@
   "use_real_lidar": false,
   "use_gui": true,
   "use_mavproxy": true,
+  "use_set_attitude": false,
   "target_distance": 5.0
 }
