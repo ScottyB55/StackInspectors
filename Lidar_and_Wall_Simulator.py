@@ -144,18 +144,27 @@ class Lidar_and_Wall_Simulator:  # tk.Tk
         global use_real_lidar
 
         if use_real_lidar:
-            # while 1:
-            #     distance_min = s2lidar.lidarprocess.s[0]
-            #     angle = s2lidar.lidarprocess.s[1]
-            #     if (distance_min != None):
-            #         self.lidar_readings.append(LidarReading(angle, distance_min))
-
+            # use the python->c++ api to get a single scan
             scan = s2lidar.get_scan()
 
+            # scan variable is a large list of tuples
+
+            # where each tuple looks like this: (angle, distance, quality_flag)
+            # angle:        float in degrees
+            # distance:     float in millimeters
+            # quality_flag: float 0-255
+
+            # thus in below: s[0] = angle, s[1] = distance, s[2] quality_flag
+
+            # iterate over all the tuples (points) in the scan
             for s in scan:
+                # remove any points have zero quality
                 if s[2] != 0:
+                    # since the lidar is mounted upside down do 360 deg - angle
                     angle = 360 - s[0]
-                    self.lidar_readings.append(LidarReading(angle, s[1] / 1000))
+                    # convert distance to meters
+                    distance = s[1] / 1000
+                    self.lidar_readings.append(LidarReading(angle, distance))
 
         else:
             for wall in self.walls:
