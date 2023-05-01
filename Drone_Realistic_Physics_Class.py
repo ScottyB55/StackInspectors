@@ -4,12 +4,12 @@ import time
 import sys
 import argparse
 import math
-import threading
 
 
 """
 Includes launching and landing!
 """
+
 
 # convert euler angles to quaternion to send over mavlink
 def to_quaternion(roll=0.0, pitch=0.0, yaw=0.0):
@@ -37,6 +37,7 @@ def to_quaternion(roll=0.0, pitch=0.0, yaw=0.0):
     z = t1 * t2 * t4 - t0 * t3 * t5
     return [w, x, y, z]
 
+
 def rc_listener(self, name, message):
     """
     The purpose is to make sure that the drone is good before launching.
@@ -48,40 +49,43 @@ def rc_listener(self, name, message):
         message (pymavlink.dialects.v20.common.RC_CHANNELS): The RC_CHANNELS mavlink message.
     """
     global rcin_4_center
-    rcin_4_center = (message.chan4_raw < 1550 and message.chan4_raw > 1450)
+    rcin_4_center = message.chan4_raw < 1550 and message.chan4_raw > 1450
     # print(f"Message Chan4_Raw: {message.chan4_raw}")
+
 
 def get_location_metres(original_location, dNorth, dEast, altitude):
     """
-    Returns a LocationGlobal object containing the longitude/latitude `dEast` and `dNorth` metres from the 
+    Returns a LocationGlobal object containing the longitude/latitude `dEast` and `dNorth` metres from the
     specified `original_location`.
 
-    The function is useful when you want to move the vehicle around specifying locations relative to 
+    The function is useful when you want to move the vehicle around specifying locations relative to
     the current vehicle position.
     The algorithm is relatively accurate over small distances (10m within 1km) except close to the poles.
     For more information see:
     http://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
     """
-    earth_radius=6378137.0 #Radius of "spherical" earth
-    #Coordinate offsets in radians
-    dLat = dNorth/earth_radius
-    dLon = dEast/(earth_radius*math.cos(math.pi*original_location.lat/180))
+    earth_radius = 6378137.0  # Radius of "spherical" earth
+    # Coordinate offsets in radians
+    dLat = dNorth / earth_radius
+    dLon = dEast / (earth_radius * math.cos(math.pi * original_location.lat / 180))
 
-    #New position in decimal degrees
-    newlat = original_location.lat + (dLat * 180/math.pi)
-    newlon = original_location.lon + (dLon * 180/math.pi)
+    # New position in decimal degrees
+    newlat = original_location.lat + (dLat * 180 / math.pi)
+    newlon = original_location.lon + (dLon * 180 / math.pi)
     return LocationGlobalRelative(newlon, newlat, altitude)
+
 
 def get_distance_metres(aLocation1, aLocation2):
     """
     Returns the ground distance in metres between two LocationGlobal objects.
-    This method is an approximation, and will not be accurate over large distances and close to the 
-    earth's poles. It comes from the ArduPilot test code: 
+    This method is an approximation, and will not be accurate over large distances and close to the
+    earth's poles. It comes from the ArduPilot test code:
     https://github.com/diydrones/ardupilot/blob/master/Tools/autotest/common.py
     """
     dlat = aLocation2.lat - aLocation1.lat
     dlong = aLocation2.lon - aLocation1.lon
-    return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
+    return math.sqrt((dlat * dlat) + (dlong * dlong)) * 1.113195e5
+
 
 class Drone_Realistic_Physics_Class:
     """
@@ -111,29 +115,31 @@ class Drone_Realistic_Physics_Class:
         self.connection_string = connection_string
 
         # Connect to the Vehicle
-        print('Connecting to vehicle on: %s' % self.connection_string)
+        print("Connecting to vehicle on: %s" % self.connection_string)
         self.vehicle = connect(self.connection_string, wait_ready=False)
-        print('Succesfully connected to vehicle')
+        print("Succesfully connected to vehicle")
         global rcin_4_center
         rcin_4_center = 0
         self.rcin_4_center_once = False
         self.rcin_4_center_twice = False
 
-        self.vehicle.on_message('RC_CHANNELS')(rc_listener)
-    
+        self.vehicle.on_message("RC_CHANNELS")(rc_listener)
+
     @staticmethod
     def parse_args():
-        parser = argparse.ArgumentParser(description='Commands vehicle using vehicle.simple_goto.')
-        parser.add_argument('--connect', help="Vehicle connection target string.")
+        parser = argparse.ArgumentParser(
+            description="Commands vehicle using vehicle.simple_goto."
+        )
+        parser.add_argument("--connect", help="Vehicle connection target string.")
         args = parser.parse_args()
 
         connection_string = args.connect
 
         if not connection_string:
-            sys.exit('Please specify connection string')
+            sys.exit("Please specify connection string")
 
         return connection_string
-    
+
     def distanceToWaypoint(self, coordinates):
         """
         Returns distance between vehicle and specified coordinates
@@ -180,11 +186,15 @@ class Drone_Realistic_Physics_Class:
 
         # Convert latitude and longitude to meters relative to home location
         y = (location_global_relative.lat - self.vehicle.home_location.lat) * 111139
-        x = (location_global_relative.lon - self.vehicle.home_location.lon) * 111139 * math.cos(math.radians(location_global_relative.lat))
+        x = (
+            (location_global_relative.lon - self.vehicle.home_location.lon)
+            * 111139
+            * math.cos(math.radians(location_global_relative.lat))
+        )
         z = location_global_relative.alt
 
         return x, y, z
-    
+
     def current_yaw_angle(self):
         """
         Retrieves the current yaw angle of the vehicle in degrees.
@@ -199,7 +209,7 @@ class Drone_Realistic_Physics_Class:
         yaw_degrees = math.degrees(yaw_radians)
 
         return yaw_degrees
-    
+
     def takeoff(self, target_altitude=3, altitude_reach_threshold=0.5):
         """
         Arms the drone and performs a takeoff to the specified altitude.
@@ -212,18 +222,18 @@ class Drone_Realistic_Physics_Class:
         Returns:
             None
         """
-        
+
         if self.vehicle.version.vehicle_type == mavutil.mavlink.MAV_TYPE_HEXAROTOR:
             self.vehicle.mode = VehicleMode("ALT_HOLD")
-            
+
         # Wait for pilot before proceeding
-        print('Waiting for safety pilot to arm...')
+        print("Waiting for safety pilot to arm...")
 
         # Wait until safety pilot arms drone
         while not self.vehicle.armed:
             time.sleep(1)
 
-        print('Armed...')
+        print("Armed...")
         self.vehicle.mode = VehicleMode("GUIDED")
 
         # Uses the rc_listener function to
@@ -238,46 +248,58 @@ class Drone_Realistic_Physics_Class:
                 else:
                     self.rcin_4_center_once = False
                 time.sleep(1)
-                
+
             # Takeoff to short altitude
-            print(f"Taking off to {target_altitude} and threshold of {target_altitude - altitude_reach_threshold}")
+            print(
+                f"Taking off to {target_altitude} and threshold of {target_altitude - altitude_reach_threshold}"
+            )
             self.vehicle.simple_takeoff(target_altitude)  # Take off to target altitude
 
             count = 0
             while count < 30:
                 # Break just below target altitude.
-                
-                if self.vehicle.location.global_relative_frame.alt >= target_altitude - altitude_reach_threshold:
+
+                if (
+                    self.vehicle.location.global_relative_frame.alt
+                    >= target_altitude - altitude_reach_threshold
+                ):
                     break
                 time.sleep(0.5)
                 count = count + 1
 
-            if (count == 30):
-                print(f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}")
+            if count == 30:
+                print(
+                    f"Takeoff Failed. Altitude: {self.vehicle.location.global_relative_frame.alt}"
+                )
 
-
-    #Sets yaw to specific heading, dir specifies the direction of yaw
+    # Sets yaw to specific heading, dir specifies the direction of yaw
     def set_yaw(self, heading, relative=False, max_yaw_speed=0, dir=1):
         if relative:
             is_relative = 1
         else:
             is_relative = 0
         msg = self.vehicle.message_factory.command_long_encode(
-            0, 0,    
-            mavutil.mavlink.MAV_CMD_CONDITION_YAW, #Mavlink command being constructed
-            0, #confirmation
-            heading,       #yaw in degrees
-            max_yaw_speed, #yaw speed
-            dir,           #direction, 1 for yaw right, -1 for yaw left
-            is_relative,   #Determines relative or absolute angle
-            0, 0, 0)    
-        
+            0,
+            0,
+            mavutil.mavlink.MAV_CMD_CONDITION_YAW,  # Mavlink command being constructed
+            0,  # confirmation
+            heading,  # yaw in degrees
+            max_yaw_speed,  # yaw speed
+            dir,  # direction, 1 for yaw right, -1 for yaw left
+            is_relative,  # Determines relative or absolute angle
+            0,
+            0,
+            0,
+        )
+
         self.vehicle.send_mavlink(msg)
 
-    def set_velocity_body(self, vx, vy, vz, yaw=None, yaw_rate=None, yaw_relative=False):
+    def set_velocity_body(
+        self, vx, vy, vz, yaw=None, yaw_rate=None, yaw_relative=False
+    ):
         """
         Sets the drone body velocity depending on vx, vy, vz, and optionally yaw and yaw_rate.
-        
+
         :param vx: X-axis velocity (forward is positive)
         :param vy: Y-axis velocity (right is positive)
         :param vz: Z-axis velocity (down is positive)
@@ -287,24 +309,33 @@ class Drone_Realistic_Physics_Class:
         """
         # Create a MAVLink message for setting position target in local NED frame
         msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
-                0,
-                0, 0,
-                mavutil.mavlink.MAV_FRAME_BODY_NED,
-                0b0000111111000111,
-                0, 0, 0,
-                vx, vy, vz,
-                0, 0, 0,
-                0, 0)
+            0,
+            0,
+            0,
+            mavutil.mavlink.MAV_FRAME_BODY_NED,
+            0b0000111111000111,
+            0,
+            0,
+            0,
+            vx,
+            vy,
+            vz,
+            0,
+            0,
+            0,
+            0,
+            0,
+        )
 
         # If yaw is provided, update the yaw value and type mask
         if yaw is not None:
             msg.yaw = yaw
-            msg.type_mask |= (1 << 9)  # Set bit 9 to use yaw angle
+            msg.type_mask |= 1 << 9  # Set bit 9 to use yaw angle
         else:
             msg.type_mask &= ~(1 << 9)  # Clear bit 9 to not use yaw angle
 
         if yaw_relative:
-            msg.type_mask |= (1 << 12)
+            msg.type_mask |= 1 << 12
         else:
             msg.type_mask &= ~(1 << 12)
 
@@ -313,11 +344,11 @@ class Drone_Realistic_Physics_Class:
             msg.yaw_rate = yaw_rate
             msg.type_mask &= ~(1 << 10)  # Clear bit 10 to not ignore the yaw rate
         else:
-            msg.type_mask |= (1 << 10)  # Set bit 10 to ignore the yaw rate
+            msg.type_mask |= 1 << 10  # Set bit 10 to ignore the yaw rate
 
         # Send the MAVLink message
         self.vehicle.send_mavlink(msg)
-    
+
     def ensure_transmitted(self):
         """
         Ensures that all MAVLink messages sent to the vehicle are transmitted
@@ -327,7 +358,9 @@ class Drone_Realistic_Physics_Class:
         """
         self.vehicle.flush()
 
-    def set_attitude(self, target_roll=None, target_pitch=None, target_yaw=None, hover_thrust=None):
+    def set_attitude(
+        self, target_roll=None, target_pitch=None, target_yaw=None, hover_thrust=None
+    ):
         """
         Sets an attitude setpoint to the drone.
 
@@ -374,15 +407,15 @@ class Drone_Realistic_Physics_Class:
         new_quat = to_quaternion(0, 0, target_yaw)
         # http://ardupilot.org/dev/docs/copter-commands-in-guided-mode.html#copter-commands-in-guided-mode-set-attitude-target
         msg = self.vehicle.message_factory.set_attitude_target_encode(
-            0, # time_boot_ms
-            1, # target system
-            1, # target component
+            0,  # time_boot_ms
+            1,  # target system
+            1,  # target component
             0b00000111,
-            new_quat, # attitude (quaternion)
-            0, # roll rate
-            0, # pitch rate
-            0, # yaw rate
-            0.5  # thrust (0-1 where 0.5 is no vertical velocity)
+            new_quat,  # attitude (quaternion)
+            0,  # roll rate
+            0,  # pitch rate
+            0,  # yaw rate
+            0.5,  # thrust (0-1 where 0.5 is no vertical velocity)
         )
         self.vehicle.send_mavlink(msg)
 
