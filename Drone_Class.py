@@ -4,8 +4,6 @@ import json
 from enum import Enum
 
 # Good idea: from collections import namedtuple
-
-
 # Read config.json
 
 
