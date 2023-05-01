@@ -1,10 +1,24 @@
+"""
+This script provides functions and classes for reading and simulating LIDAR data.
+It supports both real and simulated LIDAR data, with the ability to simulate walls and LIDAR noise.
+The main classes include LidarReading, Wall, and Lidar_and_Wall_Simulator.
+"""
+
 import math
 import numpy as np
 import time
 import json
 
-
 def read_config(file_path):
+    """
+    Read and return the configuration data from the specified JSON file.
+
+    Args:
+        file_path (str): The path to the JSON configuration file.
+
+    Returns:
+        dict: The configuration data in a dictionary format.
+    """
     with open(file_path, "r", encoding="utf-8") as file:
         config = json.load(file)
     return config
@@ -19,6 +33,15 @@ if use_real_lidar == True:
 
 
 class LidarReading:
+    """
+    Represents a single LIDAR reading, containing the angle, distance, roll, and pitch information.
+
+    Attributes:
+        lidar_angle_degrees (float): The angle of the LIDAR reading in degrees.
+        lidar_reading_distance_m (float): The distance of the LIDAR reading in meters.
+        roll_deg (float): The roll of the drone in degrees at the time of the LIDAR reading.
+        pitch_deg (float): The pitch of the drone in degrees at the time of the LIDAR reading.
+    """
     def __init__(
         self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0
     ):
@@ -33,14 +56,7 @@ class LidarReading:
 
     def update_relative_xy_distance(self):
         """
-        Convert a LIDAR reading at a given angle and distance to a change in x and y coordinates.
-
-        Args:
-            lidar_angle (float): The angle of the LIDAR reading in degrees.
-            distance (float): The distance of the LIDAR reading.
-
-        Returns:
-            tuple: A tuple containing the change in x and y coordinates (delta_x, delta_y).
+        Update the relative x and y distances of the LIDAR reading based on its angle and distance.
         """
         shifted_angle = 90 - self.lidar_angle_degrees
         shifted_angle_rad = math.radians(shifted_angle)
@@ -59,6 +75,15 @@ class LidarReading:
 
 
 class Wall:
+    """
+    Represents a wall with a starting point and an ending point in absolute coordinates.
+
+    Attributes:
+        wall_start_point_absolute_m (tuple): The absolute coordinates of the starting point of the wall in meters.
+        wall_end_point_absolute_m (tuple): The absolute coordinates of the ending point of the wall in meters.
+        wall_start_point_relative_m (tuple): The relative coordinates of the starting point of the wall in meters.
+        wall_end_point_relative_m (tuple): The relative coordinates of the ending point of the wall in meters.
+    """
     def __init__(self, wall_start_point_absolute_m, wall_end_point_absolute_m):
         self.wall_start_point_absolute_m = wall_start_point_absolute_m
         self.wall_end_point_absolute_m = wall_end_point_absolute_m
@@ -66,6 +91,12 @@ class Wall:
         self.wall_end_point_relative_m = None
 
     def calculate_relative_walls_to_drone(self, drone):
+        """
+        Calculate the relative positions of the wall's starting and ending points with respect to the drone.
+
+        Args:
+            drone (object): The drone object, which contains the drone's current position and yaw angle.
+        """
         def rotate_and_translate(point, angle, translation):
             x, y = point
             x -= translation[0]
@@ -86,21 +117,16 @@ class Wall:
             self.wall_end_point_absolute_m, -drone_yaw, drone_position
         )
 
-        # self.wall_start_point_relative_m = (self.wall_start_point_absolute_m[0] - drone_position[0], self.wall_start_point_absolute_m[1] - drone_position[1])
-        # self.wall_end_point_relative_m = (self.wall_end_point_absolute_m[0] - drone_position[0], self.wall_end_point_absolute_m[1] - drone_position[1])
 
-
-class Lidar_and_Wall_Simulator:  # tk.Tk
+class Lidar_and_Wall_Simulator:
     """
-    This class is really just a lidar & wall simulator with a GUI
-    Programatically, it would have made more sense to actually have this be a separate class.
-    TODO: move this class up to be the Lidar_and_Wall_Simulator_With_GUI
+    A class to simulate LIDAR readings and walls.
 
-    Args:
-        wall_start_meters (tuple): The meters coordinates of the starting point of the wall.
-        wall_end_meters (tuple): The meters coordinates of the ending point of the wall.
-        drone_location_meters (tuple): The meters coordinates of the drone.
-        lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise.
+    Attributes:
+        walls (list): A list of Wall objects representing the walls in the environment.
+        scale_factor (int): A scale factor to convert meters units to pixels.
+        lidar_noise_meters_standard_dev (float): The standard deviation of the LIDAR noise in meters.
+        lidar_angle_step_degrees (int): The angle step in degrees for simulated LIDAR readings.
     """
 
     def __init__(self, walls, lidar_noise_meters_standard_dev):  # , drone_yaw_degrees
@@ -127,15 +153,13 @@ class Lidar_and_Wall_Simulator:  # tk.Tk
 
     def read_new_lidar_readings_angle_deg_dist_m(self, drone):
         """
-        Returns an array of tuples containing (angle, distance) values for LIDAR readings.
+        Generate new LIDAR readings based on the drone's position and orientation.
 
-        The function iterates through angles from 0 to 360 degrees, stepping by self.lidar_angle_step_degrees.
-        If the LIDAR doesn't hit a wall, the distance value in the tuple is set to None.
-
-        Angles start at 0 degrees North and move clockwise. 90 degrees is right, and 270 degrees is left relative to the drone.
+        Args:
+            drone (object): The drone object, which contains the drone's current position and yaw angle.
 
         Returns:
-            The time that it takes for this function to execute
+            float: The time it takes to execute this function.
         """
 
         start = time.time()
@@ -228,9 +252,27 @@ class Lidar_and_Wall_Simulator:  # tk.Tk
         return end - start
 
     def get_lidar_readings_angle_deg_dist_m(self):
+        """
+        Get the current LIDAR readings as a list of LidarReading objects.
+
+        Returns:
+            list: The list of LidarReading objects representing the current LIDAR readings.
+        """
         return self.lidar_readings
 
     def get_closest_point(self):
+        """
+        Get the closest LidarReading object from the current LIDAR readings, excluding the drone legs.
+
+        The function iterates through the LIDAR readings and returns the reading with the smallest distance,
+        ignoring readings that are closer than the specified min_distance.
+
+        Args:
+            min_distance (float): The minimum distance to consider, which is used to exclude readings of the drone legs.
+
+        Returns:
+            LidarReading: The closest LidarReading object, or None if no valid reading is found.
+        """
         min_distance = None
         closest_point = None
         exclude_drone_legs_distance = 0.7
