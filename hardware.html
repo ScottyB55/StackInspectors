@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack Inspection Spring 2023</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+      h2 {
+        text-align: center;
+      }
+      /* Style the tabs */
+      .tab {
+        display: flex;
+        justify-content: space-evenly;
+        overflow: hidden;
+        background-color: #b70c0c;
+      }
+
+      /* Style the buttons that are used to open the tab content */
+      .tab button {
+        background-color: inherit;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        color: #ffffff;
+      }
+
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #929292;
+        border-top: none;
+      }
+      table {
+        border-spacing: 50px; /* set the spacing between columns */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stack Inspection</h1>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab('./index.html')">Home</button>
+      <button class="tablinks" onclick="openTab('./projectDescription.html')">
+        Project Description
+      </button>
+      <button class="tablinks" onclick="openTab('./practicalProblems.html')">
+        Problems & Solutions
+      </button>
+      <button
+        class="tablinks"
+        onclick="openTab('./hardware.html')"
+        id="defaultOpen"
+      >
+        Hardware
+      </button>
+      <button class="tablinks" onclick="openTab('./software.html')">
+        Software
+      </button>
+    </div>
+
+    <script>
+      function openTab(pageName) {
+        window.open(pageName, "_self");
+      }
+    </script>
+    <h2>Hardware</h2>
+    <div>
+      <h3>Hardware on the Mount Plate</h3>
+      <a
+        href="https://www.amazon.com/Raspberry-Model-2019-Quad-Bluetooth/dp/B07TD42S27/ref=sr_1_3?crid=GZA2BOM4TY64&keywords=raspberry%2Bpi%2B4&qid=1675912120&sprefix=raspberry%2Bpi%2B4%2Caps%2C116&sr=8-3&ufe=app_do%3Aamzn1.fos.18ed3cb5-28d5-4975-8bc7-93deae8f9840&th=1"
+        >Raspberry Pi 4</a
+      >
+      <a href="./pdf/pi4 Dimensions.jpg">(Pi 4 Dimensions)</a><br />
+      <a
+        href="https://www.amazon.com/RPLIDAR-Scanning-Obstacle-Avoidance-Navigation/dp/B09XD4C52M/ref=asc_df_B09XD4C52M/?tag=hyprod-20&linkCode=df0&hvadid=633342233492&hvpos=&hvnetw=g&hvrand=1709763041634557807&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9009731&hvtargid=pla-1877693061280&psc=1&region_id=674469"
+        >RPLidar S2</a
+      ><br />
+      <a
+        href="https://www.amazon.com/SUNGUY-2-Pack-Degree-Charging-Samsung/dp/B07CBTVR8G/ref=sr_1_1_sspa?crid=3GAIZM98WH7ET&keywords=micro+usb+to+usb+1+foot+90+degree&qid=1675716634&sprefix=micro+usb+to+usb+1+foot+90+degree%2Caps%2C112&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExVTBPVUxMUkQyVDBDJmVuY3J5cHRlZElkPUEwNDIzMzIyRjc1TTZPTEIyRVcyJmVuY3J5cHRlZEFkSWQ9QTA4ODQ4NjkzUFlNUkIyNkk2V1REJndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ=="
+        >Right Angle Micro USB Connector</a
+      ><br />
+      <a
+        href="https://www.digikey.com/en/products/detail/dfrobot/DFR0379/7087190?s=N4IgTCBcDaICIDEBKAGAzAdgJwgLoF8g"
+        >5V Buck Converter</a
+      >
+      <a href="./pdf/BuckBoostDatasheet.pdf">(Datasheet)</a><br />
+      <h3>Mount Plate</h3>
+      <a href="./pdf/basePlateWAM.dxf" download="basePlateWAM.dxf">
+        Mounting Plate CAD File</a
+      ><br />
+      <div class="row bg-white pl-2 pb-4 justify-content-md-center">
+        <embed
+          src="./pdf/Mount plate From Moodle.pdf"
+          width="500"
+          height="750"
+        />
+      </div>
+    </div>
+  </body>
+</html>

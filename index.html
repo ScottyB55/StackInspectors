@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack Inspection Spring 2023</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+      h2 {
+        text-align: center;
+      }
+      /* Style the tabs */
+      .tab {
+        display: flex;
+        justify-content: space-evenly;
+        overflow: hidden;
+        background-color: #b70c0c;
+      }
+
+      /* Style the buttons that are used to open the tab content */
+      .tab button {
+        background-color: inherit;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        color: #ffffff;
+      }
+
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #929292;
+        border-top: none;
+      }
+      table {
+        border-spacing: 50px; /* set the spacing between columns */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stack Inspection</h1>
+    <div class="tab">
+      <button
+        class="tablinks"
+        onclick="openTab('./index.html')"
+        id="defaultOpen"
+      >
+        Home
+      </button>
+      <button class="tablinks" onclick="openTab('./projectDescription.html')">
+        Project Description
+      </button>
+      <button class="tablinks" onclick="openTab('./practicalProblems.html')">
+        Problems & Solutions
+      </button>
+      <button class="tablinks" onclick="openTab('./hardware.html')">
+        Hardware
+      </button>
+      <button class="tablinks" onclick="openTab('./software.html')">
+        Software
+      </button>
+    </div>
+
+    <script>
+      function openTab(pageName) {
+        window.open(pageName, "_self");
+      }
+    </script>
+    <h2>Home</h2>
+    <h3>Team</h3>
+    <p>
+      Chandler Beiler: cbeiler@ncsu.edu<br />
+      Anupam Mijar: aamijar@ncsu.edu<br />
+      Scott Burnett: srburne2@ncsu.edu <br />
+      Roshan Raju: rrraju@ncsu.edu<br />
+      Sreedhar Ramesh: sramesh6@ncsu.edu<br />
+    </p>
+    <h3>Final Project Report</h3>
+    <div class="row bg-white pl-2 pb-4 justify-content-md-center">
+      <embed src="./pdf/finalReport.pdf" width="500" height="700" />
+    </div>
+    <h3>Final Video</h3>
+    <div class="row bg-white pl-2 pb-4 justify-content-md-center">
+      <embed src="./video/finalVideo.mp4" width="700" height="500" />
+    </div>
+    <h3>Full Demo Video</h3>
+    <div class="row bg-white pl-2 pb-4 justify-content-md-center">
+      <embed src="./video/demoVideo.mp4" width="700" height="500" />
+    </div>
+  </body>
+</html>

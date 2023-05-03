@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack Inspection Spring 2023</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+      h2 {
+        text-align: center;
+      }
+      /* Style the tabs */
+      .tab {
+        display: flex;
+        justify-content: space-evenly;
+        overflow: hidden;
+        background-color: #b70c0c;
+      }
+
+      /* Style the buttons that are used to open the tab content */
+      .tab button {
+        background-color: inherit;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        color: #ffffff;
+      }
+
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #929292;
+        border-top: none;
+      }
+      table {
+        border-spacing: 50px; /* set the spacing between columns */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stack Inspection</h1>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab('./index.html')">Home</button>
+      <button
+        class="tablinks"
+        onclick="openTab('./projectDescription.html')"
+        id="defaultOpen"
+      >
+        Project Description
+      </button>
+      <button class="tablinks" onclick="openTab('./practicalProblems.html')">
+        Problems & Solutions
+      </button>
+      <button class="tablinks" onclick="openTab('./hardware.html')">
+        Hardware
+      </button>
+      <button class="tablinks" onclick="openTab('./software.html')">
+        Software
+      </button>
+    </div>
+
+    <script>
+      function openTab(pageName) {
+        window.open(pageName, "_self");
+      }
+    </script>
+    <h2>Project Description</h2>
+    <p>
+      Given a hovering drone, this project aims to autonomously maintain a
+      constant and safe distance between the drone and a wall in order to
+      inspect the structural integrity of a power stack. The pilot of the drone
+      flies to a desired wall to inspect, then, chooses to track the wall
+      through keyboard input from a ground control station. The drone then locks
+      onto the wall, maintaining a fixed distance from the closest point, while
+      the user controls the horizontal and vertical movement. The front of the
+      drone will also be controlled to point towards the closest point on the
+      wall dictated by the yaw control of the drone. While the user applies a
+      horizontal/vertical movement, the drone must continue to maintain the
+      specified distance while moving in the direction given by the operator on
+      the ground control station.
+    </p>
+  </body>
+</html>

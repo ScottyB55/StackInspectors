@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack Inspection Spring 2023</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+      h2 {
+        text-align: center;
+      }
+      /* Style the tabs */
+      .tab {
+        display: flex;
+        justify-content: space-evenly;
+        overflow: hidden;
+        background-color: #b70c0c;
+      }
+
+      /* Style the buttons that are used to open the tab content */
+      .tab button {
+        background-color: inherit;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        color: #ffffff;
+      }
+
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #929292;
+        border-top: none;
+      }
+      table {
+        border-spacing: 50px; /* set the spacing between columns */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stack Inspection</h1>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab('./index.html')">Home</button>
+      <button class="tablinks" onclick="openTab('./projectDescription.html')">
+        Project Description
+      </button>
+      <button
+        class="tablinks"
+        onclick="openTab('./practicalProblems.html')"
+        id="defaultOpen"
+      >
+        Problems & Solutions
+      </button>
+      <button class="tablinks" onclick="openTab('./hardware.html')">
+        Hardware
+      </button>
+      <button class="tablinks" onclick="openTab('./software.html')">
+        Software
+      </button>
+    </div>
+
+    <script>
+      function openTab(pageName) {
+        window.open(pageName, "_self");
+      }
+    </script>
+    <h2>Problems and Solutions</h2>
+    <table>
+      <tr>
+        <th>Problem</th>
+        <th>Solution</th>
+      </tr>
+      <tr>
+        <td>
+          The lidar module we got, RPLidar S2, was really new and did not have
+          direct Python support yet
+        </td>
+        <td>
+          Anupam exposed some of the RPLidar C++ SDK and then used Boost library
+          to allow us to use the lidar in our python script, checkout the source
+          code to see how it was implemented
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Oftentimes we could control the drone's velocity in SITL (roll, pitch,
+          yaw, and throttle) as expected However, in real life the drone would
+          often behave differently.
+        </td>
+        <td>
+          The main solution to this is to isolate the problem. A good way to do
+          this is to have keyboard presses control the drone's attitude or
+          velocity directly. Once we get this working as expected, we would try
+          to have our PID controller control the drone.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          There was no object in ardupilot that could do a 360 degree Lidar
+        </td>
+        <td>
+          There is a plugin to QGroundControl that can do this, however it is
+          difficult to set up and load An alternate solution is to take the
+          drone's GPS coordinates from SITL (which are actually extremely
+          accurate and low noise) and feed that into a python program with
+          walls.
+        </td>
+      </tr>
+    </table>
+    <h3>Information on set_attitude and set velocity</h3>
+    <p>
+      The set attitude function generally isn't as good as the set velocity
+      function. It has mask bits which can impact the functionality of the
+      function.<br />
+      <li>
+        The set attitude function also has a substantial offset that builds over
+        time, and varies from drone to drone.
+      </li>
+      <li>
+        Sometimes, especially if the mask bits are off, the drone's log file
+        would actually claim to have a particular attitude but the drone in real
+        life would clearly be doing something different.
+      </li>
+      <br />
+      The set velocity function is generally better than the set attitude
+      function and it also has mask bits to be aware of.<br />
+      <li>
+        It appears to use both the accelerometer & GPS to eliminate the offsets
+        while allowing the drone to respond quickly.
+      </li>
+      <li>
+        Setting the drone's yaw with this function can be tricky. Some function
+        settings claim to set the drone's yaw position (like the drone turns and
+        then stops at a compass position). This happens in SITL. However, in
+        real life the drone would keep spinning at a velocity.
+      </li>
+      <li>
+        The set yaw velocity approach is best since it works both in SITL and
+        real life. That is what we used.
+      </li>
+    </p>
+    <h3>Additional infomation on simulated lidar</h3>
+    <p>
+      There is a complication: the default stream rate is low. If we want to
+      make it higher, we must pass in a streamate variable when running
+      mavproxy. The examples below show how to set the stream rate to 10hz. This
+      allows us to simulate a lidar running at 10hz.
+      <li>
+        Mac: mavproxy.py --master=tcp:localhost:5760 --out=udp:127.0.0.1:14550
+        --out=udp:127.0.0.1:14560 --streamrate=10
+      </li>
+
+      <li>
+        Windows: mavproxy.exe --master=tcp:localhost:5760
+        --out=udp:127.0.0.1:14550 --out=udp:127.0.0.1:14560 --streamrate=10
+      </li>
+    </p>
+  </body>
+</html>

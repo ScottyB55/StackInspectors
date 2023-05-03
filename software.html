@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stack Inspection Spring 2023</title>
+    <style>
+      h1 {
+        text-align: center;
+      }
+      h2 {
+        text-align: center;
+      }
+      /* Style the tabs */
+      .tab {
+        display: flex;
+        justify-content: space-evenly;
+        overflow: hidden;
+        background-color: #b70c0c;
+      }
+
+      /* Style the buttons that are used to open the tab content */
+      .tab button {
+        background-color: inherit;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 14px 16px;
+        transition: 0.3s;
+        font-size: 17px;
+        color: #ffffff;
+      }
+
+      /* Change background color of buttons on hover */
+      .tab button:hover {
+        background-color: #ddd;
+      }
+
+      /* Create an active/current tablink class */
+      .tab button.active {
+        background-color: #ccc;
+      }
+
+      /* Style the tab content */
+      .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        border: 1px solid #929292;
+        border-top: none;
+      }
+      table {
+        border-spacing: 50px; /* set the spacing between columns */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Stack Inspection</h1>
+    <div class="tab">
+      <button class="tablinks" onclick="openTab('./index.html')">Home</button>
+      <button class="tablinks" onclick="openTab('./projectDescription.html')">
+        Project Description
+      </button>
+      <button class="tablinks" onclick="openTab('./practicalProblems.html')">
+        Problems & Solutions
+      </button>
+      <button class="tablinks" onclick="openTab('./hardware.html')">
+        Hardware
+      </button>
+      <button
+        class="tablinks"
+        onclick="openTab('./software.html')"
+        id="defaultOpen"
+      >
+        Software
+      </button>
+    </div>
+
+    <script>
+      function openTab(pageName) {
+        window.open(pageName, "_self");
+      }
+    </script>
+    <h2>Software</h2>
+    <div>
+      <h3>General Raspberry Pi 4/GCS Dependencies</h3>
+      <a href="https://www.python.org/">Python</a><br />
+      <a href="https://ubuntu.com/download/raspberry-pi">Ubuntu 22.04 LTS</a
+      ><br />
+      <a href="http://qgroundcontrol.com/">QGroundControl</a><br />
+      <a href="https://ardupilot.org/mavproxy/">MavProxy</a><br />
+      <a href="https://pip.pypa.io/en/stable/cli/pip_install/">PIP</a><br />
+      <a href="https://github.com/dronekit/dronekit-python">Dronekit</a><br />
+      <a
+        href="https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html"
+        >SITL</a
+      ><br />
+      <a href="https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers"
+        >CP210x UART Driver for RPLidar</a
+      ><br />
+      <h3>Python Script Dependencies</h3>
+      <a
+        href="https://github.com/Slamtec/rplidar_sdk/tree/45431f11f64acf8cc145df84b1b61e9d45d0029b"
+        >RPLidar C++ SDK</a
+      ><br />
+      <a href="https://www.boost.org/">Boost</a><br />
+      <a href="https://jsonapi.org/">JSON</a><br />
+      <a href="https://docs.python.org/3/library/threading.html">threading</a
+      ><br />
+      <a href="https://pypi.org/project/sshkeyboard/">SSH Keyboard</a><br />
+      <a href="https://docs.python.org/3/library/tkinter.html">tkinter</a><br />
+      <a href="https://numpy.org/">numpy</a><br />
+      <a href="https://matplotlib.org/">matplotlib</a><br />
+      <a href="https://www.ardusub.com/developers/pymavlink.html">pymavlink</a
+      ><br />
+      <a href="https://docs.python.org/3/library/time.html">time</a><br />
+      <a href="https://docs.python.org/3/library/math.html">math</a><br />
+      <h3>RPLidar S2 Documentation</h3>
+      <a href="https://www.slamtec.com/en/Support#rplidar-s2"
+        >RP Lidar Manuals</a
+      ><br />
+    </div>
+  </body>
+</html>
