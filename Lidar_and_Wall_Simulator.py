@@ -9,6 +9,7 @@ import numpy as np
 import time
 import json
 
+
 def read_config(file_path):
     """
     Read and return the configuration data from the specified JSON file.
@@ -42,6 +43,7 @@ class LidarReading:
         roll_deg (float): The roll of the drone in degrees at the time of the LIDAR reading.
         pitch_deg (float): The pitch of the drone in degrees at the time of the LIDAR reading.
     """
+
     def __init__(
         self, angle_degrees, lidar_reading_distance_m, roll_deg=0, pitch_deg=0
     ):
@@ -84,6 +86,7 @@ class Wall:
         wall_start_point_relative_m (tuple): The relative coordinates of the starting point of the wall in meters.
         wall_end_point_relative_m (tuple): The relative coordinates of the ending point of the wall in meters.
     """
+
     def __init__(self, wall_start_point_absolute_m, wall_end_point_absolute_m):
         self.wall_start_point_absolute_m = wall_start_point_absolute_m
         self.wall_end_point_absolute_m = wall_end_point_absolute_m
@@ -97,6 +100,7 @@ class Wall:
         Args:
             drone (object): The drone object, which contains the drone's current position and yaw angle.
         """
+
         def rotate_and_translate(point, angle, translation):
             x, y = point
             x -= translation[0]
