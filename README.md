@@ -29,11 +29,19 @@ This will generate a new s2lidar.so shared object file. This is what the python 
 
 ## config.json
 
-"use_real_lidar": set false if we want to use the simulated lidar
-"use_gui": set true if we want the GUI. Typically use this on SITL or simulated flights, but not on real flights
-"use_mavproxy": set true we want to do SITL or the real life drone. Set false if we want the pure python simulation
-"target_distance": set this to something like 5.0, this is how far the drone will follow the wall
-"use_set_attitude": set this to false so we use the set velocity function instead of the set attitude function. Set attitude has issues.
+\*You will need to create a config.json after you clone the repository in order for the code to run.
+
+`use_real_lidar`: set false if we want to use the simulated lidar
+
+`use_gui`: set true if we want the GUI. Typically use this on SITL or simulated flights, but not on real flights
+
+`use_mavproxy`: set true we want to do SITL or the real life drone. Set false if we want the pure python simulation
+
+`target_distance`: set this to something like 5.0, this is how far the drone will follow the wall
+
+`use_set_attitude`: set this to false so we use the set velocity function instead of the set attitude function. Set attitude has issues.
+
+See example-config.json as a guide.
 
 ## Drone_Controller.py
 
