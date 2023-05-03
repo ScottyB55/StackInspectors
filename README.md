@@ -7,7 +7,8 @@ https://lucid.app/lucidchart/471de1d5-ed9d-45fb-8df6-cf9c8afeb3d9/edit?view_item
 ## main424.py
 
 This is the main function that we run. Configure with config.json explained below. Follow these instructions to run:
-https://docs.google.com/document/d/1zWLYlcgYcKWaxyjsA4dXIAKQVPLutofw7zy7St32ojE/edit?usp=sharing
+
+[Stack-Inspectors Detailed Instructions Google Docs](https://docs.google.com/document/d/1zWLYlcgYcKWaxyjsA4dXIAKQVPLutofw7zy7St32ojE/edit?usp=sharing)
 
 ## py_rplidar_sdk
 
