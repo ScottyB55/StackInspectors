@@ -1,7 +1,7 @@
 # Smokestack Inspector Python Drone Code
 
+[Click this link for drone pictures and project details](https://github.com/ScottyB55/StackInspectors/blob/main/finalReport.pdf)
+
 This project allows autonomous inspection of vertical surfaces, particularly power stacks, in various buildings. We explore related studies that employ a similar control structure, as well as businesses that develop commercial products for similar applications. To achieve autonomous object tracking for curved walls, we utilized a 360-degree Lidar sensor that detects the closest point to the drone. The drone controller then employs this point to track while moving horizontally/vertically along any surface. Our final results demonstrate a physical SAM4 drone executing our python controller script that implements the closest point algorithm utilizing the Stamtec S2Lidar sensor. The findings from our real-world demonstration reveal that our program successfully maintained a user-specified distance with a perpendicular yaw from different angled walls while taking user-input to alter horizontal and vertical movement.
 
 Our project aimed to develop a drone payload that would leverage range detection sensors to map and detect nearby surfaces of vertical walls, using a drone-control algorithm to maintain a user-specified distance from the wall. We opted to use a Lidar-based solution to achieve range detection, feeding this data to a closest point algorithm to determine the drone's closest point of approach to the wall. The closest point algorithm computed the velocity of the drone in the x, y, and z directions, as well as the drone's yaw, which directed the front of the drone towards the front of the wall.
-
-[Click this link for details](https://github.com/ScottyB55/StackInspectors/blob/main/finalReport.pdf)
